@@ -19,6 +19,8 @@ import Quiz from "@/pages/Quiz";
 import Editorial from "@/pages/Editorial";
 import Timetable from "@/pages/Timetable";
 import Pricing from "@/pages/Pricing";
+import CheckoutSuccess from "@/pages/CheckoutSuccess";
+import CheckoutCancel from "@/pages/CheckoutCancel";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -50,6 +52,8 @@ function AppContent() {
           <Route path="/editorial" component={Editorial} />
           <Route path="/timetable" component={Timetable} />
           <Route path="/pricing" component={Pricing} />
+          <Route path="/checkout/success" component={CheckoutSuccess} />
+          <Route path="/checkout/cancel" component={CheckoutCancel} />
           <Route component={NotFound} />
         </Switch>
       </Layout>

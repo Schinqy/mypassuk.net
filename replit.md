@@ -98,10 +98,21 @@ React + Vite frontend at preview path `/`. Pages: Home, Subjects, SubjectDetail,
 - AI Study Assistant freemium gate: 5 messages/day (tracked in localStorage, key `ai-chat-daily-YYYY-MM-DD`), upgrade prompt shown when limit reached
 - Pricing page at `/pricing` with Free / Student Premium (£3.99/mo) / Institution Featured (£99/mo) tiers
 - "Pricing" link in Navbar (amber colour to stand out)
+- **Stripe payments** (Sandbox): "Start 7-day free trial" button on Pricing page calls `POST /api/stripe/checkout` and redirects to Stripe Checkout. Checkout success lands at `/checkout/success`, cancel at `/checkout/cancel`. Anonymous userId stored in localStorage (`uk-edguide-user-id`).
+
+### Stripe Integration
+- **Connection**: Replit Stripe connector (`connection:conn_stripe_01KMRGMHX6ASF7SF1FBBWS48WP`), sandbox mode
+- **Products**: `prod_UE9btI7CAGukOd` — "Student Premium"; Monthly: `price_1TFhHuADJ1aNg2Ze5IaF8u5g` (£3.99/mo), Annual: `price_1TFhHuADJ1aNg2ZenHaX3ZNh` (£35.88/yr)
+- **Stripe schema**: 29 tables in `stripe.*` schema (accounts, customers, subscriptions, prices, products, etc.) managed by `stripe-replit-sync`
+- **Webhook**: Auto-registered at `/api/stripe/webhook` (raw body, before express.json()) via `findOrCreateManagedWebhook`
+- **Stripe migrations**: Must be run OUTSIDE the compiled bundle — use `node --input-type=module -e "import {runMigrations} from 'stripe-replit-sync'; await runMigrations({databaseUrl: process.env.DATABASE_URL});"` (bundle can't locate SQL files)
+- **API routes**: `GET /api/stripe/config`, `POST /api/stripe/checkout`, `GET /api/stripe/subscription/:userId`, `POST /api/stripe/portal`
+- **Key files**: `artifacts/api-server/src/stripeClient.ts`, `stripeService.ts`, `storage.ts`, `webhookHandlers.ts`, `routes/stripe.ts`
+- **Seed script**: `pnpm --filter @workspace/scripts run seed-products`
 
 ### `lib/db` (`@workspace/db`)
 
-Database layer using Drizzle ORM with PostgreSQL. Tables: subjects, careers, institutions, routes.
+Database layer using Drizzle ORM with PostgreSQL. Tables: subjects, careers, institutions, routes, users (id, email, stripeCustomerId, stripeSubscriptionId).
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 

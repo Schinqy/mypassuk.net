@@ -1,6 +1,9 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Check, X, Sparkles, Building2, GraduationCap, Zap, Mail, Star } from "lucide-react";
+import { Check, X, Sparkles, Building2, GraduationCap, Zap, Mail, Star, Loader2 } from "lucide-react";
+import { useStripeCheckout } from "@/hooks/useStripeCheckout";
+
+const MONTHLY_PRICE_ID = "price_1TFhHuADJ1aNg2Ze5IaF8u5g";
 
 const FREE_FEATURES = [
   "Browse all 267 institutions",
@@ -40,6 +43,8 @@ const INSTITUTION_FEATURES = [
 ];
 
 export default function Pricing() {
+  const { loading, error, startCheckout } = useStripeCheckout();
+
   return (
     <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
@@ -122,15 +127,24 @@ export default function Pricing() {
                 <p className="text-sm text-white/70">Unlimited everything</p>
               </div>
             </div>
-            <div className="mb-8">
+            <div className="mb-2">
               <span className="text-4xl font-display font-bold text-white">£3.99</span>
               <span className="text-white/70 ml-1">/ month</span>
             </div>
-            <button className="w-full py-3 rounded-xl font-bold bg-accent text-white hover:bg-red-700 transition-colors mb-2">
-              Start 7-day free trial
+            <p className="text-white/60 text-xs mb-6">or £35.88 / year — save 25%</p>
+
+            <button
+              onClick={() => startCheckout(MONTHLY_PRICE_ID)}
+              disabled={loading}
+              className="w-full py-3 rounded-xl font-bold bg-accent text-white hover:bg-red-700 transition-colors mb-2 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+              {loading ? "Redirecting…" : "Start 7-day free trial"}
             </button>
-            <p className="text-white/50 text-xs text-center mb-8">No card required during trial</p>
-            <ul className="space-y-3">
+            <p className="text-white/50 text-xs text-center mb-2">No payment taken during trial period</p>
+            {error && <p className="text-red-300 text-xs text-center mb-4">{error}</p>}
+
+            <ul className="space-y-3 mt-6">
               {PREMIUM_FEATURES.map(f => (
                 <li key={f} className="flex items-start gap-2.5 text-sm text-white">
                   <Check className="w-4 h-4 text-green-300 shrink-0 mt-0.5" /> {f}
