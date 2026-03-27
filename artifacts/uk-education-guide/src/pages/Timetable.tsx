@@ -3,10 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarDays, BookOpen, ChevronRight, ChevronLeft, Clock, Coffee,
   Sun, Sunset, Moon, RotateCcw, GraduationCap, Check, Save,
-  FolderOpen, Trash2, FlaskConical, Atom, Leaf, X, Plus
+  FolderOpen, Trash2, FlaskConical, Atom, Leaf, X, Plus, Download
 } from "lucide-react";
 import { useGetSubjects } from "@workspace/api-client-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { Link } from "wouter";
+
+function isPremiumUser(): boolean {
+  return localStorage.getItem("uk-edguide-premium") === "true";
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -246,6 +251,10 @@ export default function Timetable() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [savedBanner, setSavedBanner] = useState<string | null>(null);
   const [showSavedPanel, setShowSavedPanel] = useState(false);
+  const [premium] = useState(isPremiumUser);
+  const [showPdfGate, setShowPdfGate] = useState(false);
+  const [showSaveLimitGate, setShowSaveLimitGate] = useState(false);
+  const FREE_PLAN_LIMIT = 3;
 
   const filteredSubjects = allSubjects.filter(s => {
     const matchLevel = levelFilter === "All" || s.level === levelFilter || s.level === "Both";
@@ -265,6 +274,14 @@ export default function Timetable() {
 
   const toggleSubject = (id: number) => {
     setSelectedIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  };
+
+  const handleSaveClick = () => {
+    if (!premium && savedPlans.length >= FREE_PLAN_LIMIT) {
+      setShowSaveLimitGate(true);
+    } else {
+      setShowSaveModal(true);
+    }
   };
 
   const handleSave = useCallback((name: string) => {
@@ -320,6 +337,94 @@ export default function Timetable() {
       {/* Save Modal */}
       <AnimatePresence>
         {showSaveModal && <SaveModal onSave={handleSave} onClose={() => setShowSaveModal(false)} />}
+      </AnimatePresence>
+
+      {/* PDF Premium Gate Modal */}
+      <AnimatePresence>
+        {showPdfGate && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+            onClick={() => setShowPdfGate(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Download className="w-7 h-7 text-amber-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Export as PDF</h3>
+              <p className="text-sm text-slate-500 mb-6">
+                Save your study timetable as a printable PDF — available with Student Premium.
+              </p>
+              <Link href="/pricing">
+                <button
+                  onClick={() => setShowPdfGate(false)}
+                  className="w-full py-3 rounded-xl font-bold text-sm text-white mb-3 hover:opacity-90 transition-opacity"
+                  style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
+                >
+                  Upgrade to Premium — £3.99/mo
+                </button>
+              </Link>
+              <button
+                onClick={() => setShowPdfGate(false)}
+                className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                Maybe later
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Save Limit Gate Modal */}
+      <AnimatePresence>
+        {showSaveLimitGate && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+            onClick={() => setShowSaveLimitGate(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Save className="w-7 h-7 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Plan limit reached</h3>
+              <p className="text-sm text-slate-500 mb-6">
+                Free accounts can save up to {FREE_PLAN_LIMIT} study plans. Upgrade to Premium for unlimited saves.
+              </p>
+              <Link href="/pricing">
+                <button
+                  onClick={() => setShowSaveLimitGate(false)}
+                  className="w-full py-3 rounded-xl font-bold text-sm text-white mb-3 hover:opacity-90 transition-opacity"
+                  style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
+                >
+                  Upgrade to Premium — £3.99/mo
+                </button>
+              </Link>
+              <button
+                onClick={() => setShowSaveLimitGate(false)}
+                className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                Maybe later
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* Hero */}
@@ -612,11 +717,17 @@ export default function Timetable() {
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
-                    onClick={() => setShowSaveModal(true)}
+                    onClick={handleSaveClick}
                     className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
                     style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
                   >
                     <Save className="w-4 h-4" /> Save Plan
+                  </button>
+                  <button
+                    onClick={() => premium ? window.print() : setShowPdfGate(true)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-colors ${premium ? "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100" : "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"}`}
+                  >
+                    <Download className="w-4 h-4" /> Export PDF {!premium && <span className="text-[10px] font-bold bg-amber-400 text-white px-1.5 py-0.5 rounded-full ml-1">PRO</span>}
                   </button>
                   {savedPlans.length > 0 && (
                     <button onClick={() => setShowSavedPanel(v => !v)}

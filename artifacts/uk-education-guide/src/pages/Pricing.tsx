@@ -7,11 +7,11 @@ const MONTHLY_PRICE_ID = "price_1TFhHuADJ1aNg2Ze5IaF8u5g";
 
 const FREE_FEATURES = [
   "Browse all 267 institutions",
-  "Explore 500+ careers & salaries",
+  "Explore 69 careers & salary guides",
   "Compare study routes (A-Levels, T-Levels, BTECs)",
-  "Full GCSE & A-Level exam prep",
+  "Full GCSE & A-Level exam prep (55 subjects)",
   "5 AI Study Assistant messages per day",
-  "1 saved Study Plan",
+  "Up to 3 saved Study Plans",
   "Recruitment alerts & open days",
 ];
 
@@ -27,8 +27,7 @@ const PREMIUM_FEATURES = [
   "Unlimited AI Study Assistant messages",
   "Unlimited saved Study Plans",
   "Export Study Plans as PDF",
-  "Ad-free experience",
-  "Early access to new features",
+  "Early access to new features & subjects",
   "Priority email support",
 ];
 

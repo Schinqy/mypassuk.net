@@ -49,7 +49,7 @@ export default function Home() {
 
               <div className="mt-12 flex items-center gap-6 text-sm text-slate-500 font-medium">
                 <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-accent" /> GCSE & A-Level Data</span>
-                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-accent" /> 500+ Careers</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-accent" /> 69 Career Guides</span>
               </div>
             </motion.div>
 

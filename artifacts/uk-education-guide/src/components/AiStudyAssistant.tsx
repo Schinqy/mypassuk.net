@@ -27,6 +27,10 @@ const QUICK_PROMPTS = [
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const FREE_LIMIT = 5;
 
+function isPremiumUser(): boolean {
+  return localStorage.getItem("uk-edguide-premium") === "true";
+}
+
 function getDailyKey() {
   return `ai-chat-daily-${new Date().toISOString().slice(0, 10)}`;
 }
@@ -59,13 +63,14 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
   const [convId, setConvId] = useState<number | null>(null);
   const [initialised, setInitialised] = useState(false);
   const [dailyUsage, setDailyUsage] = useState(getDailyUsage);
+  const [premium] = useState(isPremiumUser);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const contextLabel = subjectName ?? "UK Education";
-  const remaining = Math.max(0, FREE_LIMIT - dailyUsage);
-  const limitReached = dailyUsage >= FREE_LIMIT;
+  const remaining = premium ? Infinity : Math.max(0, FREE_LIMIT - dailyUsage);
+  const limitReached = !premium && dailyUsage >= FREE_LIMIT;
 
   const systemPrompt = subjectName
     ? `You are an expert UK education tutor specialising in ${subjectName} at ${subjectLevel ?? "GCSE/A-Level"} level (${subjectCategory ?? ""}). Your job is to help students revise, understand key topics, and prepare for exams. Keep answers concise, structured, and tailored to UK exam board expectations (Pearson Edexcel). When giving practice questions, include mark-scheme hints. Key topics include: ${keyTopics?.join(", ") ?? "various topics"}.`
@@ -241,9 +246,15 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
               </div>
               <div className="flex items-center gap-2">
                 {/* Usage pill */}
-                <div className={`px-2.5 py-1 rounded-full text-xs font-bold ${remaining <= 1 ? "bg-accent text-white" : "bg-white/20 text-white"}`}>
-                  {remaining}/{FREE_LIMIT} free
-                </div>
+                {premium ? (
+                  <div className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white flex items-center gap-1">
+                    <Zap className="w-3 h-3" /> Premium
+                  </div>
+                ) : (
+                  <div className={`px-2.5 py-1 rounded-full text-xs font-bold ${remaining <= 1 ? "bg-accent text-white" : "bg-white/20 text-white"}`}>
+                    {remaining}/{FREE_LIMIT} free
+                  </div>
+                )}
                 <button
                   onClick={reset}
                   className="p-2 rounded-xl hover:bg-white/10 transition-colors text-white/70 hover:text-white"
@@ -337,7 +348,7 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
             ) : (
               /* Input */
               <div className="px-4 py-3 border-t border-slate-100 bg-white shrink-0">
-                {remaining <= 2 && remaining > 0 && (
+                {!premium && remaining <= 2 && remaining > 0 && (
                   <div className="flex items-center gap-1.5 mb-2 text-[10px] font-semibold text-amber-600">
                     <Zap className="w-3 h-3" />
                     {remaining} free message{remaining !== 1 ? "s" : ""} left today ·{" "}
