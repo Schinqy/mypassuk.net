@@ -172,7 +172,7 @@ export default function Careers() {
 
                             <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
                               <div className="flex items-center gap-2 text-slate-700 font-medium text-sm">
-                                <div className="bg-emerald-100 p-1.5 rounded-md"><PoundSterling className="w-4 h-4 text-emerald-600" /></div>
+                                <div className="bg-amber-100 p-1.5 rounded-md"><PoundSterling className="w-4 h-4 text-amber-700" /></div>
                                 {formatSalary(career.averageSalaryMin)} - {formatSalary(career.averageSalaryMax)}
                               </div>
                               <span className="text-xs text-primary font-semibold group-hover:translate-x-1 transition-transform">View →</span>

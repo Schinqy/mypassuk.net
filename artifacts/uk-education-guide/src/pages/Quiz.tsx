@@ -148,7 +148,7 @@ export default function Quiz() {
                       <p className="text-sm text-slate-500 line-clamp-2 mb-4">{route.description}</p>
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         {route.pros?.slice(0,2).map((pro, i) => (
-                          <div key={i} className="flex items-start gap-1.5 text-emerald-700">
+                          <div key={i} className="flex items-start gap-1.5 text-green-700">
                             <CheckCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" /> {pro}
                           </div>
                         ))}
@@ -310,7 +310,7 @@ export default function Quiz() {
                     <button type="button" onClick={() => setStep(2)} className="px-6 py-3 text-slate-500 font-bold hover:bg-slate-100 rounded-xl flex items-center gap-2">
                       <ArrowLeft className="w-5 h-5" /> Back
                     </button>
-                    <button type="submit" disabled={isPending} className="px-8 py-3 bg-accent text-white rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-600 transition-colors disabled:opacity-70">
+                    <button type="submit" disabled={isPending} className="px-8 py-3 bg-accent text-white rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 transition-colors disabled:opacity-70">
                       {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Get Results"}
                     </button>
                   </div>

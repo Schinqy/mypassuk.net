@@ -28,12 +28,12 @@ export default function InstitutionDetail() {
   const typeColor = {
     University: "bg-primary/10 text-primary border-primary/20",
     Conservatoire: "bg-purple-50 text-purple-700 border-purple-200",
-    College: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    "Apprenticeship Provider": "bg-orange-50 text-orange-700 border-orange-200",
+    College: "bg-rose-50 text-rose-700 border-rose-200",
+    "Apprenticeship Provider": "bg-amber-50 text-amber-800 border-amber-200",
   }[institution.type] ?? "bg-slate-100 text-slate-700 border-slate-200";
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-24">
+    <div className="min-h-screen pb-24">
 
       {/* Hero */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-primary/80 text-white pt-16 pb-32 px-4 relative overflow-hidden">
@@ -91,7 +91,7 @@ export default function InstitutionDetail() {
           {institution.bursaries && (
             <div className="text-center">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Bursaries</p>
-              <div className="flex items-center justify-center gap-1 text-emerald-600 font-bold text-sm mt-1">
+              <div className="flex items-center justify-center gap-1 text-green-700 font-bold text-sm mt-1">
                 <CheckCircle2 className="w-5 h-5" /> Available
               </div>
             </div>
@@ -147,7 +147,7 @@ export default function InstitutionDetail() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {(institution.facilities as string[]).map((facility) => (
                     <div key={facility} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-green-700 shrink-0" />
                       <span className="text-sm font-medium text-slate-700">{facility}</span>
                     </div>
                   ))}
@@ -167,7 +167,7 @@ export default function InstitutionDetail() {
                       <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-primary/40 hover:shadow-md transition-all cursor-pointer group">
                         <p className="font-bold text-slate-800 group-hover:text-primary transition-colors text-sm">{career.title}</p>
                         <p className="text-xs text-slate-500 mt-1">{career.sector}</p>
-                        <p className="text-xs font-semibold text-emerald-600 mt-2">
+                        <p className="text-xs font-semibold text-green-700 mt-2">
                           £{(career.averageSalaryMin / 1000).toFixed(0)}k – £{(career.averageSalaryMax / 1000).toFixed(0)}k
                         </p>
                       </div>
@@ -215,19 +215,19 @@ export default function InstitutionDetail() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold text-slate-500">Russell Group</span>
-                  <span className={`text-sm font-bold ${institution.russellGroup ? "text-emerald-600" : "text-slate-400"}`}>
+                  <span className={`text-sm font-bold ${institution.russellGroup ? "text-green-700" : "text-slate-400"}`}>
                     {institution.russellGroup ? "Yes" : "No"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold text-slate-500">Bursaries</span>
-                  <span className={`text-sm font-bold ${institution.bursaries ? "text-emerald-600" : "text-slate-400"}`}>
+                  <span className={`text-sm font-bold ${institution.bursaries ? "text-green-700" : "text-slate-400"}`}>
                     {institution.bursaries ? "Available" : "Not offered"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold text-slate-500">International</span>
-                  <span className={`text-sm font-bold ${institution.internationalStudents ? "text-emerald-600" : "text-slate-400"}`}>
+                  <span className={`text-sm font-bold ${institution.internationalStudents ? "text-green-700" : "text-slate-400"}`}>
                     {institution.internationalStudents ? "Accepted" : "UK only"}
                   </span>
                 </div>

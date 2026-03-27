@@ -20,14 +20,14 @@ const COMBINED_SCIENCE_COMPONENTS = [
 
 const SUBJECT_COLORS = [
   { bg: "bg-blue-500", light: "bg-blue-100", text: "text-blue-700", border: "border-blue-300" },
-  { bg: "bg-emerald-500", light: "bg-emerald-100", text: "text-emerald-700", border: "border-emerald-300" },
+  { bg: "bg-green-700", light: "bg-green-100", text: "text-green-800", border: "border-green-300" },
   { bg: "bg-violet-500", light: "bg-violet-100", text: "text-violet-700", border: "border-violet-300" },
   { bg: "bg-orange-500", light: "bg-orange-100", text: "text-orange-700", border: "border-orange-300" },
   { bg: "bg-pink-500", light: "bg-pink-100", text: "text-pink-700", border: "border-pink-300" },
   { bg: "bg-cyan-500", light: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-300" },
   { bg: "bg-amber-500", light: "bg-amber-100", text: "text-amber-700", border: "border-amber-300" },
   { bg: "bg-rose-500", light: "bg-rose-100", text: "text-rose-700", border: "border-rose-300" },
-  { bg: "bg-teal-500", light: "bg-teal-100", text: "text-teal-700", border: "border-teal-300" },
+  { bg: "bg-teal-700", light: "bg-teal-100", text: "text-teal-800", border: "border-teal-300" },
   { bg: "bg-indigo-500", light: "bg-indigo-100", text: "text-indigo-700", border: "border-indigo-300" },
   { bg: "bg-lime-500", light: "bg-lime-100", text: "text-lime-700", border: "border-lime-300" },
   { bg: "bg-fuchsia-500", light: "bg-fuchsia-100", text: "text-fuchsia-700", border: "border-fuchsia-300" },
@@ -221,7 +221,7 @@ function SaveModal({ onSave, onClose }: { onSave: (name: string) => void; onClos
             onClick={() => name.trim() && onSave(name.trim())}
             disabled={!name.trim()}
             className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-40 transition-all"
-            style={{ background: "linear-gradient(135deg, hsl(226,71%,40%) 0%, hsl(226,71%,52%) 100%)" }}
+            style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
           >
             Save Plan
           </button>
@@ -310,7 +310,7 @@ export default function Timetable() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-[9998] flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white text-sm font-semibold rounded-full shadow-xl"
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-[9998] flex items-center gap-2 px-5 py-3 bg-green-800 text-white text-sm font-semibold rounded-full shadow-xl"
           >
             <Check className="w-4 h-4" /> "{savedBanner}" saved!
           </motion.div>
@@ -348,7 +348,7 @@ export default function Timetable() {
                     onClick={() => (step > s.n) && setStep(s.n as 1 | 2 | 3)}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${step === s.n ? "bg-white text-slate-900 shadow-lg" : step > s.n ? "bg-white/20 text-white cursor-pointer hover:bg-white/30" : "bg-white/10 text-white/50 cursor-default"}`}
                   >
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${step > s.n ? "bg-emerald-400 text-white" : step === s.n ? "bg-primary text-white" : "bg-white/20"}`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${step > s.n ? "bg-green-700 text-white" : step === s.n ? "bg-primary text-white" : "bg-white/20"}`}>
                       {step > s.n ? <Check className="w-3 h-3" /> : s.n}
                     </span>
                     {s.label}
@@ -438,7 +438,7 @@ export default function Timetable() {
                     <button
                       onClick={() => setStep(2)}
                       className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
-                      style={{ background: "linear-gradient(135deg, hsl(226,71%,40%) 0%, hsl(226,71%,52%) 100%)" }}
+                      style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
                     >
                       Continue <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </button>
@@ -454,7 +454,7 @@ export default function Timetable() {
                   className="flex items-start gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl mb-5 text-sm"
                 >
                   <div className="flex gap-1 mt-0.5 shrink-0">
-                    <Leaf className="w-4 h-4 text-emerald-500" />
+                    <Leaf className="w-4 h-4 text-green-700" />
                     <FlaskConical className="w-4 h-4 text-blue-500" />
                     <Atom className="w-4 h-4 text-violet-500" />
                   </div>
@@ -508,7 +508,7 @@ export default function Timetable() {
                         <p className="text-xs text-slate-400 mt-0.5">{subject.category} · {subject.level}</p>
                         {isCombined && isSelected && (
                           <div className="flex gap-1 mt-1.5">
-                            {[{ label: "Bio", icon: Leaf, c: "text-emerald-600" }, { label: "Chem", icon: FlaskConical, c: "text-blue-600" }, { label: "Phys", icon: Atom, c: "text-violet-600" }].map(x => (
+                            {[{ label: "Bio", icon: Leaf, c: "text-green-700" }, { label: "Chem", icon: FlaskConical, c: "text-blue-600" }, { label: "Phys", icon: Atom, c: "text-violet-600" }].map(x => (
                               <span key={x.label} className={`flex items-center gap-0.5 text-[10px] font-semibold ${x.c}`}>
                                 <x.icon className="w-2.5 h-2.5" />{x.label}
                               </span>
@@ -525,7 +525,7 @@ export default function Timetable() {
                 <div className="mt-8 flex justify-end">
                   <button onClick={() => setStep(2)}
                     className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
-                    style={{ background: "linear-gradient(135deg, hsl(226,71%,40%) 0%, hsl(226,71%,52%) 100%)" }}>
+                    style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}>
                     Next: Choose Schedule Mode <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 </div>
@@ -590,7 +590,7 @@ export default function Timetable() {
 
               <button onClick={() => setStep(3)}
                 className="group w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-white transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
-                style={{ background: "linear-gradient(135deg, hsl(226,71%,40%) 0%, hsl(226,71%,52%) 100%)" }}>
+                style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}>
                 Generate My Timetable <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </motion.div>
@@ -614,7 +614,7 @@ export default function Timetable() {
                   <button
                     onClick={() => setShowSaveModal(true)}
                     className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
-                    style={{ background: "linear-gradient(135deg, hsl(226,71%,40%) 0%, hsl(226,71%,52%) 100%)" }}
+                    style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
                   >
                     <Save className="w-4 h-4" /> Save Plan
                   </button>
@@ -635,7 +635,7 @@ export default function Timetable() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                 {[
                   { value: `${weeklyHours}h`, label: "Hours/Week", color: "text-primary" },
-                  { value: String(effectiveSubjects.length), label: "Subjects", color: "text-emerald-600" },
+                  { value: String(effectiveSubjects.length), label: "Subjects", color: "text-green-700" },
                   { value: String(totalSessions), label: "Sessions/Week", color: "text-violet-600" },
                   { value: `${perSubject}h`, label: "Per Subject/Wk", color: "text-orange-500" },
                 ].map(s => (

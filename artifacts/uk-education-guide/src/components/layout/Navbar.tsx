@@ -20,16 +20,16 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full">
       {/* Accent top line */}
-      <div className="h-0.5 bg-gradient-to-r from-primary via-blue-400 to-accent" />
+      <div className="h-0.5 bg-gradient-to-r from-accent via-primary to-accent" />
 
-      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/70 shadow-sm shadow-slate-900/5">
+      <div className="bg-[hsl(43,30%,97%)]/90 backdrop-blur-xl border-b border-[hsl(43,18%,88%)] shadow-sm shadow-slate-900/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 group shrink-0">
               <div className="relative">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-md shadow-primary/30 group-hover:shadow-lg group-hover:shadow-primary/40 group-hover:scale-105 transition-all duration-200">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-blue-900 flex items-center justify-center shadow-md shadow-primary/30 group-hover:shadow-lg group-hover:shadow-primary/40 group-hover:scale-105 transition-all duration-200">
                   <GraduationCap className="w-5 h-5 text-white" />
                 </div>
               </div>
@@ -55,7 +55,7 @@ export function Navbar() {
                     <item.icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-primary" : "text-slate-400"}`} />
                     {item.name}
                     {"badge" in item && item.badge && (
-                      <span className="ml-0.5 px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full leading-none">
+                      <span className="ml-0.5 px-1.5 py-0.5 bg-accent text-white text-[10px] font-bold rounded-full leading-none">
                         {item.badge}
                       </span>
                     )}
@@ -79,7 +79,7 @@ export function Navbar() {
               <Link
                 href="/quiz"
                 className="group relative inline-flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-sm text-white overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0"
-                style={{ background: "linear-gradient(135deg, hsl(226,71%,40%) 0%, hsl(226,71%,52%) 100%)" }}
+                style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
               >
                 {/* shimmer sweep */}
                 <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]" />
@@ -126,7 +126,7 @@ export function Navbar() {
                     <item.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-slate-400"}`} />
                     {item.name}
                     {"badge" in item && item.badge && (
-                      <span className="px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full leading-none">
+                      <span className="px-1.5 py-0.5 bg-accent text-white text-[10px] font-bold rounded-full leading-none">
                         {item.badge}
                       </span>
                     )}
@@ -139,7 +139,7 @@ export function Navbar() {
                   href="/quiz"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm text-white"
-                  style={{ background: "linear-gradient(135deg, hsl(226,71%,40%) 0%, hsl(226,71%,52%) 100%)" }}
+                  style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
                 >
                   Get Recommendations
                   <ChevronRight className="w-4 h-4" />

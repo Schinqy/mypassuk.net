@@ -76,12 +76,12 @@ export default function Routes() {
                   <div className="space-y-6 mb-8">
                     <div>
                       <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3">
-                        <CheckCircle className="w-4 h-4 text-emerald-500" /> Pros
+                        <CheckCircle className="w-4 h-4 text-green-700" /> Pros
                       </h4>
                       <ul className="space-y-2">
                         {route.pros?.map((pro, i) => (
                           <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" /> {pro}
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-700 mt-1.5 shrink-0" /> {pro}
                           </li>
                         ))}
                       </ul>

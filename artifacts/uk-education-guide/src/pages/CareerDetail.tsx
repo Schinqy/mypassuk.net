@@ -85,7 +85,7 @@ export default function CareerDetail() {
         {/* Salary Banner */}
         <div className="bg-white rounded-2xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-around gap-6 mb-8">
            <div className="text-center md:text-left flex items-center gap-4">
-             <div className="bg-emerald-100 p-4 rounded-2xl"><PoundSterling className="w-8 h-8 text-emerald-600" /></div>
+             <div className="bg-amber-100 p-4 rounded-2xl"><PoundSterling className="w-8 h-8 text-amber-700" /></div>
              <div>
                <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Average Salary Range</p>
                <p className="text-3xl font-display font-bold text-slate-900">£{(career.averageSalaryMin/1000).toFixed(0)}k - £{(career.averageSalaryMax/1000).toFixed(0)}k</p>

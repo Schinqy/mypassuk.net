@@ -51,72 +51,72 @@
 }
 
 :root {
-  /* Beautiful Academic/Professional Palette */
-  /* Deep Navy Backgrounds, Off-white main background, Vibrant Royal Blue and Emerald Teal accents */
+  /* British Colour Palette */
+  /* Union Jack Navy primary, British Crimson accent, warm cream background */
   
-  --background: 210 20% 98%; /* Light gray-blue off-white */
-  --foreground: 222 47% 11%; /* Deep Navy */
+  --background: 43 30% 97%; /* Warm Cream — fine British stationery */
+  --foreground: 222 47% 11%; /* Charcoal Navy */
   
-  --card: 0 0% 100%;
+  --card: 43 20% 99%;
   --card-foreground: 222 47% 11%;
-  --card-border: 214 32% 91%;
+  --card-border: 43 18% 88%;
   
-  --popover: 0 0% 100%;
+  --popover: 43 20% 99%;
   --popover-foreground: 222 47% 11%;
-  --popover-border: 214 32% 91%;
+  --popover-border: 43 18% 88%;
   
-  --primary: 226 71% 40%; /* Royal Academic Blue */
-  --primary-foreground: 210 40% 98%;
+  --primary: 224 76% 28%; /* Deep Royal Navy — Union Jack Blue */
+  --primary-foreground: 43 30% 97%;
   
-  --secondary: 214 32% 91%; /* Soft gray-blue */
+  --secondary: 43 18% 91%; /* Warm dove grey */
   --secondary-foreground: 222 47% 11%;
   
-  --muted: 214 32% 96%;
-  --muted-foreground: 215 16% 47%;
+  --muted: 43 22% 95%;
+  --muted-foreground: 215 14% 46%;
   
-  --accent: 160 84% 39%; /* Emerald Teal */
+  --accent: 354 72% 40%; /* British Crimson — Union Jack Red */
   --accent-foreground: 0 0% 100%;
   
   --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 43 30% 97%;
   
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 226 71% 40%;
+  --border: 43 18% 88%;
+  --input: 43 18% 88%;
+  --ring: 224 76% 28%;
   
   --radius: 0.75rem;
 }
 
 .dark {
-  --background: 222 47% 11%;
-  --foreground: 210 40% 98%;
+  --background: 224 47% 9%;
+  --foreground: 43 30% 95%;
   
-  --card: 222 47% 14%;
-  --card-foreground: 210 40% 98%;
-  --card-border: 215 28% 17%;
+  --card: 224 47% 12%;
+  --card-foreground: 43 30% 95%;
+  --card-border: 224 28% 17%;
   
-  --popover: 222 47% 14%;
-  --popover-foreground: 210 40% 98%;
-  --popover-border: 215 28% 17%;
+  --popover: 224 47% 12%;
+  --popover-foreground: 43 30% 95%;
+  --popover-border: 224 28% 17%;
   
-  --primary: 226 71% 60%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 220 72% 58%; /* Brighter navy for dark mode */
+  --primary-foreground: 43 30% 97%;
   
-  --secondary: 215 28% 17%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 224 28% 17%;
+  --secondary-foreground: 43 30% 95%;
   
-  --muted: 215 28% 17%;
+  --muted: 224 28% 17%;
   --muted-foreground: 215 20% 65%;
   
-  --accent: 160 84% 39%;
+  --accent: 354 72% 55%; /* Brighter crimson for dark mode */
   --accent-foreground: 0 0% 100%;
   
   --destructive: 0 62% 30%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 43 30% 97%;
   
-  --border: 215 28% 17%;
-  --input: 215 28% 17%;
-  --ring: 226 71% 60%;
+  --border: 224 28% 17%;
+  --input: 224 28% 17%;
+  --ring: 220 72% 58%;
 }
 
 @layer base {

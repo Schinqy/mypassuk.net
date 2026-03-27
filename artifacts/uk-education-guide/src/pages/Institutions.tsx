@@ -14,16 +14,16 @@ const TYPE_ICON = {
 };
 
 const TYPE_COLORS = {
-  University: "bg-indigo-100 text-indigo-700 border-indigo-200",
-  College: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  "Apprenticeship Provider": "bg-orange-100 text-orange-700 border-orange-200",
+  University: "bg-blue-100 text-blue-800 border-blue-200",
+  College: "bg-rose-100 text-rose-700 border-rose-200",
+  "Apprenticeship Provider": "bg-amber-100 text-amber-800 border-amber-200",
   Conservatoire: "bg-purple-100 text-purple-700 border-purple-200",
 };
 
 const TYPE_ICON_BG = {
-  University: "bg-indigo-50 text-indigo-500",
-  College: "bg-emerald-50 text-emerald-500",
-  "Apprenticeship Provider": "bg-orange-50 text-orange-500",
+  University: "bg-blue-50 text-blue-700",
+  College: "bg-rose-50 text-rose-600",
+  "Apprenticeship Provider": "bg-amber-50 text-amber-700",
   Conservatoire: "bg-purple-50 text-purple-500",
 };
 

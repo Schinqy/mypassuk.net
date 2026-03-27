@@ -33,7 +33,7 @@ export default function Home() {
                 <Link
                   href="/quiz"
                   className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-white overflow-hidden transition-all duration-200 hover:shadow-xl hover:shadow-primary/35 hover:-translate-y-0.5 active:translate-y-0"
-                  style={{ background: "linear-gradient(135deg, hsl(226,71%,40%) 0%, hsl(226,71%,52%) 100%)" }}
+                  style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
                 >
                   <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]" />
                   Find My Path <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -71,7 +71,7 @@ export default function Home() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-24 bg-slate-50 border-t border-slate-100">
+      <section className="py-24 bg-secondary/40 border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl font-bold mb-4">Everything you need to succeed</h2>
@@ -85,14 +85,14 @@ export default function Home() {
                 desc: "Study tips, key topics, and resources for every GCSE and A-Level subject.",
                 icon: BookOpen,
                 href: "/subjects",
-                color: "bg-blue-100 text-blue-600"
+                color: "bg-blue-100 text-blue-800"
               },
               {
                 title: "Career Explorer",
                 desc: "Discover salaries, required qualifications, and outlooks for hundreds of jobs.",
                 icon: Briefcase,
                 href: "/careers",
-                color: "bg-emerald-100 text-emerald-600"
+                color: "bg-green-100 text-green-800"
               },
               {
                 title: "Institutions",
@@ -148,7 +148,7 @@ export default function Home() {
               </p>
               <Link
                 href="/quiz"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold bg-accent text-white hover:bg-emerald-500 hover:-translate-y-1 shadow-lg shadow-accent/20 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold bg-accent text-white hover:bg-red-700 hover:-translate-y-1 shadow-lg shadow-accent/20 transition-all duration-300"
               >
                 Start the Quiz <Sparkles className="w-5 h-5" />
               </Link>
