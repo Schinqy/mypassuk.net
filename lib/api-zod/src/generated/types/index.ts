@@ -8,6 +8,7 @@
 
 export * from "./career";
 export * from "./careerJobOutlook";
+export * from "./createOpenaiConversationBody";
 export * from "./errorResponse";
 export * from "./getCareersParams";
 export * from "./getInstitutionsParams";
@@ -19,6 +20,10 @@ export * from "./getSubjectsParams";
 export * from "./healthStatus";
 export * from "./institution";
 export * from "./institutionType";
+export * from "./openaiConversation";
+export * from "./openaiConversationWithMessages";
+export * from "./openaiError";
+export * from "./openaiMessage";
 export * from "./quizInput";
 export * from "./quizInputALevelSubjectsItem";
 export * from "./quizInputGcseSubjectsItem";
@@ -28,5 +33,6 @@ export * from "./resource";
 export * from "./resourceType";
 export * from "./route";
 export * from "./routeAfterLevel";
+export * from "./sendOpenaiMessageBody";
 export * from "./subject";
 export * from "./subjectLevel";

@@ -48,12 +48,15 @@ A data mining tool for UK GCSE and A-level students helping them prepare for exa
 - **Routes** — 25 post-16 and post-18 pathways split by After GCSE and After A-Level. Includes A-Levels, T-Levels, BTECs, Apprenticeships, IB, Access to HE, Scottish Highers, Cambridge Pre-U, EPQ, degree apprenticeships, Fast Stream, Armed Forces, Police DHEP, HNDs, and more.
 - **Personalised Quiz** — Multi-step form recommending careers, institutions, and routes. Results include a match score (45-97%), personal message, career cards, institution cards with ranking, and route pathways with pros/cons.
 - **About UK Education** — Editorial page covering KS1–KS5, all 6 exam boards, HE fees/finance, FE/apprenticeships, and full RQF qualifications framework.
+- **AI Study Assistant** — Global floating chat panel (bottom-right) powered by OpenAI (gpt-5.2). On subject detail pages, automatically receives subject-specific context (name, level, category, key topics) via React Context. Supports streaming SSE responses, quick-prompt buttons, new-conversation reset, and persists all messages to the `conversations` + `messages` DB tables. Uses raw `fetch` + `ReadableStream` (NOT Orval-generated hooks).
 
 ### Database Tables
 - `subjects` — GCSE and A-Level subject data (55 subjects)
 - `careers` — Career profiles with salary, required subjects, and pathways (69 careers)
 - `institutions` — HE and FE institutions with filters (57 institutions)
 - `routes` — Post-16 and post-18 routes with pros/cons (25 routes)
+- `conversations` — AI chat session records (id, title, createdAt)
+- `messages` — Individual chat messages (id, conversationId, role, content, createdAt)
 
 ### Scripts
 ```bash
@@ -78,7 +81,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 ### `artifacts/api-server` (`@workspace/api-server`)
 
-Express 5 API server. Routes: `/api/healthz`, `/api/subjects`, `/api/careers`, `/api/institutions`, `/api/routes`, `/api/quiz/recommend`
+Express 5 API server. Routes: `/api/healthz`, `/api/subjects`, `/api/careers`, `/api/institutions`, `/api/routes`, `/api/quiz/recommend`, `/api/openai/conversations` (CRUD + SSE streaming)
 
 ### `artifacts/uk-education-guide` (`@workspace/uk-education-guide`)
 

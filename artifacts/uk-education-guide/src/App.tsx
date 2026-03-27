@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/layout/Layout";
+import { AiStudyProvider, useAiStudy } from "@/contexts/AiStudyContext";
+import AiStudyAssistant from "@/components/AiStudyAssistant";
 
 // Pages
 import Home from "@/pages/Home";
@@ -27,23 +29,34 @@ const queryClient = new QueryClient({
   },
 });
 
-function Router() {
+function AppContent() {
+  const { subjectName, subjectLevel, subjectCategory, keyTopics } = useAiStudy();
+
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/subjects" component={Subjects} />
-        <Route path="/subjects/:id" component={SubjectDetail} />
-        <Route path="/careers" component={Careers} />
-        <Route path="/careers/:id" component={CareerDetail} />
-        <Route path="/institutions" component={Institutions} />
-        <Route path="/institutions/:id" component={InstitutionDetail} /> 
-        <Route path="/routes" component={Routes} />
-        <Route path="/quiz" component={Quiz} />
-        <Route path="/editorial" component={Editorial} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <>
+      <Layout>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/subjects" component={Subjects} />
+          <Route path="/subjects/:id" component={SubjectDetail} />
+          <Route path="/careers" component={Careers} />
+          <Route path="/careers/:id" component={CareerDetail} />
+          <Route path="/institutions" component={Institutions} />
+          <Route path="/institutions/:id" component={InstitutionDetail} />
+          <Route path="/routes" component={Routes} />
+          <Route path="/quiz" component={Quiz} />
+          <Route path="/editorial" component={Editorial} />
+          <Route component={NotFound} />
+        </Switch>
+      </Layout>
+
+      <AiStudyAssistant
+        subjectName={subjectName}
+        subjectLevel={subjectLevel}
+        subjectCategory={subjectCategory}
+        keyTopics={keyTopics}
+      />
+    </>
   );
 }
 
@@ -52,7 +65,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
+          <AiStudyProvider>
+            <AppContent />
+          </AiStudyProvider>
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

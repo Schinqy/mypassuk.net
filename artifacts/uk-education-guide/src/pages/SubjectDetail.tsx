@@ -1,11 +1,26 @@
 import { useParams, Link } from "wouter";
+import { useEffect } from "react";
 import { useGetSubjectById } from "@workspace/api-client-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ArrowLeft, BookOpen, CheckCircle, FileText, Globe, Lightbulb, PlayCircle } from "lucide-react";
+import { useAiStudy } from "@/contexts/AiStudyContext";
 
 export default function SubjectDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: subject, isLoading, error } = useGetSubjectById(Number(id));
+  const { setSubjectContext } = useAiStudy();
+
+  useEffect(() => {
+    if (subject) {
+      setSubjectContext({
+        subjectName: subject.name,
+        subjectLevel: subject.level,
+        subjectCategory: subject.category,
+        keyTopics: subject.keyTopics ?? [],
+      });
+    }
+    return () => setSubjectContext(null);
+  }, [subject, setSubjectContext]);
 
   if (isLoading) return <LoadingSpinner className="mt-32" />;
   if (error || !subject) return <div className="text-center mt-32 text-red-500 font-bold text-xl">Subject not found</div>;
@@ -20,7 +35,7 @@ export default function SubjectDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-24">
+    <div className="min-h-screen bg-slate-50/50 pb-32">
       {/* Header Banner */}
       <div className="bg-foreground text-white py-16 px-4 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2 pointer-events-none" />
@@ -45,7 +60,7 @@ export default function SubjectDetail() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="grid grid-cols-1 gap-8">
-          
+
           {/* Assessment & Boards */}
           <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row gap-8 justify-between items-center">
             <div className="w-full">
@@ -105,10 +120,10 @@ export default function SubjectDetail() {
               <h2 className="text-2xl font-bold mb-6">Useful Resources</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {subject.usefulResources.map((res, i) => (
-                  <a 
-                    key={i} 
-                    href={res.url || "#"} 
-                    target="_blank" 
+                  <a
+                    key={i}
+                    href={res.url || "#"}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 p-4 rounded-2xl border border-slate-100 hover:border-primary/30 hover:bg-slate-50 transition-all group"
                   >
