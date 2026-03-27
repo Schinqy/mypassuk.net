@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X } from "lucide-react";
+import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -12,6 +12,7 @@ export function Navbar() {
     { name: "Careers", href: "/careers", icon: Briefcase },
     { name: "Institutions", href: "/institutions", icon: Building2 },
     { name: "Routes", href: "/routes", icon: Map },
+    { name: "About UK Education", href: "/editorial", icon: Newspaper },
   ];
 
   return (

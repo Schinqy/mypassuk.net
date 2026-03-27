@@ -16,7 +16,7 @@ async function seed() {
       level: "Both",
       category: "STEM",
       description: "The study of numbers, quantities, shapes, and patterns. Essential for many careers and higher education courses.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC", "Cambridge"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC", "Cambridge"],
       studyTips: [
         "Practice past papers regularly under timed conditions",
         "Make sure you understand the method, not just the answer",
@@ -39,7 +39,7 @@ async function seed() {
       level: "A-Level",
       category: "STEM",
       description: "An extension of A-Level Mathematics covering advanced pure topics including complex numbers, matrices, further calculus, and additional mechanics or statistics modules.",
-      examBoards: ["AQA", "Edexcel", "OCR", "MEI"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "MEI"],
       studyTips: [
         "Strong foundation in A-Level Maths is essential before starting",
         "Master proof by induction early — it appears across multiple topics",
@@ -61,7 +61,7 @@ async function seed() {
       level: "GCSE",
       category: "STEM",
       description: "A dedicated statistics qualification covering data collection, analysis, representation, probability, and interpretation. Complements GCSE Mathematics.",
-      examBoards: ["AQA", "Edexcel"],
+      examBoards: ["AQA", "Pearson Edexcel"],
       studyTips: [
         "Learn to interpret all types of statistical diagrams accurately",
         "Understand sampling methods and their advantages/disadvantages",
@@ -83,7 +83,7 @@ async function seed() {
       level: "GCSE",
       category: "Humanities",
       description: "Develops reading, writing, and communication skills through analysis of language and production of varied text types.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Read widely — newspapers, novels, non-fiction",
         "Practise writing in different styles (persuasive, narrative, descriptive)",
@@ -103,7 +103,7 @@ async function seed() {
       level: "Both",
       category: "Humanities",
       description: "Study of poetry, prose, and drama across different periods and cultures, developing analytical and critical thinking skills.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Know your set texts inside out — annotate your copies",
         "Practise timed essay writing",
@@ -124,7 +124,7 @@ async function seed() {
       level: "A-Level",
       category: "Humanities",
       description: "Combines language analysis and literary study, examining how texts are constructed and how language shapes meaning across a variety of genres and contexts.",
-      examBoards: ["AQA", "OCR", "Edexcel"],
+      examBoards: ["AQA", "OCR", "Pearson Edexcel"],
       studyTips: [
         "Develop a dual approach — apply both linguistic and literary frameworks",
         "Build confidence in close reading and analysing unseen texts",
@@ -146,7 +146,7 @@ async function seed() {
       level: "GCSE",
       category: "STEM",
       description: "A double-award GCSE covering Biology, Chemistry, and Physics. Worth two GCSEs and provides a broad scientific foundation without the depth of separate sciences.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Use the specification to make a checklist of all required knowledge",
         "Make revision cards for key equations and definitions in each science",
@@ -167,7 +167,7 @@ async function seed() {
       level: "Both",
       category: "STEM",
       description: "The scientific study of living organisms, from cells to ecosystems, covering anatomy, genetics, evolution, and ecology.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC", "Cambridge"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC", "Cambridge"],
       studyTips: [
         "Create detailed mind maps for each topic",
         "Use mnemonics for long lists (e.g. cell organelles)",
@@ -189,7 +189,7 @@ async function seed() {
       level: "Both",
       category: "STEM",
       description: "Study of matter, its properties, and the changes it undergoes. Covers atomic structure, bonding, reactions, and organic chemistry.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Learn equations and constants — write them from memory",
         "Practise calculation questions with unit conversions",
@@ -210,7 +210,7 @@ async function seed() {
       level: "Both",
       category: "STEM",
       description: "Study of matter, energy, and the fundamental forces of nature. Covers mechanics, waves, electricity, and modern physics.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Know all the equations — make a formula sheet",
         "Work through past papers and mark schemes",
@@ -253,7 +253,7 @@ async function seed() {
       level: "Both",
       category: "STEM",
       description: "Covers computational thinking, programming, algorithms, data structures, networking, and cybersecurity.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Code regularly — apply theory in practice",
         "Understand algorithms and trace through code manually",
@@ -296,7 +296,7 @@ async function seed() {
       level: "Both",
       category: "Humanities",
       description: "Critical study of the past through sources and evidence. Develops analytical writing, empathy, and understanding of change over time.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Learn key dates and events for each topic",
         "Practise source analysis using HCAP/HAPS frameworks",
@@ -316,7 +316,7 @@ async function seed() {
       level: "A-Level",
       category: "Humanities",
       description: "Study of the Greek and Roman worlds through written sources and archaeological evidence, covering politics, society, war, and culture.",
-      examBoards: ["OCR", "Edexcel"],
+      examBoards: ["OCR", "Pearson Edexcel"],
       studyTips: [
         "Read primary source extracts critically — question the author's bias",
         "Learn key ancient writers (Thucydides, Livy, Cicero) and their contexts",
@@ -336,7 +336,7 @@ async function seed() {
       level: "Both",
       category: "Humanities",
       description: "Study of physical and human environments, covering climate, ecosystems, urbanisation, development, and sustainability.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Learn case studies with specific named examples",
         "Practise map skills and data interpretation",
@@ -356,7 +356,7 @@ async function seed() {
       level: "Both",
       category: "Humanities",
       description: "Examines the beliefs, practices, and ethics of major world religions (typically Christianity and Islam at GCSE) alongside philosophical and ethical questions.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Learn key religious teachings, texts, and scholars for each topic",
         "Use the 4/5-mark structure clearly: point, explain, quote, evaluate",
@@ -376,7 +376,7 @@ async function seed() {
       level: "A-Level",
       category: "Humanities",
       description: "Systematic study of fundamental questions about existence, knowledge, ethics, and the mind. Develops logical reasoning and argumentation skills.",
-      examBoards: ["AQA", "OCR", "Edexcel"],
+      examBoards: ["AQA", "OCR", "Pearson Edexcel"],
       studyTips: [
         "Learn philosophical arguments by their formal structure (premises and conclusions)",
         "Practise identifying and evaluating objections to arguments",
@@ -417,7 +417,7 @@ async function seed() {
       level: "Both",
       category: "Humanities",
       description: "Study of the Latin language through translation of Roman authors alongside the culture, history, and literature of the ancient Roman world.",
-      examBoards: ["OCR", "AQA", "Edexcel"],
+      examBoards: ["OCR", "AQA", "Pearson Edexcel"],
       studyTips: [
         "Drill vocabulary daily — a large vocabulary is essential",
         "Learn all grammar tables thoroughly (nouns, verbs, adjectives)",
@@ -437,7 +437,7 @@ async function seed() {
       level: "A-Level",
       category: "Social Sciences",
       description: "Study of political systems, ideologies, institutions, and processes in the UK and internationally. Covers democracy, elections, Parliament, the Supreme Court, and comparative politics.",
-      examBoards: ["AQA", "Edexcel", "OCR"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR"],
       studyTips: [
         "Follow the news daily — current events are essential context",
         "Learn key political thinkers and their ideas for each ideology",
@@ -457,7 +457,7 @@ async function seed() {
       level: "GCSE",
       category: "Social Sciences",
       description: "Explores how democracy, rights, law, and civic participation work in the UK and globally. Develops understanding of active citizenship and community involvement.",
-      examBoards: ["AQA", "Edexcel", "OCR"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR"],
       studyTips: [
         "Follow current affairs to apply citizenship theory to real events",
         "Understand the role of Parliament, courts, and local government",
@@ -479,7 +479,7 @@ async function seed() {
       level: "A-Level",
       category: "Social Sciences",
       description: "Scientific study of human and animal behaviour and mental processes. Covers research methods, social influence, memory, and abnormal psychology.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Learn all key studies (name, date, method, findings, evaluation)",
         "Use GRAVE or similar frameworks for evaluating research",
@@ -499,7 +499,7 @@ async function seed() {
       level: "A-Level",
       category: "Social Sciences",
       description: "Study of society, social institutions, and social inequality. Covers education, crime, families, and sociological theory.",
-      examBoards: ["AQA", "OCR", "Edexcel"],
+      examBoards: ["AQA", "OCR", "Pearson Edexcel"],
       studyTips: [
         "Learn key sociologists and their arguments",
         "Apply perspectives (Functionalism, Marxism, Feminism) to each topic",
@@ -519,7 +519,7 @@ async function seed() {
       level: "A-Level",
       category: "Social Sciences",
       description: "Study of how individuals, firms, and governments make decisions about allocating scarce resources.",
-      examBoards: ["AQA", "Edexcel", "OCR"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR"],
       studyTips: [
         "Practise drawing and interpreting economic diagrams",
         "Evaluate with both sides — advantages and disadvantages",
@@ -539,7 +539,7 @@ async function seed() {
       level: "Both",
       category: "Social Sciences",
       description: "How businesses operate, are managed, and make decisions. Covers marketing, finance, operations, and human resources.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Use real business case studies as examples in answers",
         "Practise financial calculations (profit, break-even, ratios)",
@@ -579,7 +579,7 @@ async function seed() {
       level: "A-Level",
       category: "Social Sciences",
       description: "Applies sociological and psychological theory to understand criminal behaviour, the criminal justice system, and approaches to crime prevention.",
-      examBoards: ["WJEC", "Edexcel"],
+      examBoards: ["WJEC", "Pearson Edexcel"],
       studyTips: [
         "Link criminological theories to specific real crime cases",
         "Evaluate policies using crime statistics and empirical evidence",
@@ -601,7 +601,7 @@ async function seed() {
       level: "Both",
       category: "Languages",
       description: "Communication in French through listening, speaking, reading, and writing across a range of topics and contexts.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Listen to French radio, podcasts or TV daily",
         "Learn vocabulary in themed groups",
@@ -621,7 +621,7 @@ async function seed() {
       level: "Both",
       category: "Languages",
       description: "Communication in Spanish through listening, speaking, reading, and writing. One of the world's most widely spoken languages and highly valued by employers.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Immerse yourself — watch Spanish TV shows with subtitles",
         "Build vocabulary through themed topic revision",
@@ -642,7 +642,7 @@ async function seed() {
       level: "Both",
       category: "Languages",
       description: "Communication in German through listening, speaking, reading, and writing. Germany is a major trading partner of the UK, making German valuable in business contexts.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Memorise grammatical genders with each noun from the start",
         "Learn the four German cases and when each is used",
@@ -662,7 +662,7 @@ async function seed() {
       level: "Both",
       category: "Languages",
       description: "Study of Mandarin Chinese language and culture. Offers exceptional career advantages given China's global economic importance.",
-      examBoards: ["AQA", "Edexcel", "OCR"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR"],
       studyTips: [
         "Learn the tones from the very beginning — they are essential",
         "Practise character writing daily with stroke order",
@@ -682,7 +682,7 @@ async function seed() {
       level: "Both",
       category: "Languages",
       description: "Communication in Italian through listening, speaking, reading, and writing. Valued in arts, fashion, food, and international business contexts.",
-      examBoards: ["AQA", "Edexcel"],
+      examBoards: ["AQA", "Pearson Edexcel"],
       studyTips: [
         "Italian pronunciation is phonetic — master it early",
         "Learn irregular verbs systematically",
@@ -702,7 +702,7 @@ async function seed() {
       level: "Both",
       category: "Languages",
       description: "One of the world's most widely spoken languages, studied for its cultural, religious, and commercial significance across the Middle East and North Africa.",
-      examBoards: ["AQA", "Edexcel"],
+      examBoards: ["AQA", "Pearson Edexcel"],
       studyTips: [
         "Master the Arabic script before focusing on vocabulary",
         "Learn Modern Standard Arabic (Fusha) first for exams",
@@ -722,7 +722,7 @@ async function seed() {
       level: "Both",
       category: "Languages",
       description: "Study of the Russian language, covering Cyrillic script, grammar, and cultural contexts. The most widely spoken Slavic language and strategically important globally.",
-      examBoards: ["AQA", "Edexcel"],
+      examBoards: ["AQA", "Pearson Edexcel"],
       studyTips: [
         "Learn the Cyrillic alphabet thoroughly before anything else",
         "Memorise noun case endings systematically",
@@ -744,7 +744,7 @@ async function seed() {
       level: "Both",
       category: "Creative Arts",
       description: "Development of creative and artistic skills through practical work and critical analysis of artists and movements.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Build a strong sketchbook that shows your development process",
         "Research artists and link their techniques to your own work",
@@ -764,7 +764,7 @@ async function seed() {
       level: "Both",
       category: "Creative Arts",
       description: "Develop technical and creative photographic skills, studying composition, lighting, darkroom processes, digital editing, and the work of significant photographers.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Build a varied portfolio that shows experimentation and development",
         "Research and write about key photographers in depth",
@@ -784,7 +784,7 @@ async function seed() {
       level: "A-Level",
       category: "Creative Arts",
       description: "A specialist fine art / design qualification focusing on visual communication through typography, branding, publication design, digital media, and illustration.",
-      examBoards: ["AQA", "Edexcel", "OCR"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR"],
       studyTips: [
         "Master industry tools: Adobe Illustrator, Photoshop, and InDesign",
         "Build a diverse portfolio demonstrating different design disciplines",
@@ -804,7 +804,7 @@ async function seed() {
       level: "Both",
       category: "Creative Arts",
       description: "Study of music through performance, composition, and critical listening. Covers music history, theory, and analysis.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Practise your instrument or voice daily",
         "Listen carefully to set works with the score in front of you",
@@ -824,7 +824,7 @@ async function seed() {
       level: "A-Level",
       category: "Creative Arts",
       description: "Combines music composition and theory with technical knowledge of recording, production, synthesis, and digital audio workstations.",
-      examBoards: ["AQA", "Edexcel"],
+      examBoards: ["AQA", "Pearson Edexcel"],
       studyTips: [
         "Develop proficiency in a DAW (Logic Pro, Ableton, Pro Tools)",
         "Understand music theory — it underpins composition marks",
@@ -844,7 +844,7 @@ async function seed() {
       level: "Both",
       category: "Creative Arts",
       description: "Develops performance, devising, and analytical skills through practical theatre-making and study of theatre practitioners and set texts.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Attend live theatre — analyse productions using theatrical vocabulary",
         "Research practitioners (Stanislavski, Brecht, Berkoff, Artaud) thoroughly",
@@ -864,7 +864,7 @@ async function seed() {
       level: "Both",
       category: "Creative Arts",
       description: "Study of dance through performance, choreography, and analysis. Explores a range of dance styles alongside appreciation of professional dance works.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Attend and watch as many live and recorded dance performances as possible",
         "Practise set choreography until it is fully polished",
@@ -926,7 +926,7 @@ async function seed() {
       level: "GCSE",
       category: "Creative Arts",
       description: "A broad design and make qualification covering materials (wood, metal, plastic, textiles, electronics), design theory, and iterative design processes.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Develop thorough design portfolios showing iterative problem-solving",
         "Revise all materials and their properties",
@@ -946,7 +946,7 @@ async function seed() {
       level: "A-Level",
       category: "Creative Arts",
       description: "Advanced study of design and manufacturing processes, materials science, human-centred design, sustainability, and the impact of design on society.",
-      examBoards: ["AQA", "Edexcel", "OCR"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR"],
       studyTips: [
         "Build a comprehensive design portfolio showing design thinking",
         "Develop strong technical drawing and CAD skills",
@@ -966,7 +966,7 @@ async function seed() {
       level: "Both",
       category: "Creative Arts",
       description: "Explores the design, manufacture, and analysis of textile products, combining creative design with technical knowledge of materials, processes, and industry.",
-      examBoards: ["AQA", "Edexcel", "OCR"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR"],
       studyTips: [
         "Build a portfolio showing a wide range of sampling and experimentation",
         "Research textile designers and link their methods to your work",
@@ -986,7 +986,7 @@ async function seed() {
       level: "GCSE",
       category: "Applied",
       description: "Practical and theoretical study of food science, nutrition, cooking techniques, and food safety, with a focus on healthy eating and the food industry.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Learn the functional properties of ingredients scientifically",
         "Practise a wide range of cooking techniques for your portfolio",
@@ -1008,7 +1008,7 @@ async function seed() {
       level: "Both",
       category: "Sport & Health",
       description: "Theory and practical study of sport, exercise science, health, and performance.",
-      examBoards: ["AQA", "Edexcel", "OCR", "WJEC"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR", "WJEC"],
       studyTips: [
         "Link theory to your own performance experience",
         "Learn anatomy and physiology thoroughly",
@@ -1028,7 +1028,7 @@ async function seed() {
       level: "A-Level",
       category: "Sport & Health",
       description: "Scientific study of exercise and sport, covering physiology, biomechanics, psychology, and nutrition, with practical application to athletic performance.",
-      examBoards: ["Edexcel", "OCR"],
+      examBoards: ["Pearson Edexcel", "OCR"],
       studyTips: [
         "Learn physiological systems (cardiovascular, respiratory, musculoskeletal) in depth",
         "Apply scientific principles to sport performance improvements",
@@ -1048,7 +1048,7 @@ async function seed() {
       level: "Both",
       category: "Applied",
       description: "Covers human growth and development, health promotion, care values, and the structure of health, social care, and early years services in the UK.",
-      examBoards: ["Edexcel", "OCR", "WJEC", "CCEA"],
+      examBoards: ["Pearson Edexcel", "OCR", "WJEC", "CCEA"],
       studyTips: [
         "Learn the stages of human development (PIES) across the lifespan",
         "Understand the NHS structure and major health policies",
@@ -1090,7 +1090,7 @@ async function seed() {
       level: "A-Level",
       category: "STEM",
       description: "A practical, work-related science qualification covering biological, chemical, and physical science in applied contexts such as healthcare, forensics, and the environment.",
-      examBoards: ["AQA", "OCR", "Edexcel"],
+      examBoards: ["AQA", "OCR", "Pearson Edexcel"],
       studyTips: [
         "Focus on understanding how science is applied in real industries",
         "Build strong practical and laboratory skills",
@@ -1110,7 +1110,7 @@ async function seed() {
       level: "GCSE",
       category: "Applied",
       description: "Covers the travel and tourism industry structure, customer service, destinations, and sustainable tourism. Practical and industry-focused.",
-      examBoards: ["Edexcel", "OCR (Cambridge Nationals)"],
+      examBoards: ["Pearson Edexcel", "OCR (Cambridge Nationals)"],
       studyTips: [
         "Research major tourist destinations and their features",
         "Understand tourism organisations (ABTA, ATOL, VisitBritain)",
@@ -1130,7 +1130,7 @@ async function seed() {
       level: "GCSE",
       category: "Applied",
       description: "Study of the stages of child development from conception to age 5, including physical, intellectual, emotional, and social development, plus childcare practices.",
-      examBoards: ["AQA", "Edexcel", "OCR"],
+      examBoards: ["AQA", "Pearson Edexcel", "OCR"],
       studyTips: [
         "Learn the milestones for each stage of development thoroughly",
         "Apply PIES framework (Physical, Intellectual, Emotional, Social)",

@@ -13,6 +13,7 @@ import CareerDetail from "@/pages/CareerDetail";
 import Institutions from "@/pages/Institutions";
 import Routes from "@/pages/Routes";
 import Quiz from "@/pages/Quiz";
+import Editorial from "@/pages/Editorial";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -39,6 +40,7 @@ function Router() {
         <Route path="/institutions/:id" component={Institutions} /> 
         <Route path="/routes" component={Routes} />
         <Route path="/quiz" component={Quiz} />
+        <Route path="/editorial" component={Editorial} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
