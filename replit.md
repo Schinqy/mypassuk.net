@@ -41,22 +41,29 @@ artifacts-monorepo/
 A data mining tool for UK GCSE and A-level students helping them prepare for exams and explore career paths.
 
 ### Features
-- **Exam Preparation** — 18 subjects (GCSE & A-Level) with study tips, key topics, exam boards, and resources
-- **Career Explorer** — 14 career profiles across Healthcare, Technology, Engineering, Law, Finance, Education, Creative Arts, and Science
-- **Institutions** — 15 HE/FE institutions including Russell Group universities, modern universities, colleges, conservatoires, and apprenticeship providers
-- **Routes** — 11 post-16 and post-18 pathways (A-Levels, T-Levels, BTECs, Apprenticeships, IB, Gap Year, etc.)
-- **Personalised Quiz** — Multi-step form that recommends careers, institutions, and routes based on subjects, grades, and interests
+- **Exam Preparation** — 55 subjects (GCSE & A-Level) with study tips, key topics, exam boards, and 4-8 verified resources each
+- **Career Explorer** — 69 career profiles across 10 sectors: Healthcare, Technology, Engineering, Law, Finance, Education, Creative Arts, Science, Business, and Public Services. Each has salary ranges, day-in-the-life, entry routes, and workplaces.
+- **Institutions** — 57 HE/FE institutions (36 Universities, 11 Colleges, 9 Apprenticeship Providers, 1 Conservatoire). Includes all 24 Russell Group universities, modern/post-1992 universities, specialist arts institutions, FE colleges, and major apprenticeship schemes (BT, Deloitte, PwC, Rolls-Royce, NHS, Google, Channel 4, Network Rail).
+- **Institution Detail** — Full detail page for each institution: ranking, 4.5/5 satisfaction with bar, bursaries, international info, notable subjects, facilities, entry requirements, UCAS points, and linked career pathways.
+- **Routes** — 25 post-16 and post-18 pathways split by After GCSE and After A-Level. Includes A-Levels, T-Levels, BTECs, Apprenticeships, IB, Access to HE, Scottish Highers, Cambridge Pre-U, EPQ, degree apprenticeships, Fast Stream, Armed Forces, Police DHEP, HNDs, and more.
+- **Personalised Quiz** — Multi-step form recommending careers, institutions, and routes. Results include a match score (45-97%), personal message, career cards, institution cards with ranking, and route pathways with pros/cons.
+- **About UK Education** — Editorial page covering KS1–KS5, all 6 exam boards, HE fees/finance, FE/apprenticeships, and full RQF qualifications framework.
 
 ### Database Tables
-- `subjects` — GCSE and A-Level subject data
-- `careers` — Career profiles with salary, required subjects, and pathways
-- `institutions` — HE and FE institutions with filters
-- `routes` — Post-16 and post-18 routes with pros/cons
+- `subjects` — GCSE and A-Level subject data (55 subjects)
+- `careers` — Career profiles with salary, required subjects, and pathways (69 careers)
+- `institutions` — HE and FE institutions with filters (57 institutions)
+- `routes` — Post-16 and post-18 routes with pros/cons (25 routes)
 
-### Re-seeding
+### Scripts
 ```bash
-pnpm --filter @workspace/scripts run seed
+pnpm --filter @workspace/scripts run seed          # Full reseed (deletes all data)
+pnpm --filter @workspace/scripts run update-resources  # Update subject resource URLs only
+pnpm --filter @workspace/scripts run expand-data   # Add new institutions/careers/routes (safe, no deletes)
 ```
+
+### Exam Board Standardisation
+All exam board references use "Pearson Edexcel" (not plain "Edexcel").
 
 ## TypeScript & Composite Projects
 

@@ -11,6 +11,7 @@ import SubjectDetail from "@/pages/SubjectDetail";
 import Careers from "@/pages/Careers";
 import CareerDetail from "@/pages/CareerDetail";
 import Institutions from "@/pages/Institutions";
+import InstitutionDetail from "@/pages/InstitutionDetail";
 import Routes from "@/pages/Routes";
 import Quiz from "@/pages/Quiz";
 import Editorial from "@/pages/Editorial";
@@ -36,8 +37,7 @@ function Router() {
         <Route path="/careers" component={Careers} />
         <Route path="/careers/:id" component={CareerDetail} />
         <Route path="/institutions" component={Institutions} />
-        {/* Placeholder route for institution detail to prevent 404s if clicked */}
-        <Route path="/institutions/:id" component={Institutions} /> 
+        <Route path="/institutions/:id" component={InstitutionDetail} /> 
         <Route path="/routes" component={Routes} />
         <Route path="/quiz" component={Quiz} />
         <Route path="/editorial" component={Editorial} />

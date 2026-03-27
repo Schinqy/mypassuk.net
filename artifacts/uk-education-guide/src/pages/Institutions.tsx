@@ -167,7 +167,7 @@ export default function Institutions() {
                           <div className="text-center">
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Satisfaction</p>
                             <div className="flex items-center justify-center gap-1 bg-amber-50 px-2 py-1 rounded-md text-amber-700 font-bold text-sm">
-                              <Star className="w-4 h-4 fill-amber-500 text-amber-500" /> {inst.studentSatisfaction}%
+                              <Star className="w-4 h-4 fill-amber-500 text-amber-500" /> {inst.studentSatisfaction.toFixed(1)}/5
                             </div>
                           </div>
                         </div>

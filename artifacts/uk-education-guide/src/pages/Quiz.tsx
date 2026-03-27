@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronRight, GraduationCap, ArrowLeft, Loader2, Target, Sparkles, Building2, Map } from "lucide-react";
+import { Check, ChevronRight, GraduationCap, ArrowLeft, Loader2, Target, Sparkles, Building2, Map, CheckCircle, XCircle } from "lucide-react";
 import { useGetSubjects, useGetRecommendations, QuizInputPreferredRouteType } from "@workspace/api-client-react";
 import { Link } from "wouter";
 
@@ -121,14 +121,48 @@ export default function Quiz() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {results.recommendedInstitutions.slice(0,3).map(inst => (
                    <Link key={inst.id} href={`/institutions/${inst.id}`}>
-                    <div className="bg-white p-6 border border-slate-200 rounded-2xl hover:border-primary/50 transition-colors cursor-pointer">
-                      <h3 className="font-bold text-base mb-1">{inst.name}</h3>
-                      <p className="text-sm text-slate-500">{inst.city}, {inst.type}</p>
+                    <div className="bg-white p-6 border border-slate-200 rounded-2xl hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group">
+                      <h3 className="font-bold text-base mb-1 group-hover:text-primary transition-colors">{inst.name}</h3>
+                      <p className="text-sm text-slate-500">{inst.city} · {inst.type}</p>
+                      {inst.ranking && <p className="text-xs font-bold text-indigo-600 mt-2">UK Rank #{inst.ranking}</p>}
                     </div>
                   </Link>
                 ))}
               </div>
             </section>
+
+            {/* Recommended Routes */}
+            {results.recommendedRoutes && results.recommendedRoutes.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-bold flex items-center gap-2 mb-6"><Map className="w-6 h-6 text-primary" /> Suggested Pathways</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {results.recommendedRoutes.slice(0,4).map(route => (
+                    <div key={route.id} className="bg-white border border-slate-200 rounded-2xl p-6">
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div>
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{route.duration}</span>
+                          <h3 className="font-bold text-base text-slate-900 mt-1">{route.name}</h3>
+                        </div>
+                        <span className="shrink-0 px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">{route.type}</span>
+                      </div>
+                      <p className="text-sm text-slate-500 line-clamp-2 mb-4">{route.description}</p>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        {route.pros?.slice(0,2).map((pro, i) => (
+                          <div key={i} className="flex items-start gap-1.5 text-emerald-700">
+                            <CheckCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" /> {pro}
+                          </div>
+                        ))}
+                        {route.cons?.slice(0,2).map((con, i) => (
+                          <div key={i} className="flex items-start gap-1.5 text-rose-500">
+                            <XCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" /> {con}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
             
             <div className="text-center mt-12 pb-12">
                <button onClick={() => { form.reset(); setStep(1); }} className="text-primary font-bold hover:underline">
