@@ -25,6 +25,7 @@ async function deploySeed() {
     run("update-resources");
     run("expand-data");
     run("update-alerts");
+    run("add-apprenticeships");
 
     console.log("\nAll seed scripts completed successfully!");
   } else {

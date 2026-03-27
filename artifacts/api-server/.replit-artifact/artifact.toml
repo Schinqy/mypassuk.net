@@ -15,7 +15,7 @@ run = "pnpm --filter @workspace/api-server run dev"
 [services.production]
 
 [services.production.build]
-args = ["sh", "-c", "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/scripts run deploy-seed"]
+args = ["sh", "-c", "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/scripts run deploy-seed && pnpm --filter @workspace/scripts run add-apprenticeships"]
 
 [services.production.build.env]
 NODE_ENV = "production"

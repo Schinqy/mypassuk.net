@@ -30,23 +30,42 @@ const TYPE_ICON_BG = {
 export default function Institutions() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<GetInstitutionsType | "All">("All");
+  const [cityFilter, setCityFilter] = useState("All");
   const [regionFilter, setRegionFilter] = useState("All");
   const [russellGroupOnly, setRussellGroupOnly] = useState(false);
 
   const { data: institutions, isLoading } = useGetInstitutions();
   const base = import.meta.env.BASE_URL;
 
-  const regions = ["All", ...Array.from(new Set(institutions?.map(i => i.region) || []))];
+  const regions = ["All", ...Array.from(new Set(institutions?.map(i => i.region).filter(Boolean) || []))].sort((a, b) => a === "All" ? -1 : b === "All" ? 1 : a.localeCompare(b));
+
+  const cities = ["All", ...Array.from(new Set(
+    institutions
+      ?.filter(i => regionFilter === "All" || i.region === regionFilter)
+      .map(i => i.city)
+      .filter(c => c && c !== "Various") || []
+  )).sort()];
 
   const filteredInstitutions = institutions?.filter(i => {
-    const matchesSearch = i.name.toLowerCase().includes(search.toLowerCase()) || i.city.toLowerCase().includes(search.toLowerCase());
+    const cityLower = (i.city || "").toLowerCase();
+    const nameLower = (i.name || "").toLowerCase();
+    const searchLower = search.toLowerCase().trim();
+    const matchesSearch = !searchLower || nameLower.includes(searchLower) || cityLower.includes(searchLower);
     const matchesType = typeFilter === "All" || i.type === typeFilter;
+    const matchesCity = cityFilter === "All" || (i.city || "") === cityFilter;
     const matchesRegion = regionFilter === "All" || i.region === regionFilter;
     const matchesRG = !russellGroupOnly || i.russellGroup === true;
-    return matchesSearch && matchesType && matchesRegion && matchesRG;
+    return matchesSearch && matchesType && matchesCity && matchesRegion && matchesRG;
   });
 
+  const handleRegionChange = (region: string) => {
+    setRegionFilter(region);
+    setCityFilter("All");
+  };
+
   if (isLoading) return <LoadingSpinner className="mt-32" />;
+
+  const totalCount = institutions?.length ?? 0;
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-12">
@@ -54,7 +73,6 @@ export default function Institutions() {
 
         {/* Header Banner */}
         <div className="bg-primary rounded-3xl mb-8 relative overflow-hidden">
-          {/* Real campus image in the background */}
           <img
             src={`${base}images/uni-campus.png`}
             alt="University campus"
@@ -65,14 +83,13 @@ export default function Institutions() {
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 p-8 md:p-12">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/15 text-white border border-white/20 rounded-full text-sm font-bold mb-5">
-                <Building2 className="w-4 h-4" /> 57 Institutions
+                <Building2 className="w-4 h-4" /> {totalCount} Institutions
               </div>
               <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">Find Institutions</h1>
               <p className="text-primary-foreground/80 text-lg">
                 Explore Universities, Colleges, and Apprenticeship providers across the UK. Compare entry requirements and find your fit.
               </p>
             </div>
-            {/* Campus photo as visible card */}
             <div className="hidden md:block shrink-0">
               <img
                 src={`${base}images/uni-campus.png`}
@@ -90,8 +107,9 @@ export default function Institutions() {
               <h3 className="font-bold text-lg mb-6 flex items-center gap-2"><Filter className="w-5 h-5 text-primary" /> Filters</h3>
 
               <div className="space-y-6">
+                {/* Name search */}
                 <div>
-                  <label className="text-sm font-semibold text-slate-700 mb-2 block">Search Name or City</label>
+                  <label className="text-sm font-semibold text-slate-700 mb-2 block">Search by Name</label>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
@@ -99,15 +117,16 @@ export default function Institutions() {
                       placeholder="e.g. Manchester..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                     />
                   </div>
                 </div>
 
+                {/* Institution Type */}
                 <div>
                   <label className="text-sm font-semibold text-slate-700 mb-3 block">Institution Type</label>
                   <div className="flex flex-col gap-2">
-                    {["All", "University", "College", "Apprenticeship Provider"].map(type => {
+                    {["All", "University", "College", "Apprenticeship Provider", "Conservatoire"].map(type => {
                       const Icon = type !== "All" ? (TYPE_ICON[type as keyof typeof TYPE_ICON] ?? Building2) : Building2;
                       return (
                         <button
@@ -127,17 +146,33 @@ export default function Institutions() {
                   </div>
                 </div>
 
+                {/* Region */}
                 <div>
-                  <label className="text-sm font-semibold text-slate-700 mb-3 block">Region</label>
+                  <label className="text-sm font-semibold text-slate-700 mb-2 block">Region</label>
                   <select
                     value={regionFilter}
-                    onChange={(e) => setRegionFilter(e.target.value)}
+                    onChange={(e) => handleRegionChange(e.target.value)}
                     className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
                   >
                     {regions.map(r => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
 
+                {/* City dropdown */}
+                <div>
+                  <label className="text-sm font-semibold text-slate-700 mb-2 block flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" /> City
+                  </label>
+                  <select
+                    value={cityFilter}
+                    onChange={(e) => setCityFilter(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                  >
+                    {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+
+                {/* Russell Group */}
                 <div className="pt-4 border-t border-slate-100">
                   <label className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center">
@@ -153,12 +188,25 @@ export default function Institutions() {
                     <span className="text-sm font-semibold text-slate-700 group-hover:text-primary transition-colors">Russell Group Only</span>
                   </label>
                 </div>
+
+                {/* Active filter count */}
+                {(search || typeFilter !== "All" || cityFilter !== "All" || regionFilter !== "All" || russellGroupOnly) && (
+                  <button
+                    onClick={() => { setSearch(""); setTypeFilter("All"); setCityFilter("All"); setRegionFilter("All"); setRussellGroupOnly(false); }}
+                    className="w-full py-2 text-sm font-semibold text-slate-500 hover:text-primary transition-colors border border-slate-200 rounded-xl hover:border-primary/30"
+                  >
+                    Clear all filters
+                  </button>
+                )}
               </div>
             </div>
           </div>
 
           {/* List */}
           <div className="lg:col-span-3">
+            <div className="mb-4 text-sm text-slate-500 font-medium">
+              Showing {filteredInstitutions?.length ?? 0} of {totalCount} institutions
+            </div>
             {!filteredInstitutions?.length ? (
               <EmptyState title="No institutions found" description="Adjust your filters to see more results." />
             ) : (
@@ -171,13 +219,12 @@ export default function Institutions() {
                     <motion.div
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.04 }}
+                      transition={{ delay: Math.min(idx * 0.03, 0.5) }}
                       key={inst.id}
                     >
                       <Link href={`/institutions/${inst.id}`}>
                         <div className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-primary/40 hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row gap-6 cursor-pointer group">
 
-                          {/* Type icon with colored background */}
                           <div className={`w-16 h-16 shrink-0 rounded-xl flex items-center justify-center border border-slate-100 ${iconBg}`}>
                             <Icon className="w-8 h-8" />
                           </div>
@@ -210,12 +257,14 @@ export default function Institutions() {
                                 <p className="text-2xl font-display font-bold text-slate-900">#{inst.ranking}</p>
                               </div>
                             )}
-                            <div className="text-center">
-                              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Satisfaction</p>
-                              <div className="flex items-center justify-center gap-1 bg-amber-50 px-2 py-1 rounded-md text-amber-700 font-bold text-sm">
-                                <Star className="w-4 h-4 fill-amber-500 text-amber-500" /> {inst.studentSatisfaction.toFixed(1)}/5
+                            {inst.studentSatisfaction != null && (
+                              <div className="text-center">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Satisfaction</p>
+                                <div className="flex items-center justify-center gap-1 bg-amber-50 px-2 py-1 rounded-md text-amber-700 font-bold text-sm">
+                                  <Star className="w-4 h-4 fill-amber-500 text-amber-500" /> {inst.studentSatisfaction.toFixed(1)}/5
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </div>
 
                         </div>

@@ -9,6 +9,7 @@
     "update-resources": "tsx ./src/update-resources.ts",
     "expand-data": "tsx ./src/expand-data.ts",
     "update-alerts": "tsx ./src/update-alerts.ts",
+    "add-apprenticeships": "tsx ./src/add-apprenticeships.ts",
     "deploy-seed": "tsx ./src/deploy-seed.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
