@@ -26,6 +26,7 @@ import type {
   GetSubjectsParams,
   HealthStatus,
   Institution,
+  InstitutionAlert,
   OpenaiConversation,
   OpenaiConversationWithMessages,
   OpenaiError,
@@ -573,6 +574,82 @@ export function useGetInstitutions<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetInstitutionsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all institutions with upcoming open day dates, fees and application deadlines, sorted by nearest open day
+ * @summary Get recruitment alerts for all institutions
+ */
+export const getGetInstitutionAlertsUrl = () => {
+  return `/api/institutions/alerts`;
+};
+
+export const getInstitutionAlerts = async (
+  options?: RequestInit,
+): Promise<InstitutionAlert[]> => {
+  return customFetch<InstitutionAlert[]>(getGetInstitutionAlertsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetInstitutionAlertsQueryKey = () => {
+  return [`/api/institutions/alerts`] as const;
+};
+
+export const getGetInstitutionAlertsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInstitutionAlerts>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getInstitutionAlerts>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetInstitutionAlertsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInstitutionAlerts>>
+  > = ({ signal }) => getInstitutionAlerts({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInstitutionAlerts>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInstitutionAlertsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInstitutionAlerts>>
+>;
+export type GetInstitutionAlertsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get recruitment alerts for all institutions
+ */
+
+export function useGetInstitutionAlerts<
+  TData = Awaited<ReturnType<typeof getInstitutionAlerts>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getInstitutionAlerts>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInstitutionAlertsQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

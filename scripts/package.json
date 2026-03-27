@@ -8,6 +8,7 @@
     "seed": "tsx ./src/seed.ts",
     "update-resources": "tsx ./src/update-resources.ts",
     "expand-data": "tsx ./src/expand-data.ts",
+    "update-alerts": "tsx ./src/update-alerts.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

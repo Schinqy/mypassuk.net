@@ -108,6 +108,29 @@ export interface Institution {
   bursaries?: boolean;
   internationalStudents?: boolean;
   relatedCareers?: number[];
+  /** UK domestic annual tuition fee in GBP */
+  annualFees?: number;
+  /** International student annual fee in GBP */
+  internationalFees?: number;
+  /** Upcoming open day dates in YYYY-MM-DD format */
+  openDayDates?: string[];
+  /** Application deadline text (e.g. "15 January 2027") */
+  applicationDeadline?: string;
+  /** When applications open (e.g. "September 2026") */
+  applicationsOpen?: string;
+}
+
+export interface InstitutionAlert {
+  id: number;
+  name: string;
+  type: string;
+  city: string;
+  annualFees?: number;
+  internationalFees?: number;
+  openDayDates?: string[];
+  applicationDeadline?: string;
+  applicationsOpen?: string;
+  websiteUrl?: string;
 }
 
 export type RouteAfterLevel =

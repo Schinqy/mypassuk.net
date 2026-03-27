@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -46,9 +47,10 @@ export function Navbar() {
                 </Link>
               );
             })}
+            <RecruitmentAlerts />
             <Link
               href="/quiz"
-              className="ml-4 px-6 py-2.5 rounded-xl font-semibold bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+              className="ml-2 px-6 py-2.5 rounded-xl font-semibold bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
             >
               Get Recommendations
             </Link>

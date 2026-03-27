@@ -5,6 +5,22 @@ import { eq } from "drizzle-orm";
 
 const router: IRouter = Router();
 
+router.get("/institutions/alerts", async (req, res) => {
+  try {
+    const all = await db.select().from(institutionsTable);
+    const today = new Date().toISOString().slice(0, 10);
+    const sorted = all.sort((a, b) => {
+      const nextA = (a.openDayDates as string[]).find(d => d >= today) ?? "9999-12-31";
+      const nextB = (b.openDayDates as string[]).find(d => d >= today) ?? "9999-12-31";
+      return nextA.localeCompare(nextB);
+    });
+    res.json(sorted);
+  } catch (err) {
+    req.log.error({ err }, "Failed to fetch institution alerts");
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 router.get("/institutions", async (req, res) => {
   try {
     const { type, region, russellGroup, careerId } = req.query as {

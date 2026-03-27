@@ -188,8 +188,48 @@ export const GetInstitutionsResponseItem = zod.object({
   bursaries: zod.boolean().optional(),
   internationalStudents: zod.boolean().optional(),
   relatedCareers: zod.array(zod.number()).optional(),
+  annualFees: zod
+    .number()
+    .optional()
+    .describe("UK domestic annual tuition fee in GBP"),
+  internationalFees: zod
+    .number()
+    .optional()
+    .describe("International student annual fee in GBP"),
+  openDayDates: zod
+    .array(zod.string())
+    .optional()
+    .describe("Upcoming open day dates in YYYY-MM-DD format"),
+  applicationDeadline: zod
+    .string()
+    .optional()
+    .describe('Application deadline text (e.g. \"15 January 2027\")'),
+  applicationsOpen: zod
+    .string()
+    .optional()
+    .describe('When applications open (e.g. \"September 2026\")'),
 });
 export const GetInstitutionsResponse = zod.array(GetInstitutionsResponseItem);
+
+/**
+ * Returns all institutions with upcoming open day dates, fees and application deadlines, sorted by nearest open day
+ * @summary Get recruitment alerts for all institutions
+ */
+export const GetInstitutionAlertsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  type: zod.string(),
+  city: zod.string(),
+  annualFees: zod.number().optional(),
+  internationalFees: zod.number().optional(),
+  openDayDates: zod.array(zod.string()).optional(),
+  applicationDeadline: zod.string().optional(),
+  applicationsOpen: zod.string().optional(),
+  websiteUrl: zod.string().optional(),
+});
+export const GetInstitutionAlertsResponse = zod.array(
+  GetInstitutionAlertsResponseItem,
+);
 
 /**
  * @summary Get institution by ID
@@ -222,6 +262,26 @@ export const GetInstitutionByIdResponse = zod.object({
   bursaries: zod.boolean().optional(),
   internationalStudents: zod.boolean().optional(),
   relatedCareers: zod.array(zod.number()).optional(),
+  annualFees: zod
+    .number()
+    .optional()
+    .describe("UK domestic annual tuition fee in GBP"),
+  internationalFees: zod
+    .number()
+    .optional()
+    .describe("International student annual fee in GBP"),
+  openDayDates: zod
+    .array(zod.string())
+    .optional()
+    .describe("Upcoming open day dates in YYYY-MM-DD format"),
+  applicationDeadline: zod
+    .string()
+    .optional()
+    .describe('Application deadline text (e.g. \"15 January 2027\")'),
+  applicationsOpen: zod
+    .string()
+    .optional()
+    .describe('When applications open (e.g. \"September 2026\")'),
 });
 
 /**
@@ -399,6 +459,26 @@ export const GetRecommendationsResponse = zod.object({
       bursaries: zod.boolean().optional(),
       internationalStudents: zod.boolean().optional(),
       relatedCareers: zod.array(zod.number()).optional(),
+      annualFees: zod
+        .number()
+        .optional()
+        .describe("UK domestic annual tuition fee in GBP"),
+      internationalFees: zod
+        .number()
+        .optional()
+        .describe("International student annual fee in GBP"),
+      openDayDates: zod
+        .array(zod.string())
+        .optional()
+        .describe("Upcoming open day dates in YYYY-MM-DD format"),
+      applicationDeadline: zod
+        .string()
+        .optional()
+        .describe('Application deadline text (e.g. \"15 January 2027\")'),
+      applicationsOpen: zod
+        .string()
+        .optional()
+        .describe('When applications open (e.g. \"September 2026\")'),
     }),
   ),
   recommendedRoutes: zod.array(

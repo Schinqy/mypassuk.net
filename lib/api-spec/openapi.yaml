@@ -179,6 +179,22 @@ paths:
                 items:
                   $ref: "#/components/schemas/Institution"
 
+  /institutions/alerts:
+    get:
+      operationId: getInstitutionAlerts
+      tags: [institutions]
+      summary: Get recruitment alerts for all institutions
+      description: Returns all institutions with upcoming open day dates, fees and application deadlines, sorted by nearest open day
+      responses:
+        "200":
+          description: List of institution alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InstitutionAlert"
+
   /institutions/{id}:
     get:
       operationId: getInstitutionById
@@ -540,6 +556,23 @@ components:
           type: array
           items:
             type: integer
+        annualFees:
+          type: integer
+          description: UK domestic annual tuition fee in GBP
+        internationalFees:
+          type: integer
+          description: International student annual fee in GBP
+        openDayDates:
+          type: array
+          items:
+            type: string
+          description: Upcoming open day dates in YYYY-MM-DD format
+        applicationDeadline:
+          type: string
+          description: Application deadline text (e.g. "15 January 2027")
+        applicationsOpen:
+          type: string
+          description: When applications open (e.g. "September 2026")
       required:
         - id
         - name
@@ -547,6 +580,37 @@ components:
         - region
         - city
         - description
+
+    InstitutionAlert:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        city:
+          type: string
+        annualFees:
+          type: integer
+        internationalFees:
+          type: integer
+        openDayDates:
+          type: array
+          items:
+            type: string
+        applicationDeadline:
+          type: string
+        applicationsOpen:
+          type: string
+        websiteUrl:
+          type: string
+      required:
+        - id
+        - name
+        - type
+        - city
 
     Route:
       type: object

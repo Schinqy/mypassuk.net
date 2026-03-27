@@ -19,6 +19,7 @@ export * from "./getSubjectsLevel";
 export * from "./getSubjectsParams";
 export * from "./healthStatus";
 export * from "./institution";
+export * from "./institutionAlert";
 export * from "./institutionType";
 export * from "./openaiConversation";
 export * from "./openaiConversationWithMessages";
