@@ -2,6 +2,20 @@ import { useParams, Link } from "wouter";
 import { useGetCareerById } from "@workspace/api-client-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ArrowLeft, Briefcase, PoundSterling, TrendingUp, MapPin, GraduationCap, CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
+
+const SECTOR_IMAGES: Record<string, string> = {
+  Healthcare: "sector-healthcare.jpg",
+  Technology: "sector-technology.jpg",
+  Engineering: "sector-engineering.jpg",
+  Science: "sector-science.jpg",
+  Law: "sector-law.jpg",
+  Finance: "sector-law.jpg",
+  Business: "sector-law.jpg",
+  Education: "sector-education.jpg",
+  "Creative Arts": "sector-creative.jpg",
+  "Public Services": "sector-education.jpg",
+};
 
 export default function CareerDetail() {
   const { id } = useParams<{ id: string }>();
@@ -10,42 +24,64 @@ export default function CareerDetail() {
   if (isLoading) return <LoadingSpinner className="mt-32" />;
   if (error || !career) return <div className="text-center mt-32 text-red-500 font-bold text-xl">Career not found</div>;
 
+  const sectorImage = SECTOR_IMAGES[career.sector] ?? "students-studying.jpg";
+  const base = import.meta.env.BASE_URL;
+
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      
+
       {/* Hero */}
       <div className="bg-slate-900 text-white pt-16 pb-24 px-4 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=800&fit=crop')] opacity-10 object-cover mix-blend-overlay pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-        
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-800 z-0" />
+
         <div className="max-w-5xl mx-auto relative z-10">
           <Link href="/careers" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-8 text-sm font-medium">
             <ArrowLeft className="w-4 h-4" /> Back to careers
           </Link>
-          
-          <div className="flex flex-wrap items-center gap-3 mb-6">
-            <span className="px-4 py-1.5 bg-primary rounded-full text-xs font-bold tracking-wider uppercase">
-              {career.sector}
-            </span>
-            <span className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase flex items-center gap-1 ${
-              career.jobOutlook === 'Excellent' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
-              career.jobOutlook === 'Good' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
-              'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-            }`}>
-              <TrendingUp className="w-3.5 h-3.5" /> Outlook: {career.jobOutlook}
-            </span>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            {/* Left: text */}
+            <div>
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <span className="px-4 py-1.5 bg-primary rounded-full text-xs font-bold tracking-wider uppercase">
+                  {career.sector}
+                </span>
+                <span className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase flex items-center gap-1 ${
+                  career.jobOutlook === 'Excellent' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                  career.jobOutlook === 'Good' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                  'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                }`}>
+                  <TrendingUp className="w-3.5 h-3.5" /> Outlook: {career.jobOutlook}
+                </span>
+              </div>
+
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 leading-tight">{career.title}</h1>
+              <p className="text-lg text-slate-300 leading-relaxed">
+                {career.description}
+              </p>
+            </div>
+
+            {/* Right: sector photo */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              className="hidden lg:block relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/20 blur-2xl rounded-3xl" />
+              <img
+                src={`${base}images/${sectorImage}`}
+                alt={career.sector}
+                className="relative z-10 w-full h-64 object-cover rounded-3xl shadow-2xl border border-white/10"
+              />
+            </motion.div>
           </div>
-          
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 leading-tight">{career.title}</h1>
-          <p className="text-xl text-slate-300 leading-relaxed max-w-3xl">
-            {career.description}
-          </p>
         </div>
       </div>
 
       {/* Main Content Grid */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
-        
+
         {/* Salary Banner */}
         <div className="bg-white rounded-2xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row items-center justify-around gap-6 mb-8">
            <div className="text-center md:text-left flex items-center gap-4">
@@ -97,7 +133,7 @@ export default function CareerDetail() {
               <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
                 <GraduationCap className="w-6 h-6 text-accent" /> How to get there
               </h3>
-              
+
               <div className="mb-8">
                 <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Common Routes</h4>
                 <ul className="space-y-3">
