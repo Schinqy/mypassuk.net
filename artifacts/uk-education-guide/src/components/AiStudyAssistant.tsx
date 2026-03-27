@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, X, Send, Sparkles, RotateCcw, ChevronDown, Loader2 } from "lucide-react";
+import { Bot, X, Send, Sparkles, RotateCcw, ChevronDown, Loader2, Lock, Zap } from "lucide-react";
+import { Link } from "wouter";
 
 interface Message {
   role: "user" | "assistant";
@@ -24,6 +25,21 @@ const QUICK_PROMPTS = [
 ];
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const FREE_LIMIT = 5;
+
+function getDailyKey() {
+  return `ai-chat-daily-${new Date().toISOString().slice(0, 10)}`;
+}
+
+function getDailyUsage(): number {
+  return parseInt(localStorage.getItem(getDailyKey()) ?? "0", 10);
+}
+
+function incrementDailyUsage(): number {
+  const next = getDailyUsage() + 1;
+  localStorage.setItem(getDailyKey(), String(next));
+  return next;
+}
 
 async function createConversation(title: string): Promise<number> {
   const res = await fetch(`${BASE}/api/openai/conversations`, {
@@ -42,11 +58,14 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
   const [streaming, setStreaming] = useState(false);
   const [convId, setConvId] = useState<number | null>(null);
   const [initialised, setInitialised] = useState(false);
+  const [dailyUsage, setDailyUsage] = useState(getDailyUsage);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const contextLabel = subjectName ?? "UK Education";
+  const remaining = Math.max(0, FREE_LIMIT - dailyUsage);
+  const limitReached = dailyUsage >= FREE_LIMIT;
 
   const systemPrompt = subjectName
     ? `You are an expert UK education tutor specialising in ${subjectName} at ${subjectLevel ?? "GCSE/A-Level"} level (${subjectCategory ?? ""}). Your job is to help students revise, understand key topics, and prepare for exams. Keep answers concise, structured, and tailored to UK exam board expectations (Pearson Edexcel). When giving practice questions, include mark-scheme hints. Key topics include: ${keyTopics?.join(", ") ?? "various topics"}.`
@@ -91,6 +110,10 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || streaming || convId === null) return;
+    if (limitReached) return;
+
+    const newUsage = incrementDailyUsage();
+    setDailyUsage(newUsage);
 
     const userMsg: Message = { role: "user", content: text };
     const assistantMsg: Message = { role: "assistant", content: "", streaming: true };
@@ -161,7 +184,7 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
       });
       setStreaming(false);
     }
-  }, [streaming, convId]);
+  }, [streaming, convId, limitReached]);
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
@@ -217,6 +240,10 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {/* Usage pill */}
+                <div className={`px-2.5 py-1 rounded-full text-xs font-bold ${remaining <= 1 ? "bg-accent text-white" : "bg-white/20 text-white"}`}>
+                  {remaining}/{FREE_LIMIT} free
+                </div>
                 <button
                   onClick={reset}
                   className="p-2 rounded-xl hover:bg-white/10 transition-colors text-white/70 hover:text-white"
@@ -271,7 +298,7 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
             </div>
 
             {/* Quick Prompts */}
-            {messages.length <= 1 && !streaming && (
+            {messages.length <= 1 && !streaming && !limitReached && (
               <div className="px-4 py-3 border-t border-slate-100 bg-white flex gap-2 overflow-x-auto shrink-0">
                 {QUICK_PROMPTS.map(prompt => (
                   <button
@@ -285,33 +312,66 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
               </div>
             )}
 
-            {/* Input */}
-            <div className="px-4 py-3 border-t border-slate-100 bg-white shrink-0">
-              <div className="flex gap-2 items-end">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
-                  placeholder={subjectName ? `Ask about ${subjectName}…` : "Ask anything…"}
-                  disabled={streaming || convId === null}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary/40 outline-none transition-all disabled:opacity-50"
-                />
-                <button
-                  onClick={() => sendMessage(input)}
-                  disabled={!input.trim() || streaming || convId === null}
-                  className="p-2.5 bg-primary text-white rounded-xl disabled:opacity-40 hover:bg-primary/90 transition-all shrink-0"
-                >
-                  {streaming ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
-                </button>
+            {/* Limit reached paywall */}
+            {limitReached ? (
+              <div className="px-4 py-5 border-t border-slate-100 bg-white shrink-0">
+                <div className="bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 rounded-2xl p-4 text-center">
+                  <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <Lock className="w-5 h-5 text-white" />
+                  </div>
+                  <p className="font-bold text-slate-900 text-sm mb-1">Daily limit reached</p>
+                  <p className="text-xs text-slate-500 mb-3">
+                    You've used all {FREE_LIMIT} free messages for today. Resets at midnight, or upgrade for unlimited access.
+                  </p>
+                  <Link href="/pricing">
+                    <button
+                      onClick={() => setOpen(false)}
+                      className="w-full py-2.5 bg-primary text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors"
+                    >
+                      <Zap className="w-4 h-4" /> Upgrade to Premium — £3.99/mo
+                    </button>
+                  </Link>
+                  <p className="text-[10px] text-slate-400 mt-2">Free messages reset daily at midnight</p>
+                </div>
               </div>
-              <p className="text-[10px] text-slate-400 mt-2 text-center">Powered by AI · Responses may not be 100% accurate</p>
-            </div>
+            ) : (
+              /* Input */
+              <div className="px-4 py-3 border-t border-slate-100 bg-white shrink-0">
+                {remaining <= 2 && remaining > 0 && (
+                  <div className="flex items-center gap-1.5 mb-2 text-[10px] font-semibold text-amber-600">
+                    <Zap className="w-3 h-3" />
+                    {remaining} free message{remaining !== 1 ? "s" : ""} left today ·{" "}
+                    <Link href="/pricing">
+                      <span onClick={() => setOpen(false)} className="underline cursor-pointer hover:text-accent">Upgrade for unlimited</span>
+                    </Link>
+                  </div>
+                )}
+                <div className="flex gap-2 items-end">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
+                    placeholder={subjectName ? `Ask about ${subjectName}…` : "Ask anything…"}
+                    disabled={streaming || convId === null}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary/40 outline-none transition-all disabled:opacity-50"
+                  />
+                  <button
+                    onClick={() => sendMessage(input)}
+                    disabled={!input.trim() || streaming || convId === null}
+                    className="p-2.5 bg-primary text-white rounded-xl disabled:opacity-40 hover:bg-primary/90 transition-all shrink-0"
+                  >
+                    {streaming ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Send className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-2 text-center">Powered by AI · Responses may not be 100% accurate</p>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

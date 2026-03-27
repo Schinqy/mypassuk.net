@@ -573,6 +573,9 @@ components:
         applicationsOpen:
           type: string
           description: When applications open (e.g. "September 2026")
+        featured:
+          type: boolean
+          description: Whether this institution has a paid featured listing
       required:
         - id
         - name

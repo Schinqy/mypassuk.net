@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Building2, Search, MapPin, Star, GraduationCap, Filter, Landmark, Users, Briefcase } from "lucide-react";
+import { Building2, Search, MapPin, Star, GraduationCap, Filter, Landmark, Users, Briefcase, Zap, Mail } from "lucide-react";
 import { useGetInstitutions, GetInstitutionsType } from "@workspace/api-client-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -215,6 +215,7 @@ export default function Institutions() {
                   const Icon = TYPE_ICON[inst.type as keyof typeof TYPE_ICON] ?? Building2;
                   const iconBg = TYPE_ICON_BG[inst.type as keyof typeof TYPE_ICON_BG] ?? "bg-slate-50 text-slate-500";
                   const typeBadge = TYPE_COLORS[inst.type as keyof typeof TYPE_COLORS] ?? "bg-slate-50 text-slate-600 border-slate-200";
+                  const isFeatured = inst.featured === true;
                   return (
                     <motion.div
                       initial={{ opacity: 0, x: -10 }}
@@ -223,9 +224,17 @@ export default function Institutions() {
                       key={inst.id}
                     >
                       <Link href={`/institutions/${inst.id}`}>
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-primary/40 hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row gap-6 cursor-pointer group">
+                        <div className={`bg-white p-6 rounded-2xl border hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row gap-6 cursor-pointer group relative overflow-hidden ${isFeatured ? "border-amber-300 shadow-amber-100/60 shadow-md" : "border-slate-200 hover:border-primary/40"}`}>
 
-                          <div className={`w-16 h-16 shrink-0 rounded-xl flex items-center justify-center border border-slate-100 ${iconBg}`}>
+                          {isFeatured && (
+                            <div className="absolute top-0 right-0">
+                              <div className="flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl">
+                                <Zap className="w-2.5 h-2.5 fill-white" /> FEATURED
+                              </div>
+                            </div>
+                          )}
+
+                          <div className={`w-16 h-16 shrink-0 rounded-xl flex items-center justify-center border ${isFeatured ? "border-amber-200 bg-amber-50 text-amber-700" : `border-slate-100 ${iconBg}`}`}>
                             <Icon className="w-8 h-8" />
                           </div>
 
@@ -272,6 +281,29 @@ export default function Institutions() {
                     </motion.div>
                   );
                 })}
+
+                {/* Advertise CTA */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-200 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center shrink-0">
+                      <Zap className="w-6 h-6 text-white fill-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900">Is your institution listed here?</p>
+                      <p className="text-sm text-slate-600">Get a featured listing and reach thousands of prospective students actively choosing their path.</p>
+                    </div>
+                  </div>
+                  <Link href="/pricing">
+                    <button className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-colors whitespace-nowrap">
+                      <Mail className="w-4 h-4" /> Get Featured — £99/mo
+                    </button>
+                  </Link>
+                </motion.div>
               </div>
             )}
           </div>

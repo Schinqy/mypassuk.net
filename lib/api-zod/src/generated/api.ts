@@ -208,6 +208,10 @@ export const GetInstitutionsResponseItem = zod.object({
     .string()
     .optional()
     .describe('When applications open (e.g. \"September 2026\")'),
+  featured: zod
+    .boolean()
+    .optional()
+    .describe("Whether this institution has a paid featured listing"),
 });
 export const GetInstitutionsResponse = zod.array(GetInstitutionsResponseItem);
 
@@ -282,6 +286,10 @@ export const GetInstitutionByIdResponse = zod.object({
     .string()
     .optional()
     .describe('When applications open (e.g. \"September 2026\")'),
+  featured: zod
+    .boolean()
+    .optional()
+    .describe("Whether this institution has a paid featured listing"),
 });
 
 /**
@@ -479,6 +487,10 @@ export const GetRecommendationsResponse = zod.object({
         .string()
         .optional()
         .describe('When applications open (e.g. \"September 2026\")'),
+      featured: zod
+        .boolean()
+        .optional()
+        .describe("Whether this institution has a paid featured listing"),
     }),
   ),
   recommendedRoutes: zod.array(

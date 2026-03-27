@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays } from "lucide-react";
+import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays, Zap } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
@@ -77,6 +77,17 @@ export function Navbar() {
               <div className="w-px h-6 bg-slate-200 mx-1" />
 
               <Link
+                href="/pricing"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  location.startsWith("/pricing")
+                    ? "bg-amber-50 text-amber-700"
+                    : "text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+                }`}
+              >
+                <Zap className="w-3.5 h-3.5" /> Pricing
+              </Link>
+
+              <Link
                 href="/quiz"
                 className="group relative inline-flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-sm text-white overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0"
                 style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
@@ -134,7 +145,14 @@ export function Navbar() {
                 );
               })}
 
-              <div className="pt-3 mt-2 border-t border-slate-100">
+              <div className="pt-3 mt-2 border-t border-slate-100 space-y-2">
+                <Link
+                  href="/pricing"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors"
+                >
+                  <Zap className="w-4 h-4" /> Pricing & Plans
+                </Link>
                 <Link
                   href="/quiz"
                   onClick={() => setIsMobileMenuOpen(false)}

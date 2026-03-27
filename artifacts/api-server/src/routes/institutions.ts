@@ -46,6 +46,7 @@ router.get("/institutions", async (req, res) => {
         (i.relatedCareers as number[]).includes(cid)
       );
     }
+    institutions.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     res.json(institutions);
   } catch (err) {
     req.log.error({ err }, "Failed to fetch institutions");

@@ -85,11 +85,19 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 ### `artifacts/api-server` (`@workspace/api-server`)
 
-Express 5 API server. Routes: `/api/healthz`, `/api/subjects`, `/api/careers`, `/api/institutions`, `/api/routes`, `/api/quiz/recommend`, `/api/openai/conversations` (CRUD + SSE streaming)
+Express 5 API server. Routes: `/api/healthz`, `/api/subjects`, `/api/careers`, `/api/institutions`, `/api/routes`, `/api/quiz/recommend`, `/api/openai/conversations` (CRUD + SSE streaming). Institutions sorted featured-first.
 
 ### `artifacts/uk-education-guide` (`@workspace/uk-education-guide`)
 
-React + Vite frontend at preview path `/`. Pages: Home, Subjects, SubjectDetail, Careers, CareerDetail, Institutions, Routes, Quiz.
+React + Vite frontend at preview path `/`. Pages: Home, Subjects, SubjectDetail, Careers, CareerDetail, Institutions, Routes, Quiz, Timetable, Pricing.
+
+**Monetisation features:**
+- `featured: boolean` column on `institutions` table — 7 institutions marked featured (Manchester, Edinburgh, KCL, Leeds City College, Rolls-Royce, BAE Systems, City University of London)
+- Featured institutions float to the top of the Institutions list with an amber "FEATURED" badge
+- "Advertise with us" CTA at bottom of institutions list links to Pricing page
+- AI Study Assistant freemium gate: 5 messages/day (tracked in localStorage, key `ai-chat-daily-YYYY-MM-DD`), upgrade prompt shown when limit reached
+- Pricing page at `/pricing` with Free / Student Premium (£3.99/mo) / Institution Featured (£99/mo) tiers
+- "Pricing" link in Navbar (amber colour to stand out)
 
 ### `lib/db` (`@workspace/db`)
 

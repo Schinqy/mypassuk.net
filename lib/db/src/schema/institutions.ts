@@ -25,6 +25,7 @@ export const institutionsTable = pgTable("institutions", {
   openDayDates: jsonb("open_day_dates").$type<string[]>().default([]),
   applicationDeadline: text("application_deadline"),
   applicationsOpen: text("applications_open"),
+  featured: boolean("featured").default(false),
 });
 
 export const insertInstitutionSchema = createInsertSchema(institutionsTable).omit({ id: true });

@@ -118,6 +118,8 @@ export interface Institution {
   applicationDeadline?: string;
   /** When applications open (e.g. "September 2026") */
   applicationsOpen?: string;
+  /** Whether this institution has a paid featured listing */
+  featured?: boolean;
 }
 
 export interface InstitutionAlert {
