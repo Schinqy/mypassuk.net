@@ -32,15 +32,18 @@ export default function Home() {
               <div className="flex flex-wrap gap-4">
                 <Link
                   href="/quiz"
-                  className="px-8 py-4 rounded-xl font-bold bg-primary text-primary-foreground shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-1 transition-all duration-300 flex items-center gap-2"
+                  className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-white overflow-hidden transition-all duration-200 hover:shadow-xl hover:shadow-primary/35 hover:-translate-y-0.5 active:translate-y-0"
+                  style={{ background: "linear-gradient(135deg, hsl(226,71%,40%) 0%, hsl(226,71%,52%) 100%)" }}
                 >
-                  Find My Path <ArrowRight className="w-5 h-5" />
+                  <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]" />
+                  Find My Path <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </Link>
                 <Link
                   href="/subjects"
-                  className="px-8 py-4 rounded-xl font-bold bg-white text-foreground border-2 border-slate-200 hover:border-primary/50 hover:bg-slate-50 transition-all duration-300"
+                  className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold bg-white text-slate-700 border border-slate-200 hover:border-primary/40 hover:text-primary hover:bg-primary/5 shadow-sm hover:shadow-md transition-all duration-200"
                 >
                   Exam Resources
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors duration-200 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
 
