@@ -17,6 +17,7 @@ import InstitutionDetail from "@/pages/InstitutionDetail";
 import Routes from "@/pages/Routes";
 import Quiz from "@/pages/Quiz";
 import Editorial from "@/pages/Editorial";
+import Timetable from "@/pages/Timetable";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -46,6 +47,7 @@ function AppContent() {
           <Route path="/routes" component={Routes} />
           <Route path="/quiz" component={Quiz} />
           <Route path="/editorial" component={Editorial} />
+          <Route path="/timetable" component={Timetable} />
           <Route component={NotFound} />
         </Switch>
       </Layout>

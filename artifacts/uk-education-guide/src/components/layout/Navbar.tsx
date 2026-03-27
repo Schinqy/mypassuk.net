@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight } from "lucide-react";
+import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
@@ -13,6 +13,7 @@ export function Navbar() {
     { name: "Careers", href: "/careers", icon: Briefcase },
     { name: "Institutions", href: "/institutions", icon: Building2 },
     { name: "Routes", href: "/routes", icon: Map },
+    { name: "Study Plan", href: "/timetable", icon: CalendarDays, badge: "New" },
     { name: "About UK Education", href: "/editorial", icon: Newspaper },
   ];
 
@@ -53,6 +54,11 @@ export function Navbar() {
                   >
                     <item.icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-primary" : "text-slate-400"}`} />
                     {item.name}
+                    {"badge" in item && item.badge && (
+                      <span className="ml-0.5 px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full leading-none">
+                        {item.badge}
+                      </span>
+                    )}
                     {isActive && (
                       <motion.span
                         layoutId="nav-active-dot"
@@ -119,6 +125,11 @@ export function Navbar() {
                   >
                     <item.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-slate-400"}`} />
                     {item.name}
+                    {"badge" in item && item.badge && (
+                      <span className="px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full leading-none">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
