@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, X, ExternalLink, Calendar, PoundSterling, GraduationCap, Building2, ChevronRight } from "lucide-react";
 import { useGetInstitutionAlerts } from "@workspace/api-client-react";
@@ -36,42 +37,26 @@ export function RecruitmentAlerts() {
   const today = new Date().toISOString().slice(0, 10);
   const hasUpcoming = institutions.some(i => (i.openDayDates as string[]).some(d => d >= today));
 
-  return (
-    <>
-      {/* Bell Button */}
-      <button
-        onClick={() => setOpen(true)}
-        className="relative p-2.5 rounded-xl hover:bg-slate-100 text-muted-foreground hover:text-foreground transition-colors"
-        aria-label="Recruitment alerts"
-      >
-        <Bell className="w-5 h-5" />
-        {hasUpcoming && (
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
-        )}
-      </button>
-
-      {/* Backdrop */}
-      <AnimatePresence>
-        {open && (
+  const panel = (
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setOpen(false)}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9998]"
           />
-        )}
-      </AnimatePresence>
 
-      {/* Slide-in Panel */}
-      <AnimatePresence>
-        {open && (
+          {/* Slide-in Panel */}
           <motion.aside
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 24, stiffness: 280 }}
-            className="fixed right-0 top-0 bottom-0 w-[min(520px,100vw)] bg-white shadow-2xl z-50 flex flex-col"
+            className="fixed right-0 top-0 bottom-0 w-[min(520px,100vw)] bg-white shadow-2xl z-[9999] flex flex-col"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5 flex items-center justify-between shrink-0">
@@ -213,8 +198,27 @@ export function RecruitmentAlerts() {
               <p className="text-xs text-slate-400">Dates are indicative — always check institution websites for confirmed schedules</p>
             </div>
           </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
+  );
+
+  return (
+    <>
+      {/* Bell Button */}
+      <button
+        onClick={() => setOpen(true)}
+        className="relative p-2.5 rounded-xl hover:bg-slate-100 text-muted-foreground hover:text-foreground transition-colors"
+        aria-label="Recruitment alerts"
+      >
+        <Bell className="w-5 h-5" />
+        {hasUpcoming && (
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
         )}
-      </AnimatePresence>
+      </button>
+
+      {/* Portal: renders at document.body, escaping the navbar stacking context */}
+      {createPortal(panel, document.body)}
     </>
   );
 }

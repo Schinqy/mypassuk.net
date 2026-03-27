@@ -22,7 +22,8 @@ export default function InstitutionDetail() {
   );
 
   const relatedCareers = allCareers?.filter(c => (institution.relatedCareers as number[]).includes(c.id)) || [];
-  const satisfactionPct = Math.round((institution.studentSatisfaction / 5) * 100);
+  const satisfaction = institution.studentSatisfaction ?? null;
+  const satisfactionPct = satisfaction != null ? Math.round((satisfaction / 5) * 100) : 0;
 
   const typeColor = {
     University: "bg-primary/10 text-primary border-primary/20",
@@ -75,16 +76,18 @@ export default function InstitutionDetail() {
               <p className="text-3xl font-display font-bold text-slate-900">#{institution.ranking}</p>
             </div>
           )}
-          <div className="text-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Student Satisfaction</p>
-            <div className="flex items-center justify-center gap-1.5 text-amber-600 font-bold text-2xl">
-              <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
-              {institution.studentSatisfaction.toFixed(1)}<span className="text-sm font-normal text-slate-400">/5</span>
+          {satisfaction != null && (
+            <div className="text-center">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Student Satisfaction</p>
+              <div className="flex items-center justify-center gap-1.5 text-amber-600 font-bold text-2xl">
+                <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
+                {satisfaction.toFixed(1)}<span className="text-sm font-normal text-slate-400">/5</span>
+              </div>
+              <div className="mt-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-full bg-amber-400 rounded-full" style={{ width: `${satisfactionPct}%` }} />
+              </div>
             </div>
-            <div className="mt-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-              <div className="h-full bg-amber-400 rounded-full" style={{ width: `${satisfactionPct}%` }} />
-            </div>
-          </div>
+          )}
           {institution.bursaries && (
             <div className="text-center">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Bursaries</p>
