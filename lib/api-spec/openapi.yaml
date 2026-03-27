@@ -1,15 +1,24 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: UK Education & Career Guide API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: subjects
+    description: GCSE and A-level subjects
+  - name: careers
+    description: Career pathways
+  - name: institutions
+    description: HE and FE institutions
+  - name: routes
+    description: Post-16 and post-18 routes
+  - name: quiz
+    description: Career/subject interest quiz
 paths:
   /healthz:
     get:
@@ -24,6 +33,221 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /subjects:
+    get:
+      operationId: getSubjects
+      tags: [subjects]
+      summary: Get all subjects
+      description: Returns all GCSE and A-level subjects with study tips
+      parameters:
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum: [GCSE, A-Level, Both]
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subject"
+
+  /subjects/{id}:
+    get:
+      operationId: getSubjectById
+      tags: [subjects]
+      summary: Get subject by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Subject details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /careers:
+    get:
+      operationId: getCareers
+      tags: [careers]
+      summary: Get career pathways
+      description: Returns career pathways with required subjects and salary info
+      parameters:
+        - name: sector
+          in: query
+          schema:
+            type: string
+        - name: subjectId
+          in: query
+          schema:
+            type: integer
+        - name: minSalary
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of careers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Career"
+
+  /careers/{id}:
+    get:
+      operationId: getCareerById
+      tags: [careers]
+      summary: Get career by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Career details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Career"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /institutions:
+    get:
+      operationId: getInstitutions
+      tags: [institutions]
+      summary: Get HE and FE institutions
+      description: Filter universities, colleges, and training providers
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [University, College, Apprenticeship Provider, Conservatoire, Specialist]
+        - name: region
+          in: query
+          schema:
+            type: string
+        - name: russellGroup
+          in: query
+          schema:
+            type: boolean
+        - name: minEntryGrade
+          in: query
+          schema:
+            type: string
+        - name: careerId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of institutions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Institution"
+
+  /institutions/{id}:
+    get:
+      operationId: getInstitutionById
+      tags: [institutions]
+      summary: Get institution by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Institution details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Institution"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /routes:
+    get:
+      operationId: getRoutes
+      tags: [routes]
+      summary: Get post-16 and post-18 routes
+      description: Returns all available study and career routes after GCSEs or A-Levels
+      parameters:
+        - name: afterLevel
+          in: query
+          schema:
+            type: string
+            enum: [GCSE, A-Level]
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Route"
+
+  /quiz/recommend:
+    post:
+      operationId: getRecommendations
+      tags: [quiz]
+      summary: Get personalised recommendations
+      description: Based on subjects, grades, and interests, returns career and institution recommendations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizInput"
+      responses:
+        "200":
+          description: Personalised recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizResult"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +258,278 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    Subject:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        level:
+          type: string
+          enum: [GCSE, A-Level, Both]
+        category:
+          type: string
+        description:
+          type: string
+        examBoards:
+          type: array
+          items:
+            type: string
+        studyTips:
+          type: array
+          items:
+            type: string
+        keyTopics:
+          type: array
+          items:
+            type: string
+        assessmentStructure:
+          type: string
+        usefulResources:
+          type: array
+          items:
+            $ref: "#/components/schemas/Resource"
+        relatedCareers:
+          type: array
+          items:
+            type: integer
+      required:
+        - id
+        - name
+        - level
+        - category
+        - description
+
+    Resource:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        type:
+          type: string
+          enum: [Website, Video, Past Papers, Revision Guide, Practice Questions]
+      required:
+        - name
+        - type
+
+    Career:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        sector:
+          type: string
+        description:
+          type: string
+        averageSalaryMin:
+          type: integer
+        averageSalaryMax:
+          type: integer
+        requiredSubjects:
+          type: array
+          items:
+            type: integer
+        preferredSubjects:
+          type: array
+          items:
+            type: integer
+        entryRoutes:
+          type: array
+          items:
+            type: string
+        requiredQualifications:
+          type: array
+          items:
+            type: string
+        jobOutlook:
+          type: string
+          enum: [Excellent, Good, Moderate, Declining]
+        workplaces:
+          type: array
+          items:
+            type: string
+        dayInTheLife:
+          type: string
+        relatedCareers:
+          type: array
+          items:
+            type: integer
+      required:
+        - id
+        - title
+        - sector
+        - description
+        - averageSalaryMin
+        - averageSalaryMax
+
+    Institution:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [University, College, Apprenticeship Provider, Conservatoire, Specialist]
+        region:
+          type: string
+        city:
+          type: string
+        description:
+          type: string
+        websiteUrl:
+          type: string
+        russellGroup:
+          type: boolean
+        ranking:
+          type: integer
+        entryRequirements:
+          type: string
+        ucasPoints:
+          type: integer
+        studentSatisfaction:
+          type: number
+        notableSubjects:
+          type: array
+          items:
+            type: string
+        facilities:
+          type: array
+          items:
+            type: string
+        bursaries:
+          type: boolean
+        internationalStudents:
+          type: boolean
+        relatedCareers:
+          type: array
+          items:
+            type: integer
+      required:
+        - id
+        - name
+        - type
+        - region
+        - city
+        - description
+
+    Route:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        afterLevel:
+          type: string
+          enum: [GCSE, A-Level]
+        duration:
+          type: string
+        description:
+          type: string
+        pros:
+          type: array
+          items:
+            type: string
+        cons:
+          type: array
+          items:
+            type: string
+        entryRequirements:
+          type: string
+        potentialEarnings:
+          type: string
+        examples:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - type
+        - afterLevel
+        - duration
+        - description
+
+    QuizInput:
+      type: object
+      properties:
+        gcseSubjects:
+          type: array
+          items:
+            type: object
+            properties:
+              subjectId:
+                type: integer
+              grade:
+                type: string
+            required:
+              - subjectId
+              - grade
+        aLevelSubjects:
+          type: array
+          items:
+            type: object
+            properties:
+              subjectId:
+                type: integer
+              predictedGrade:
+                type: string
+            required:
+              - subjectId
+              - predictedGrade
+        interests:
+          type: array
+          items:
+            type: string
+        preferredRegion:
+          type: string
+        preferredRouteType:
+          type: string
+          enum: [University, Apprenticeship, College, Any]
+      required:
+        - interests
+
+    QuizResult:
+      type: object
+      properties:
+        recommendedCareers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Career"
+        recommendedInstitutions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Institution"
+        recommendedRoutes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Route"
+        matchScore:
+          type: number
+        personalMessage:
+          type: string
+      required:
+        - recommendedCareers
+        - recommendedInstitutions
+        - recommendedRoutes
+        - personalMessage

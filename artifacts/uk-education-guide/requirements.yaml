@@ -1,0 +1,22 @@
+packages:
+  "framer-motion": "For smooth page transitions and micro-interactions"
+  "react-hook-form": "For complex multi-step quiz form state management"
+  "@hookform/resolvers": "For zod integration with react-hook-form"
+  "zod": "For quiz form validation"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging tailwind classes without style conflicts"
+
+images:
+  - path: "artifacts/uk-education-guide/public/images/hero-academic.png"
+    description: "Abstract geometric 3d illustration of modern education, graduation cap and floating books in soft deep navy and vibrant teal colors, premium highly detailed, soft lighting"
+    aspect_ratio: "16:9"
+  - path: "artifacts/uk-education-guide/public/images/career-path.png"
+    description: "Abstract illustration of a glowing pathway or roadmap winding upward through stylized floating islands representing different careers, deep rich blues and glowing emerald accents"
+    aspect_ratio: "16:9"
+  - path: "artifacts/uk-education-guide/public/images/uni-campus.png"
+    description: "Stylized modern university campus architecture, minimal vector art style, isometric perspective, navy blue and soft mint colors"
+    aspect_ratio: "16:9"
+
+notes:
+  - Using generated API hooks from @workspace/api-client-react
+  - Quiz recommendations endpoint uses POST and expects specific nested object structure for grades
