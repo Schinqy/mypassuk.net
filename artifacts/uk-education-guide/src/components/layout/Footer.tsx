@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { FileText } from "lucide-react";
 
 export function Footer() {
   return (
@@ -48,8 +49,15 @@ export function Footer() {
             <h4 className="font-display font-bold text-white mb-6">Tools</h4>
             <ul className="space-y-4">
               <li><Link href="/quiz" className="hover:text-primary transition-colors">Recommendation Quiz</Link></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Grade Calculator (Coming Soon)</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">UCAS Tariff Guide</a></li>
+              <li><Link href="/timetable" className="hover:text-primary transition-colors">Study Planner</Link></li>
+              <li><Link href="/tutors" className="hover:text-primary transition-colors">Find a Tutor</Link></li>
+              <li><Link href="/open-days" className="hover:text-primary transition-colors">Open Days Calendar</Link></li>
+              <li>
+                <Link href="/flyer" className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">
+                  <FileText className="w-3.5 h-3.5" />
+                  Advertising Flyer
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
