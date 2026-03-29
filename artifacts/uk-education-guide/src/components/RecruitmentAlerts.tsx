@@ -9,6 +9,7 @@ const TYPE_COLORS: Record<string, string> = {
   "Conservatoire": "bg-purple-100 text-purple-700",
   "College": "bg-rose-100 text-rose-700",
   "Apprenticeship Provider": "bg-orange-100 text-orange-700",
+  "Industrial Placement": "bg-emerald-100 text-emerald-700",
 };
 
 function formatDate(iso: string): string {

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays, Sparkles, Users } from "lucide-react";
+import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays, Sparkles, Users, CalendarCheck } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
@@ -15,6 +15,7 @@ export function Navbar() {
     { name: "Routes", href: "/routes", icon: Map },
     { name: "Study Plan", href: "/timetable", icon: CalendarDays, badge: "New" },
     { name: "Find Tutors", href: "/tutors", icon: Users },
+    { name: "Open Days", href: "/open-days", icon: CalendarCheck },
     { name: "About UK Education", href: "/editorial", icon: Newspaper },
   ];
 

@@ -22,6 +22,7 @@ import Pricing from "@/pages/Pricing";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import CheckoutCancel from "@/pages/CheckoutCancel";
 import Tutors from "@/pages/Tutors";
+import OpenDays from "@/pages/OpenDays";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -53,6 +54,7 @@ function AppContent() {
           <Route path="/editorial" component={Editorial} />
           <Route path="/timetable" component={Timetable} />
           <Route path="/tutors" component={Tutors} />
+          <Route path="/open-days" component={OpenDays} />
           <Route path="/pricing" component={Pricing} />
           <Route path="/checkout/success" component={CheckoutSuccess} />
           <Route path="/checkout/cancel" component={CheckoutCancel} />
