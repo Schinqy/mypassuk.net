@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
 import { useNation, NATIONS } from "@/contexts/NationContext";
+import { FlagSvg } from "@/components/FlagSvg";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -121,7 +122,10 @@ export function Navbar() {
                 title="Change your nation"
                 className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100/80 hover:bg-slate-200/80 transition-all duration-200 border border-slate-200/60"
               >
-                <span className="text-base leading-none">{nationInfo ? nationInfo.flag : "🇬🇧"}</span>
+                {nationInfo
+                  ? <FlagSvg nation={nationInfo.id} className="w-7 h-5 rounded shadow-sm shrink-0" />
+                  : <span className="text-base leading-none">🇬🇧</span>
+                }
                 <span className="hidden lg:inline">{nationInfo ? nationInfo.label : "Select nation"}</span>
               </button>
 

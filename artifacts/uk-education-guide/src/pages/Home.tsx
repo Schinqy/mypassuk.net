@@ -6,18 +6,13 @@ import {
   CalendarDays, BrainCircuit, Clock,
 } from "lucide-react";
 import { useNation, NATIONS, type Nation } from "@/contexts/NationContext";
+import { FlagSvg, EnglandFlagSvg, ScotlandFlagSvg, WalesFlagSvg, NIFlagSvg } from "@/components/FlagSvg";
 
 // ─── Nation Themes ─────────────────────────────────────────────────────────────
-
 const THEMES: Record<Nation, {
-  bg: string;
-  accentHex: string;
-  pill: string;
-  headline: string;
-  subheadline: string;
-  quals: string;
-  ctaLabel: string;
-  examBtn: string;
+  bg: string; accentHex: string; pill: string;
+  headline: string; subheadline: string; quals: string;
+  ctaLabel: string; examBtn: string;
 }> = {
   england: {
     bg: "from-slate-950 via-red-950/40 to-slate-900",
@@ -61,67 +56,82 @@ const THEMES: Record<Nation, {
   },
 };
 
-// ─── Flag SVG Patterns ─────────────────────────────────────────────────────────
-
-function EnglandFlag() {
+// ─── Flag Hero Backgrounds (visible watermark patterns) ───────────────────────
+function EnglandHeroBg() {
   return (
-    <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="white" fillOpacity="0.02" />
-      <rect x="46%" y="0" width="8%" height="100%" fill="#C8102E" fillOpacity="0.18" />
-      <rect x="0" y="46%" width="100%" height="8%" fill="#C8102E" fillOpacity="0.18" />
+    <svg viewBox="0 0 100 60" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      {/* White arms of cross */}
+      <rect x="41" y="0" width="18" height="60" fill="white" fillOpacity="0.10" />
+      <rect x="0" y="23" width="100" height="14" fill="white" fillOpacity="0.10" />
+      {/* Red cross */}
+      <rect x="44" y="0" width="12" height="60" fill="#C8102E" fillOpacity="0.38" />
+      <rect x="0" y="26" width="100" height="8" fill="#C8102E" fillOpacity="0.38" />
     </svg>
   );
 }
 
-function ScotlandFlag() {
+function ScotlandHeroBg() {
   return (
-    <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="#0065BD" fillOpacity="0.15" />
-      <line x1="0" y1="0" x2="100%" y2="100%" stroke="white" strokeWidth="9%" strokeOpacity="0.13" strokeLinecap="square" />
-      <line x1="100%" y1="0" x2="0" y2="100%" stroke="white" strokeWidth="9%" strokeOpacity="0.13" strokeLinecap="square" />
+    <svg viewBox="0 0 100 60" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      {/* White Saltire diagonals */}
+      <line x1="0" y1="0" x2="100" y2="60" stroke="white" strokeWidth="14" strokeOpacity="0.14" />
+      <line x1="100" y1="0" x2="0" y2="60" stroke="white" strokeWidth="14" strokeOpacity="0.14" />
+      {/* Centre X — slightly brighter */}
+      <line x1="0" y1="0" x2="100" y2="60" stroke="white" strokeWidth="6" strokeOpacity="0.08" />
+      <line x1="100" y1="0" x2="0" y2="60" stroke="white" strokeWidth="6" strokeOpacity="0.08" />
     </svg>
   );
 }
 
-function WalesFlag() {
+function WalesHeroBg() {
   return (
-    <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="50%" fill="white" fillOpacity="0.06" />
-      <rect y="50%" width="100%" height="50%" fill="#00AB39" fillOpacity="0.22" />
-      <rect y="47%" width="100%" height="6%" fill="#C8102E" fillOpacity="0.30" />
-      <ellipse cx="50%" cy="50%" rx="18%" ry="12%" fill="#C8102E" fillOpacity="0.07" />
+    <svg viewBox="0 0 100 60" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      {/* White top band */}
+      <rect x="0" y="0" width="100" height="30" fill="white" fillOpacity="0.06" />
+      {/* Green bottom band */}
+      <rect x="0" y="30" width="100" height="30" fill="#00AB39" fillOpacity="0.35" />
+      {/* Red divider stripe */}
+      <rect x="0" y="27" width="100" height="6" fill="#C8102E" fillOpacity="0.45" />
     </svg>
   );
 }
 
-function NIFlag() {
+function NIHeroBg() {
   return (
-    <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-      <line x1="0" y1="0" x2="100%" y2="100%" stroke="white" strokeWidth="7%" strokeOpacity="0.08" />
-      <line x1="100%" y1="0" x2="0" y2="100%" stroke="white" strokeWidth="7%" strokeOpacity="0.08" />
-      <rect x="45%" y="0" width="10%" height="100%" fill="white" fillOpacity="0.07" />
-      <rect x="0" y="45%" width="100%" height="10%" fill="white" fillOpacity="0.07" />
-      <rect x="47%" y="0" width="6%" height="100%" fill="#C8102E" fillOpacity="0.15" />
-      <rect x="0" y="47%" width="100%" height="6%" fill="#C8102E" fillOpacity="0.15" />
+    <svg viewBox="0 0 100 60" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      {/* St Andrew's white diagonals */}
+      <line x1="0" y1="0" x2="100" y2="60" stroke="white" strokeWidth="11" strokeOpacity="0.12" />
+      <line x1="100" y1="0" x2="0" y2="60" stroke="white" strokeWidth="11" strokeOpacity="0.12" />
+      {/* St George white arms */}
+      <rect x="40" y="0" width="20" height="60" fill="white" fillOpacity="0.09" />
+      <rect x="0" y="22" width="100" height="16" fill="white" fillOpacity="0.09" />
+      {/* St George red cross */}
+      <rect x="44" y="0" width="12" height="60" fill="#C8102E" fillOpacity="0.30" />
+      <rect x="0" y="26" width="100" height="8" fill="#C8102E" fillOpacity="0.30" />
     </svg>
   );
 }
 
-const FLAG_SVG: Record<Nation, React.ReactNode> = {
-  england: <EnglandFlag />,
-  scotland: <ScotlandFlag />,
-  wales: <WalesFlag />,
-  "northern-ireland": <NIFlag />,
+const HERO_BG: Record<Nation, React.ReactNode> = {
+  england: <EnglandHeroBg />,
+  scotland: <ScotlandHeroBg />,
+  wales: <WalesHeroBg />,
+  "northern-ireland": <NIHeroBg />,
 };
 
-// ─── No-Nation Picker ──────────────────────────────────────────────────────────
-
+// ─── Nation Picker (no nation set) ───────────────────────────────────────────
 function NationPickerHero({ onPick }: { onPick: (n: Nation) => void }) {
+  const flagComponents = {
+    england: EnglandFlagSvg,
+    scotland: ScotlandFlagSvg,
+    wales: WalesFlagSvg,
+    "northern-ireland": NIFlagSvg,
+  };
+
   return (
     <section className="relative overflow-hidden min-h-screen flex items-center">
       <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-primary/20 to-slate-900" />
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.04]" />
-      {/* Blurred glow blobs */}
       <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full blur-[130px] opacity-15 bg-primary pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full blur-[110px] opacity-10 bg-accent pointer-events-none" />
 
@@ -143,39 +153,37 @@ function NationPickerHero({ onPick }: { onPick: (n: Nation) => void }) {
 
         {/* Nation cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 max-w-4xl mx-auto">
-          {NATIONS.map((n, i) => (
-            <motion.button
-              key={n.id}
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.18 + i * 0.09, duration: 0.5 }}
-              onClick={() => onPick(n.id)}
-              className="group relative flex flex-col items-center gap-5 p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/30 hover:scale-105 transition-all duration-300 cursor-pointer text-center"
-            >
-              {/* Flag + glow */}
-              <div className="relative">
-                <div className="absolute inset-0 blur-2xl opacity-0 group-hover:opacity-50 transition-opacity duration-500 scale-150 bg-white/20 rounded-full" />
-                <span className="relative text-6xl leading-none drop-shadow-2xl">{n.flag}</span>
-              </div>
-              <div>
-                <p className="text-white font-bold text-xl leading-tight">{n.label}</p>
-                <p className="text-slate-400 text-xs mt-2 leading-snug">{n.qualifications}</p>
-              </div>
-              {/* Hover arrow */}
-              <div className="flex items-center gap-1 text-primary text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                Select <ArrowRight className="w-3 h-3" />
-              </div>
-              <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-white/5 to-transparent" />
-            </motion.button>
-          ))}
+          {NATIONS.map((n, i) => {
+            const FlagComp = flagComponents[n.id];
+            return (
+              <motion.button
+                key={n.id}
+                initial={{ opacity: 0, y: 28 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.18 + i * 0.09, duration: 0.5 }}
+                onClick={() => onPick(n.id)}
+                className="group relative flex flex-col items-center gap-5 p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/30 hover:scale-105 transition-all duration-300 cursor-pointer text-center"
+              >
+                {/* Flag SVG */}
+                <div className="relative">
+                  <div className="absolute inset-0 blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 scale-150 bg-white/20 rounded-full" />
+                  <FlagComp className="relative w-20 h-14 rounded-lg shadow-lg shadow-black/30 object-cover" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-xl leading-tight">{n.label}</p>
+                  <p className="text-slate-400 text-xs mt-2 leading-snug">{n.qualifications}</p>
+                </div>
+                <div className="flex items-center gap-1 text-primary text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  Select <ArrowRight className="w-3 h-3" />
+                </div>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-white/5 to-transparent" />
+              </motion.button>
+            );
+          })}
         </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.75 }}
-          className="mt-10 text-slate-500 text-sm"
-        >
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75 }}
+          className="mt-10 text-slate-500 text-sm">
           You can change this anytime from the navigation bar.
         </motion.p>
       </div>
@@ -184,7 +192,6 @@ function NationPickerHero({ onPick }: { onPick: (n: Nation) => void }) {
 }
 
 // ─── Stats + Features ──────────────────────────────────────────────────────────
-
 const STATS = [
   { value: "80+", label: "Subjects", icon: BookOpen },
   { value: "287", label: "Institutions", icon: Building2 },
@@ -204,49 +211,40 @@ const FEATURES = [
 ];
 
 // ─── Main ──────────────────────────────────────────────────────────────────────
-
 export default function Home() {
   const { nation, setNation, openSelector } = useNation();
 
-  if (!nation) {
-    return <NationPickerHero onPick={setNation} />;
-  }
+  if (!nation) return <NationPickerHero onPick={setNation} />;
 
   const theme = THEMES[nation];
-  const flagBg = FLAG_SVG[nation];
+  const heroBg = HERO_BG[nation];
   const nationInfo = NATIONS.find(n => n.id === nation)!;
 
   return (
     <div className="flex flex-col min-h-screen">
 
-      {/* ── Hero ────────────────────────────────────────────────────────── */}
+      {/* ── Hero ───────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden min-h-[92vh] flex items-center">
-
         {/* Gradient base */}
         <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg}`} />
 
-        {/* Animated flag SVG */}
-        <div className="absolute inset-0 pointer-events-none">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={nation}
-              className="absolute inset-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              {flagBg}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+        {/* Flag pattern background — animated on nation switch */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`bg-${nation}`}
+            className="absolute inset-0 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.55 }}
+          >
+            {heroBg}
+          </motion.div>
+        </AnimatePresence>
 
-        {/* Accent glow */}
-        <div
-          className="absolute top-0 right-0 w-[700px] h-[700px] rounded-full blur-[140px] opacity-20 pointer-events-none"
-          style={{ background: theme.accentHex }}
-        />
-        <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] rounded-full blur-[100px] opacity-8 bg-white pointer-events-none" />
+        {/* Accent glow blob */}
+        <div className="absolute top-0 right-0 w-[700px] h-[700px] rounded-full blur-[140px] opacity-20 pointer-events-none"
+          style={{ background: theme.accentHex }} />
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.035] pointer-events-none" />
 
         {/* Content */}
@@ -255,19 +253,14 @@ export default function Home() {
 
             {/* Left — text */}
             <AnimatePresence mode="wait">
-              <motion.div
-                key={nation}
-                initial={{ opacity: 0, x: -28 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 28 }}
-                transition={{ duration: 0.45 }}
-              >
-                {/* Nation pill */}
-                <button
-                  onClick={openSelector}
-                  className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-full border text-sm font-bold mb-8 hover:opacity-80 transition-opacity ${theme.pill}`}
-                >
-                  <span className="text-xl leading-none">{nationInfo.flag}</span>
+              <motion.div key={`text-${nation}`}
+                initial={{ opacity: 0, x: -28 }} animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 28 }} transition={{ duration: 0.45 }}>
+
+                {/* Nation pill — click to change */}
+                <button onClick={openSelector}
+                  className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-full border text-sm font-bold mb-8 hover:opacity-80 transition-opacity ${theme.pill}`}>
+                  <FlagSvg nation={nation} className="w-8 h-5 rounded shadow-sm" />
                   {nationInfo.label}
                   <span className="text-xs opacity-55 font-normal">· change</span>
                 </button>
@@ -276,7 +269,6 @@ export default function Home() {
                   {theme.headline}
                 </h1>
 
-                {/* Quals chip */}
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-white/65 text-xs font-semibold mb-6 tracking-wide">
                   <Star className="w-3 h-3" style={{ color: theme.accentHex }} />
                   {theme.quals}
@@ -287,18 +279,14 @@ export default function Home() {
                 </p>
 
                 <div className="flex flex-wrap gap-4">
-                  <Link
-                    href="/quiz"
+                  <Link href="/quiz"
                     className="group relative inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-white overflow-hidden transition-all duration-200 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 text-base"
-                    style={{ background: `linear-gradient(135deg, ${theme.accentHex}ee, ${theme.accentHex}bb)` }}
-                  >
+                    style={{ background: `linear-gradient(135deg, ${theme.accentHex}ee, ${theme.accentHex}bb)` }}>
                     <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]" />
                     {theme.ctaLabel} <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                   </Link>
-                  <Link
-                    href="/subjects"
-                    className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-200 text-base"
-                  >
+                  <Link href="/subjects"
+                    className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-200 text-base">
                     {theme.examBtn}
                     <ChevronRight className="w-4 h-4 opacity-60" />
                   </Link>
@@ -317,46 +305,39 @@ export default function Home() {
               </motion.div>
             </AnimatePresence>
 
-            {/* Right — flag showcase */}
-            <motion.div
-              className="relative hidden lg:flex items-center justify-center"
-              initial={{ opacity: 0, scale: 0.88 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.18 }}
-            >
+            {/* Right — flag display */}
+            <div className="relative hidden lg:flex items-center justify-center">
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={nation}
-                  initial={{ opacity: 0, scale: 0.8, rotate: -4 }}
+                <motion.div key={`flag-${nation}`}
+                  initial={{ opacity: 0, scale: 0.82, rotate: -5 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 0.8, rotate: 4 }}
+                  exit={{ opacity: 0, scale: 0.82, rotate: 5 }}
                   transition={{ duration: 0.5 }}
-                  className="relative flex flex-col items-center gap-8"
-                >
+                  className="relative flex flex-col items-center gap-8">
+
                   {/* Glow ring */}
-                  <div
-                    className="absolute inset-0 rounded-full blur-[90px] opacity-25 scale-125 pointer-events-none"
-                    style={{ background: theme.accentHex }}
-                  />
+                  <div className="absolute inset-0 rounded-full blur-[90px] opacity-30 scale-125 pointer-events-none"
+                    style={{ background: theme.accentHex }} />
+
                   {/* Decorative concentric rings */}
-                  {[1.3, 1.6, 1.9].map((scale, idx) => (
-                    <div
-                      key={idx}
-                      className="absolute border border-white/5 rounded-full"
-                      style={{
-                        inset: 0,
-                        transform: `scale(${scale})`,
-                      }}
-                    />
+                  {[1.35, 1.7, 2.05].map((scale, idx) => (
+                    <div key={idx} className="absolute border border-white/5 rounded-full"
+                      style={{ inset: 0, transform: `scale(${scale})` }} />
                   ))}
 
-                  {/* Large flag emoji */}
-                  <div className="text-[10rem] leading-none drop-shadow-2xl select-none">
-                    {nationInfo.flag}
+                  {/* Large flag SVG with frame */}
+                  <div className="relative z-10">
+                    <div className="w-72 h-48 rounded-2xl overflow-hidden shadow-2xl shadow-black/50 border-2 border-white/20 ring-4 ring-white/5">
+                      <FlagSvg nation={nation} className="w-full h-full" />
+                    </div>
+                    {/* Flag label */}
+                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1.5 rounded-full bg-black/60 backdrop-blur border border-white/15 text-white/80 text-xs font-semibold">
+                      {nationInfo.label}
+                    </div>
                   </div>
 
                   {/* Mini info cards */}
-                  <div className="grid grid-cols-2 gap-3 w-full max-w-sm relative z-10">
+                  <div className="grid grid-cols-2 gap-3 w-full max-w-sm mt-6 relative z-10">
                     {[
                       { label: "Institutions", value: "287+", icon: Building2 },
                       { label: "Career paths", value: "69", icon: Briefcase },
@@ -374,15 +355,14 @@ export default function Home() {
                   </div>
                 </motion.div>
               </AnimatePresence>
-            </motion.div>
+            </div>
           </div>
         </div>
 
-        {/* Bottom fade-out */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
       </section>
 
-      {/* ── Nation Switcher Strip ───────────────────────────────────────── */}
+      {/* ── Nation Switcher Strip ──────────────────────────────────────── */}
       <section className="border-t border-b border-border bg-secondary/30 py-3.5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 overflow-x-auto scrollbar-none">
@@ -390,16 +370,13 @@ export default function Home() {
               Viewing as:
             </span>
             {NATIONS.map(n => (
-              <button
-                key={n.id}
-                onClick={() => setNation(n.id)}
+              <button key={n.id} onClick={() => setNation(n.id)}
                 className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                   nation === n.id
                     ? "bg-primary text-white shadow-md shadow-primary/25"
                     : "bg-white text-slate-600 border border-slate-200 hover:border-primary/40 hover:text-primary"
-                }`}
-              >
-                <span className="text-base leading-none">{n.flag}</span>
+                }`}>
+                <FlagSvg nation={n.id} className="w-6 h-4 rounded-sm shadow-sm" />
                 {n.label}
               </button>
             ))}
@@ -407,7 +384,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Feature Cards ──────────────────────────────────────────────── */}
+      {/* ── Feature Cards ─────────────────────────────────────────────── */}
       <section className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -415,9 +392,7 @@ export default function Home() {
               <Zap className="w-4 h-4" />
               Everything in one place
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-              Your complete toolkit for success
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Your complete toolkit for success</h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
               Data-driven guidance from exam prep to career planning — all tailored to your nation's curriculum.
             </p>
@@ -425,13 +400,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {FEATURES.map((f, idx) => (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.055 }}
-              >
+              <motion.div key={f.title}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: idx * 0.055 }}>
                 <Link href={f.href}>
                   <div className="group h-full flex flex-col bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-xl hover:shadow-primary/6 hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer">
                     <div className={`h-1.5 w-full bg-gradient-to-r ${f.gradient}`} />
@@ -453,47 +424,40 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Quiz CTA ───────────────────────────────────────────────────── */}
+      {/* ── Quiz CTA ──────────────────────────────────────────────────── */}
       <section className="py-20 bg-secondary/30 border-t border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className="relative rounded-[2.5rem] p-10 md:p-16 overflow-hidden flex flex-col md:flex-row items-center justify-between gap-12"
-            style={{ background: "linear-gradient(135deg, hsl(224,76%,12%) 0%, hsl(224,76%,22%) 100%)" }}
-          >
+          <div className="relative rounded-[2.5rem] p-10 md:p-16 overflow-hidden flex flex-col md:flex-row items-center justify-between gap-12"
+            style={{ background: "linear-gradient(135deg, hsl(224,76%,12%) 0%, hsl(224,76%,22%) 100%)" }}>
             <div className="absolute top-0 right-0 w-96 h-96 bg-accent/20 blur-[100px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/25 blur-[80px] rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
-            <div className="absolute inset-0 pointer-events-none opacity-20">{flagBg}</div>
+            {/* Flag background inside CTA */}
+            <div className="absolute inset-0 pointer-events-none opacity-20">{heroBg}</div>
 
             <div className="relative z-10 max-w-xl text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-white/70 text-xs font-semibold mb-6 border border-white/15">
                 <GraduationCap className="w-4 h-4" />
                 2-minute personalised quiz
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-5 leading-tight">
-                Not sure where to start?
-              </h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-5 leading-tight">Not sure where to start?</h2>
               <p className="text-slate-300 text-lg mb-8 leading-relaxed">
                 Enter your subjects, predicted grades, and interests — get AI-matched career and study route recommendations in seconds.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/quiz"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold bg-accent text-white hover:bg-red-700 hover:-translate-y-0.5 shadow-lg shadow-accent/30 transition-all duration-200"
-                >
+                <Link href="/quiz"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold bg-accent text-white hover:bg-red-700 hover:-translate-y-0.5 shadow-lg shadow-accent/30 transition-all duration-200">
                   Start the Quiz <Sparkles className="w-5 h-5" />
                 </Link>
-                <Link
-                  href="/pricing"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all duration-200"
-                >
+                <Link href="/pricing"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all duration-200">
                   See Premium <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
 
             <div className="relative z-10 hidden md:flex flex-col items-center gap-3">
-              <div className="text-[7rem] leading-none drop-shadow-2xl select-none">
-                {nationInfo.flag}
+              <div className="w-36 h-24 rounded-xl overflow-hidden shadow-2xl border-2 border-white/25">
+                <FlagSvg nation={nation} className="w-full h-full" />
               </div>
               <p className="text-white/40 text-sm font-medium">{nationInfo.label} Edition</p>
             </div>
