@@ -27,6 +27,7 @@ import Tutors from "@/pages/Tutors";
 import OpenDays from "@/pages/OpenDays";
 import FlyerPage from "@/pages/Flyer";
 import AdminPage from "@/pages/Admin";
+import AccountPage from "@/pages/Account";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -70,6 +71,7 @@ function AppContent() {
                 <Route path="/pricing" component={Pricing} />
                 <Route path="/checkout/success" component={CheckoutSuccess} />
                 <Route path="/checkout/cancel" component={CheckoutCancel} />
+                <Route path="/account" component={AccountPage} />
                 <Route component={NotFound} />
               </Switch>
             </Layout>

@@ -9,6 +9,8 @@ import openaiRouter from "./openai";
 import stripeRouter from "./stripe";
 import promoRouter from "./promo";
 import newsRouter from "./news";
+import authRouter from "./auth";
+import accountRouter from "./account";
 
 const router: IRouter = Router();
 
@@ -22,5 +24,7 @@ router.use(openaiRouter);
 router.use(stripeRouter);
 router.use(promoRouter);
 router.use(newsRouter);
+router.use(authRouter);
+router.use(accountRouter);
 
 export default router;

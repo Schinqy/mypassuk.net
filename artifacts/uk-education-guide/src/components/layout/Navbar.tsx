@@ -1,16 +1,18 @@
 import { Link, useLocation } from "wouter";
-import { Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays, Sparkles, Users, CalendarCheck } from "lucide-react";
+import { Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays, Sparkles, Users, CalendarCheck, UserCircle2 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
 import { useNation, NATIONS } from "@/contexts/NationContext";
 import { FlagSvg } from "@/components/FlagSvg";
+import { useAuth } from "@workspace/replit-auth-web";
 
 export function Navbar() {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { nation, openSelector } = useNation();
   const nationInfo = nation ? NATIONS.find(n => n.id === nation) : null;
+  const { user, isAuthenticated, login } = useAuth();
 
   const navItems = [
     { name: "Exam Prep", href: "/subjects", icon: BookOpen },
@@ -131,6 +133,34 @@ export function Navbar() {
 
               <RecruitmentAlerts />
 
+              {/* Account button */}
+              {isAuthenticated ? (
+                <Link
+                  href="/account"
+                  title="My Account"
+                  className={`flex items-center justify-center w-8 h-8 rounded-full overflow-hidden ring-2 transition-all duration-200 ${
+                    location.startsWith("/account") ? "ring-primary" : "ring-slate-200 hover:ring-primary/40"
+                  }`}
+                >
+                  {user?.profileImageUrl ? (
+                    <img src={user.profileImageUrl} alt="Account" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center font-bold text-sm text-white"
+                      style={{ background: "linear-gradient(135deg, hsl(224,76%,28%), hsl(354,72%,40%))" }}>
+                      {(user?.firstName?.[0] ?? user?.email?.[0] ?? "U").toUpperCase()}
+                    </div>
+                  )}
+                </Link>
+              ) : (
+                <button
+                  onClick={login}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-primary hover:bg-primary/5 transition-all duration-200 border border-slate-200/80"
+                >
+                  <UserCircle2 className="w-4 h-4" />
+                  Sign in
+                </button>
+              )}
+
               {/* Gradient-fade divider */}
               <div className="w-px h-6 mx-1" style={{ background: "linear-gradient(to bottom, transparent, hsl(220,13%,80%), transparent)" }} />
 
@@ -217,6 +247,27 @@ export function Navbar() {
                 >
                   <Sparkles className="w-4 h-4" /> Pricing & Plans
                 </Link>
+                {isAuthenticated ? (
+                  <Link
+                    href="/account"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all border border-slate-200"
+                  >
+                    {user?.profileImageUrl ? (
+                      <img src={user.profileImageUrl} alt="Account" className="w-6 h-6 rounded-full object-cover" />
+                    ) : (
+                      <UserCircle2 className="w-5 h-5 text-slate-400" />
+                    )}
+                    My Account
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => { setIsMobileMenuOpen(false); login(); }}
+                    className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-600 border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
+                  >
+                    <UserCircle2 className="w-4 h-4" /> Sign in
+                  </button>
+                )}
                 <Link
                   href="/quiz"
                   onClick={() => setIsMobileMenuOpen(false)}

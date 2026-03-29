@@ -110,9 +110,26 @@ React + Vite frontend at preview path `/`. Pages: Home, Subjects, SubjectDetail,
 - **Key files**: `artifacts/api-server/src/stripeClient.ts`, `stripeService.ts`, `storage.ts`, `webhookHandlers.ts`, `routes/stripe.ts`
 - **Seed script**: `pnpm --filter @workspace/scripts run seed-products`
 
+### Authentication (Replit Auth)
+
+Full OIDC-based authentication using Replit Auth with PKCE flow.
+
+- **Session cookie**: `sid` (httpOnly, secure, sameSite=lax, 7-day TTL)
+- **Login**: `GET /api/login` → Replit OIDC → `GET /api/callback` → sets sid cookie → redirects home
+- **Logout**: `GET /api/logout` → deletes session → Replit end-session URL → redirects home
+- **Auth status**: `GET /api/auth/user` → `{ user: AuthUser | null }`
+- **Account info**: `GET /api/account` (requires auth) → user profile + subscription status
+- **Middleware**: `authMiddleware` runs on every request, populates `req.user`, handles token refresh
+- **Sessions table**: `sessions` (sid, sess jsonb, expire)
+- **DB users table**: Extended with firstName, lastName, profileImageUrl, updatedAt, subscriptionStatus, subscriptionPlan, currentPeriodEnd
+- **Frontend hook**: `useAuth()` from `@workspace/replit-auth-web` — provides user, isAuthenticated, login(), logout()
+- **Account page**: `/account` — profile, plan & billing, nation preference, sign out
+- **Navbar**: shows user avatar (link → /account) when authenticated, "Sign in" button when not
+- **Key files**: `artifacts/api-server/src/lib/auth.ts`, `middlewares/authMiddleware.ts`, `routes/auth.ts`, `routes/account.ts`, `lib/replit-auth-web/`
+
 ### `lib/db` (`@workspace/db`)
 
-Database layer using Drizzle ORM with PostgreSQL. Tables: subjects, careers, institutions, routes, users (id, email, stripeCustomerId, stripeSubscriptionId).
+Database layer using Drizzle ORM with PostgreSQL. Tables: subjects, careers, institutions, routes, users (id, email, firstName, lastName, profileImageUrl, stripeCustomerId, stripeSubscriptionId, subscriptionStatus, subscriptionPlan, currentPeriodEnd, updatedAt), sessions (for auth), promo-codes, conversations, messages.
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 
