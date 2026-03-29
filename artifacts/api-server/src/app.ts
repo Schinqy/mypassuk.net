@@ -75,7 +75,7 @@ if (process.env.NODE_ENV === "production") {
     "public",
   );
   app.use(express.static(clientDir));
-  app.get("*", (_req, res) => {
+  app.use((_req, res) => {
     res.sendFile(path.join(clientDir, "index.html"));
   });
 }

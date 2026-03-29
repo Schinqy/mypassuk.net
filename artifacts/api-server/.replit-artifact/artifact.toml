@@ -14,7 +14,7 @@ run = "pnpm --filter @workspace/api-server run dev"
 
 [services.production]
 build = ["sh", "-c", "pnpm --filter @workspace/uk-education-guide run build && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/scripts run deploy-seed && pnpm --filter @workspace/scripts run add-apprenticeships && pnpm --filter @workspace/scripts run add-he-fe"]
-run = "pnpm --filter @workspace/api-server run start"
+run = "node --enable-source-maps artifacts/api-server/dist/index.mjs"
 
 [services.env]
 PORT = "8080"
