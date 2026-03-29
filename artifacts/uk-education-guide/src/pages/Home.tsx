@@ -48,7 +48,7 @@ export default function Home() {
               </div>
 
               <div className="mt-12 flex items-center gap-6 text-sm text-slate-500 font-medium">
-                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-accent" /> GCSE & A-Level Data</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-accent" /> All UK Qualification Data</span>
                 <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-accent" /> 69 Career Guides</span>
               </div>
             </motion.div>
@@ -82,7 +82,7 @@ export default function Home() {
             {[
               {
                 title: "Exam Preparation",
-                desc: "Study tips, key topics, and resources for every GCSE and A-Level subject.",
+                desc: "Study tips, key topics, and resources for GCSEs, A-Levels, Scottish Highers, and more — for all four nations.",
                 icon: BookOpen,
                 href: "/subjects",
                 color: "bg-blue-100 text-blue-800"
@@ -103,7 +103,7 @@ export default function Home() {
               },
               {
                 title: "Study Routes",
-                desc: "Compare T-Levels, BTECs, A-Levels and understand the pros and cons of each.",
+                desc: "Compare A-Levels, Highers, BTECs, T-Levels and more — with nation-specific guidance across all four UK nations.",
                 icon: Map,
                 href: "/routes",
                 color: "bg-orange-100 text-orange-600"

@@ -3,10 +3,13 @@ import { Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
+import { useNation, NATIONS } from "@/contexts/NationContext";
 
 export function Navbar() {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { nation, openSelector } = useNation();
+  const nationInfo = nation ? NATIONS.find(n => n.id === nation) : null;
 
   const navItems = [
     { name: "Exam Prep", href: "/subjects", icon: BookOpen },
@@ -112,6 +115,16 @@ export function Navbar() {
 
             {/* Right side */}
             <div className="hidden md:flex items-center gap-2">
+              {/* Nation pill */}
+              <button
+                onClick={openSelector}
+                title="Change your nation"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100/80 hover:bg-slate-200/80 transition-all duration-200 border border-slate-200/60"
+              >
+                <span className="text-base leading-none">{nationInfo ? nationInfo.flag : "🇬🇧"}</span>
+                <span className="hidden lg:inline">{nationInfo ? nationInfo.label : "Select nation"}</span>
+              </button>
+
               <RecruitmentAlerts />
 
               {/* Gradient-fade divider */}

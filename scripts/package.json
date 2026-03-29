@@ -14,6 +14,7 @@
     "add-industrial-placements": "tsx ./src/add-industrial-placements.ts",
     "deploy-seed": "tsx ./src/deploy-seed.ts",
     "seed-products": "tsx ./src/seed-products.ts",
+    "add-scottish-subjects": "tsx ./src/add-scottish-subjects.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
