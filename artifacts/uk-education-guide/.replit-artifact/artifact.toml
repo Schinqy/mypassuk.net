@@ -19,8 +19,7 @@ run = "pnpm --filter @workspace/uk-education-guide run dev"
 
 [services.production]
 build = [ "pnpm", "--filter", "@workspace/uk-education-guide", "run", "build" ]
-publicDir = "artifacts/uk-education-guide/dist/public"
-serve = "static"
+run = [ "pnpm", "--filter", "@workspace/uk-education-guide", "run", "serve" ]
 
 [[services.production.rewrites]]
 from = "/*"
