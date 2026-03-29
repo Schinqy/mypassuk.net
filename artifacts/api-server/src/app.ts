@@ -2,6 +2,8 @@ import express, { type Express } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
+import path from "path";
+import { fileURLToPath } from "url";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { WebhookHandlers } from "./webhookHandlers";
@@ -57,5 +59,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(authMiddleware);
 
 app.use("/api", router);
+
+// In production: serve the compiled React frontend for all non-API routes
+if (process.env.NODE_ENV === "production") {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  // Bundle lives at artifacts/api-server/dist/index.mjs
+  // Frontend is built to artifacts/uk-education-guide/dist/public
+  const clientDir = path.resolve(
+    __dirname,
+    "..",
+    "..",
+    "uk-education-guide",
+    "dist",
+    "public",
+  );
+  app.use(express.static(clientDir));
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(clientDir, "index.html"));
+  });
+}
 
 export default app;

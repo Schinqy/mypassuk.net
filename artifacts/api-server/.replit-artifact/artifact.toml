@@ -7,18 +7,19 @@ id = "3B4_FFSkEVBkAeYMFRJ2e"
 [[services]]
 localPort = 8080
 name = "API Server"
-paths = ["/api"]
+paths = ["/api", "/"]
 
 [services.development]
 run = "pnpm --filter @workspace/api-server run dev"
 
 [services.production]
-build = ["sh", "-c", "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/scripts run deploy-seed && pnpm --filter @workspace/scripts run add-apprenticeships && pnpm --filter @workspace/scripts run add-he-fe"]
+build = ["sh", "-c", "pnpm --filter @workspace/uk-education-guide run build && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/scripts run deploy-seed && pnpm --filter @workspace/scripts run add-apprenticeships && pnpm --filter @workspace/scripts run add-he-fe"]
 run = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
 
 [services.env]
 PORT = "8080"
 NODE_ENV = "production"
+BASE_PATH = "/"
 
 [services.production.health.startup]
 path = "/api/healthz"
