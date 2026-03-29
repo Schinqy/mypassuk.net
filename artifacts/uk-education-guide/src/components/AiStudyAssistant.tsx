@@ -5,6 +5,7 @@ import {
   Lock, Zap, Paperclip, FileText, ImageIcon, FileX, CheckCircle2, AlertCircle,
 } from "lucide-react";
 import { Link } from "wouter";
+import { useAuth } from "@workspace/replit-auth-web";
 
 interface Message {
   role: "user" | "assistant";
@@ -41,7 +42,8 @@ const ACCEPTED_TYPES = [
 ].join(",");
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const FREE_LIMIT = 5;
+const ANON_LIMIT = 5;
+const SIGNED_IN_LIMIT = 15;
 
 function isPremiumUser(): boolean {
   return localStorage.getItem("uk-edguide-premium") === "true";
@@ -89,6 +91,7 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
   const [streaming, setStreaming] = useState(false);
   const [convId, setConvId] = useState<number | null>(null);
   const [initialised, setInitialised] = useState(false);
+  const { isAuthenticated, login } = useAuth();
   const [dailyUsage, setDailyUsage] = useState(getDailyUsage);
   const [premium] = useState(isPremiumUser);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -102,8 +105,9 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
   const abortRef = useRef<AbortController | null>(null);
 
   const contextLabel = subjectName ?? "MyPassUK";
-  const remaining = premium ? Infinity : Math.max(0, FREE_LIMIT - dailyUsage);
-  const limitReached = !premium && dailyUsage >= FREE_LIMIT;
+  const dailyLimit = premium ? Infinity : (isAuthenticated ? SIGNED_IN_LIMIT : ANON_LIMIT);
+  const remaining = premium ? Infinity : Math.max(0, dailyLimit - dailyUsage);
+  const limitReached = !premium && dailyUsage >= dailyLimit;
 
   const systemPrompt = subjectName
     ? `You are an expert UK education tutor specialising in ${subjectName} at ${subjectLevel ?? "GCSE/A-Level"} level (${subjectCategory ?? ""}). Your job is to help students revise, understand key topics, and prepare for exams. Keep answers concise, structured, and tailored to UK exam board expectations (Pearson Edexcel). When giving practice questions, include mark-scheme hints. Key topics include: ${keyTopics?.join(", ") ?? "various topics"}.`
@@ -414,7 +418,7 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
                   </div>
                 ) : (
                   <div className={`px-2.5 py-1 rounded-full text-xs font-bold ${remaining <= 1 ? "bg-accent text-white" : "bg-white/20 text-white"}`}>
-                    {remaining}/{FREE_LIMIT} free
+                    {remaining}/{dailyLimit === Infinity ? "∞" : dailyLimit} free
                   </div>
                 )}
                 <button
@@ -514,8 +518,18 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
                   </div>
                   <p className="font-bold text-slate-900 text-sm mb-1">Daily limit reached</p>
                   <p className="text-xs text-slate-500 mb-3">
-                    You've used all {FREE_LIMIT} free messages for today. Resets at midnight, or upgrade for unlimited access.
+                    {isAuthenticated
+                      ? `You've used all ${SIGNED_IN_LIMIT} free messages today. Resets at midnight, or upgrade for unlimited.`
+                      : `You've used all ${ANON_LIMIT} free messages. Sign in for ${SIGNED_IN_LIMIT}/day, or upgrade for unlimited.`}
                   </p>
+                  {!isAuthenticated && (
+                    <button
+                      onClick={() => { setOpen(false); login(); }}
+                      className="w-full py-2.5 bg-slate-800 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-700 transition-colors mb-2"
+                    >
+                      Sign in — get 15 messages/day free
+                    </button>
+                  )}
                   <Link href="/pricing">
                     <button
                       onClick={() => setOpen(false)}
@@ -534,9 +548,13 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
                   <div className="flex items-center gap-1.5 mb-2 text-[10px] font-semibold text-amber-600">
                     <Zap className="w-3 h-3" />
                     {remaining} free message{remaining !== 1 ? "s" : ""} left today ·{" "}
-                    <Link href="/pricing">
-                      <span onClick={() => setOpen(false)} className="underline cursor-pointer hover:text-accent">Upgrade for unlimited</span>
-                    </Link>
+                    {isAuthenticated ? (
+                      <Link href="/pricing">
+                        <span onClick={() => setOpen(false)} className="underline cursor-pointer hover:text-accent">Upgrade for unlimited</span>
+                      </Link>
+                    ) : (
+                      <span onClick={() => { setOpen(false); login(); }} className="underline cursor-pointer hover:text-accent">Sign in for 15/day</span>
+                    )}
                   </div>
                 )}
 

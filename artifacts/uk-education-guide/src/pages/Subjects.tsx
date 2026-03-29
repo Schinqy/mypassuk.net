@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { BookOpen, Filter, Search, GraduationCap, MapPin } from "lucide-react";
+import { BookOpen, Filter, Search, GraduationCap, MapPin, Bookmark } from "lucide-react";
 import { useGetSubjects } from "@workspace/api-client-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useNation, NATIONS } from "@/contexts/NationContext";
+import { useSavedSubjects } from "@/hooks/useSavedSubjects";
 
 const LEVEL_COLORS: Record<string, string> = {
   "GCSE": "bg-orange-100 text-orange-700",
@@ -33,6 +34,7 @@ const NATION_LEVEL_MATCH: Record<string, string[]> = {
 
 export default function Subjects() {
   const { nation, openSelector } = useNation();
+  const { savedIds, toggle, isAuthenticated } = useSavedSubjects();
   const [search, setSearch] = useState("");
 
   const filterOptions = nation ? NATION_FILTERS[nation] : ["All", "GCSE", "A-Level", "National 5", "Higher", "Advanced Higher"];
@@ -205,9 +207,24 @@ export default function Subjects() {
                       <div className="bg-blue-50 p-3 rounded-xl group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                         <BookOpen className="w-6 h-6 text-primary group-hover:text-white" />
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${LEVEL_COLORS[subject.level] ?? "bg-slate-100 text-slate-600"}`}>
-                        {subject.level}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${LEVEL_COLORS[subject.level] ?? "bg-slate-100 text-slate-600"}`}>
+                          {subject.level}
+                        </span>
+                        {isAuthenticated && (
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(subject.id); }}
+                            title={savedIds.has(subject.id) ? "Remove from saved" : "Save subject"}
+                            className={`p-1.5 rounded-lg transition-all duration-200 ${
+                              savedIds.has(subject.id)
+                                ? "text-primary bg-primary/10"
+                                : "text-slate-300 hover:text-slate-500 hover:bg-slate-100"
+                            }`}
+                          >
+                            <Bookmark className={`w-4 h-4 ${savedIds.has(subject.id) ? "fill-current" : ""}`} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{subject.name}</h3>
                     <span className="text-sm font-medium text-slate-500 mb-4">{subject.category}</span>

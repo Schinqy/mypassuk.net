@@ -48,7 +48,7 @@ A data mining tool for UK GCSE and A-level students helping them prepare for exa
 - **Routes** — 25 post-16 and post-18 pathways split by After GCSE and After A-Level. Includes A-Levels, T-Levels, BTECs, Apprenticeships, IB, Access to HE, Scottish Highers, Cambridge Pre-U, EPQ, degree apprenticeships, Fast Stream, Armed Forces, Police DHEP, HNDs, and more.
 - **Personalised Quiz** — Multi-step form recommending careers, institutions, and routes. Results include a match score (45-97%), personal message, career cards, institution cards with ranking, and route pathways with pros/cons.
 - **About UK Education** — Editorial page covering KS1–KS5, all 6 exam boards, HE fees/finance, FE/apprenticeships, and full RQF qualifications framework.
-- **AI Study Assistant** — Global floating chat panel (bottom-right) powered by OpenAI (gpt-5.2). On subject detail pages, automatically receives subject-specific context (name, level, category, key topics) via React Context. Supports streaming SSE responses, quick-prompt buttons, new-conversation reset, and persists all messages to the `conversations` + `messages` DB tables. Uses raw `fetch` + `ReadableStream` (NOT Orval-generated hooks).
+- **AI Study Assistant** — Global floating chat panel (bottom-right) powered by OpenAI (gpt-5.2). On subject detail pages, automatically receives subject-specific context (name, level, category, key topics) via React Context. Supports streaming SSE responses, quick-prompt buttons, new-conversation reset, and persists all messages to the `conversations` + `messages` DB tables. Uses raw `fetch` + `ReadableStream` (NOT Orval-generated hooks). **Tiered daily message limits**: anonymous=5/day, signed-in free=15/day, Premium=unlimited. Paywall for anonymous users offers a "Sign in for 15/day" option alongside Upgrade.
 
 ### Database Tables
 - `subjects` — GCSE and A-Level subject data (55 subjects)
@@ -57,6 +57,7 @@ A data mining tool for UK GCSE and A-level students helping them prepare for exa
 - `routes` — Post-16 and post-18 routes with pros/cons (25 routes)
 - `conversations` — AI chat session records (id, title, createdAt)
 - `messages` — Individual chat messages (id, conversationId, role, content, createdAt)
+- `saved_subjects` — User-saved subjects (userId + subjectId unique pair, savedAt timestamp)
 
 ### Scripts
 ```bash
@@ -123,13 +124,13 @@ Full OIDC-based authentication using Replit Auth with PKCE flow.
 - **Sessions table**: `sessions` (sid, sess jsonb, expire)
 - **DB users table**: Extended with firstName, lastName, profileImageUrl, updatedAt, subscriptionStatus, subscriptionPlan, currentPeriodEnd
 - **Frontend hook**: `useAuth()` from `@workspace/replit-auth-web` — provides user, isAuthenticated, login(), logout()
-- **Account page**: `/account` — profile, plan & billing, nation preference, sign out
+- **Account page**: `/account` — profile, plan & billing, saved subjects (bookmark list), nation preference, sign out
 - **Navbar**: shows user avatar (link → /account) when authenticated, "Sign in" button when not
 - **Key files**: `artifacts/api-server/src/lib/auth.ts`, `middlewares/authMiddleware.ts`, `routes/auth.ts`, `routes/account.ts`, `lib/replit-auth-web/`
 
 ### `lib/db` (`@workspace/db`)
 
-Database layer using Drizzle ORM with PostgreSQL. Tables: subjects, careers, institutions, routes, users (id, email, firstName, lastName, profileImageUrl, stripeCustomerId, stripeSubscriptionId, subscriptionStatus, subscriptionPlan, currentPeriodEnd, updatedAt), sessions (for auth), promo-codes, conversations, messages.
+Database layer using Drizzle ORM with PostgreSQL. Tables: subjects, careers, institutions, routes, users (id, email, firstName, lastName, profileImageUrl, stripeCustomerId, stripeSubscriptionId, subscriptionStatus, subscriptionPlan, currentPeriodEnd, updatedAt), sessions (for auth), promo-codes, conversations, messages, saved_subjects (userId + subjectId unique, savedAt).
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 

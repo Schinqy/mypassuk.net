@@ -6,8 +6,9 @@ import { FlagSvg } from "@/components/FlagSvg";
 import {
   User, Mail, Crown, CalendarDays, CreditCard, LogOut,
   Globe, Settings, ShieldCheck, Trash2, ChevronRight, Loader2,
-  BadgeCheck, Sparkles
+  BadgeCheck, Sparkles, BookOpen, Bookmark
 } from "lucide-react";
+import { useSavedSubjects } from "@/hooks/useSavedSubjects";
 
 interface AccountData {
   user: {
@@ -53,6 +54,7 @@ export default function Account() {
   const { user, isLoading, isAuthenticated, login, logout } = useAuth();
   const { nation, openSelector } = useNation();
   const nationInfo = nation ? NATIONS.find(n => n.id === nation) : null;
+  const { saved: savedSubjects, toggle: toggleSaved, loading: savedLoading } = useSavedSubjects();
 
   const [accountData, setAccountData] = useState<AccountData | null>(null);
   const [accountLoading, setAccountLoading] = useState(false);
@@ -261,6 +263,51 @@ export default function Account() {
           </button>
         </div>
       </section>
+
+      {/* Saved Subjects */}
+      {isAuthenticated && (
+        <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-5">
+          <h3 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <Bookmark className="w-4 h-4 text-primary" /> Saved Subjects
+          </h3>
+          {savedLoading ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+            </div>
+          ) : savedSubjects.length === 0 ? (
+            <p className="text-sm text-slate-500">
+              No saved subjects yet. Browse <Link href="/subjects" className="text-primary font-semibold hover:underline">Subjects</Link> and bookmark the ones you're studying.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {savedSubjects.map(s => (
+                <div key={s.id} className="flex items-center justify-between gap-3 py-2 border-b border-slate-100 last:border-0">
+                  <Link href={`/subjects/${s.subjectId}`} className="flex items-center gap-3 min-w-0 group">
+                    <div className="bg-blue-50 p-2 rounded-lg shrink-0">
+                      <BookOpen className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-primary transition-colors">
+                        {s.name ?? `Subject ${s.subjectId}`}
+                      </p>
+                      {(s.level || s.category) && (
+                        <p className="text-xs text-slate-500 truncate">{[s.level, s.category].filter(Boolean).join(" · ")}</p>
+                      )}
+                    </div>
+                  </Link>
+                  <button
+                    onClick={() => toggleSaved(s.subjectId)}
+                    title="Remove"
+                    className="p-1.5 rounded-lg text-slate-300 hover:text-accent hover:bg-red-50 transition-all shrink-0"
+                  >
+                    <Bookmark className="w-4 h-4 fill-current text-primary" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Data & Security */}
       <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-5">
