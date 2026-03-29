@@ -68,7 +68,7 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const contextLabel = subjectName ?? "UK Education";
+  const contextLabel = subjectName ?? "MyPassUK";
   const remaining = premium ? Infinity : Math.max(0, FREE_LIMIT - dailyUsage);
   const limitReached = !premium && dailyUsage >= FREE_LIMIT;
 
@@ -89,14 +89,14 @@ export default function AiStudyAssistant({ subjectName, subjectLevel, subjectCat
   const initConversation = useCallback(async () => {
     if (initialised) return;
     setInitialised(true);
-    const id = await createConversation(subjectName ? `${subjectName} Revision` : "UK Education Help");
+    const id = await createConversation(subjectName ? `${subjectName} Revision` : "MyPassUK Help");
     setConvId(id);
 
     const welcome: Message = {
       role: "assistant",
       content: subjectName
         ? `Hi! I'm your AI study assistant for **${subjectName}**. Ask me anything — I can explain topics, set practice questions, or help you revise. What would you like to work on?`
-        : `Hi! I'm your UK Education AI assistant. Ask me anything about subjects, careers, institutions, or study routes!`,
+        : `Hi! I'm your MyPassUK AI assistant. Ask me anything about subjects, careers, institutions, or study routes!`,
     };
     setMessages([welcome]);
 

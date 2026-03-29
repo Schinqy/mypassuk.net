@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { GraduationCap, Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays, Sparkles, Users, CalendarCheck } from "lucide-react";
+import { Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays, Sparkles, Users, CalendarCheck } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
@@ -31,19 +31,39 @@ export function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 group shrink-0">
               <div className="relative">
-                {/* Soft glow halo behind icon */}
                 <div className="absolute inset-0 rounded-xl bg-primary/20 blur-md scale-125 group-hover:bg-primary/35 group-hover:scale-150 transition-all duration-300" />
-                <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-blue-900 flex items-center justify-center shadow-md shadow-primary/30 group-hover:scale-105 transition-transform duration-200">
-                  <GraduationCap className="w-5 h-5 text-white" />
+                <div className="relative w-9 h-9 group-hover:scale-105 transition-transform duration-200">
+                  <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <linearGradient id="nb" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#1e3a8a"/>
+                        <stop offset="100%" stopColor="#172562"/>
+                      </linearGradient>
+                    </defs>
+                    <rect width="36" height="36" rx="8" fill="url(#nb)"/>
+                    <rect width="36" height="36" rx="8" fill="white" fillOpacity="0.07"/>
+                    {/* Mortarboard */}
+                    <polygon points="18,6 30,12 18,18 6,12" fill="white" fillOpacity="0.95"/>
+                    <path d="M10 14 L10 22 Q18 26 26 22 L26 14 Q18 18 10 14Z" fill="white" fillOpacity="0.82"/>
+                    <line x1="30" y1="12" x2="30" y2="20" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.6"/>
+                    <circle cx="30" cy="21.5" r="1.8" fill="white" fillOpacity="0.55"/>
+                    {/* Crimson checkmark badge */}
+                    <circle cx="27" cy="27" r="8" fill="#be123c"/>
+                    <path d="M23 27 L26 30 L31.5 23" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
               </div>
               <span className="font-display font-bold text-lg tracking-tight">
-                <span className="text-slate-800">UK Ed</span>
+                <span className="text-slate-800">My</span>
                 <span
                   className="bg-clip-text text-transparent"
-                  style={{ backgroundImage: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(354,72%,40%) 100%)" }}
+                  style={{ backgroundImage: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,42%) 100%)" }}
                 >
-                  Guide
+                  Pass
+                </span>
+                <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-black text-white rounded align-middle relative -top-0.5"
+                  style={{ background: "linear-gradient(135deg, hsl(354,72%,40%), hsl(354,72%,32%))" }}>
+                  UK
                 </span>
               </span>
             </Link>

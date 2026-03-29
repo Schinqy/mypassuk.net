@@ -1,3 +1,37 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#172562"/>
+    </linearGradient>
+    <linearGradient id="shimmer" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="180" height="180" rx="36" fill="url(#bgGrad)"/>
+  <!-- Subtle shimmer overlay -->
+  <rect width="180" height="180" rx="36" fill="url(#shimmer)"/>
+
+  <!-- Graduation cap — mortarboard top (diamond) -->
+  <polygon points="90,28 152,60 90,92 28,60" fill="white" opacity="0.95"/>
+  <!-- Cap top highlight line -->
+  <polygon points="90,28 152,60 90,92 28,60" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.3"/>
+
+  <!-- Cap body / diploma tube underneath -->
+  <path d="M50 70 L50 112 Q90 130 130 112 L130 70 Q90 88 50 70Z" fill="white" opacity="0.82"/>
+
+  <!-- Tassel rope -->
+  <line x1="152" y1="60" x2="152" y2="100" stroke="white" stroke-width="5" stroke-linecap="round" stroke-opacity="0.65"/>
+  <circle cx="152" cy="107" r="8" fill="white" fill-opacity="0.55"/>
+
+  <!-- Crimson badge circle (bottom-right) — "pass" checkmark -->
+  <circle cx="134" cy="134" r="34" fill="#9f1239"/>
+  <circle cx="134" cy="134" r="34" fill="#be123c"/>
+  <!-- Glossy top highlight on badge -->
+  <ellipse cx="134" cy="120" rx="20" ry="10" fill="white" fill-opacity="0.1"/>
+  <!-- Check mark -->
+  <path d="M118 134 L129 146 L152 118" stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
