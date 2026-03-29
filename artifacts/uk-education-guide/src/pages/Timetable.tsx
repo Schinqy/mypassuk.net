@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarDays, BookOpen, ChevronRight, ChevronLeft, Clock, Coffee,
   Sun, Sunset, Moon, RotateCcw, GraduationCap, Check, Save,
-  FolderOpen, Trash2, FlaskConical, Atom, Leaf, X, Plus, Download
+  FolderOpen, Trash2, FlaskConical, Atom, Leaf, X, Plus, Download,
+  Play, Pause, Square, Bell, Timer, Minimize2, Maximize2, SkipForward,
 } from "lucide-react";
 import { useGetSubjects } from "@workspace/api-client-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
@@ -24,18 +25,18 @@ const COMBINED_SCIENCE_COMPONENTS = [
 ] as const;
 
 const SUBJECT_COLORS = [
-  { bg: "bg-blue-500", light: "bg-blue-100", text: "text-blue-700", border: "border-blue-300" },
-  { bg: "bg-green-700", light: "bg-green-100", text: "text-green-800", border: "border-green-300" },
-  { bg: "bg-violet-500", light: "bg-violet-100", text: "text-violet-700", border: "border-violet-300" },
-  { bg: "bg-orange-500", light: "bg-orange-100", text: "text-orange-700", border: "border-orange-300" },
-  { bg: "bg-pink-500", light: "bg-pink-100", text: "text-pink-700", border: "border-pink-300" },
-  { bg: "bg-cyan-500", light: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-300" },
-  { bg: "bg-amber-500", light: "bg-amber-100", text: "text-amber-700", border: "border-amber-300" },
-  { bg: "bg-rose-500", light: "bg-rose-100", text: "text-rose-700", border: "border-rose-300" },
-  { bg: "bg-teal-700", light: "bg-teal-100", text: "text-teal-800", border: "border-teal-300" },
-  { bg: "bg-indigo-500", light: "bg-indigo-100", text: "text-indigo-700", border: "border-indigo-300" },
-  { bg: "bg-lime-500", light: "bg-lime-100", text: "text-lime-700", border: "border-lime-300" },
-  { bg: "bg-fuchsia-500", light: "bg-fuchsia-100", text: "text-fuchsia-700", border: "border-fuchsia-300" },
+  { bg: "bg-blue-500", light: "bg-blue-100", text: "text-blue-700", border: "border-blue-300", hex: "#3b82f6" },
+  { bg: "bg-green-700", light: "bg-green-100", text: "text-green-800", border: "border-green-300", hex: "#15803d" },
+  { bg: "bg-violet-500", light: "bg-violet-100", text: "text-violet-700", border: "border-violet-300", hex: "#8b5cf6" },
+  { bg: "bg-orange-500", light: "bg-orange-100", text: "text-orange-700", border: "border-orange-300", hex: "#f97316" },
+  { bg: "bg-pink-500", light: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", hex: "#ec4899" },
+  { bg: "bg-cyan-500", light: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-300", hex: "#06b6d4" },
+  { bg: "bg-amber-500", light: "bg-amber-100", text: "text-amber-700", border: "border-amber-300", hex: "#f59e0b" },
+  { bg: "bg-rose-500", light: "bg-rose-100", text: "text-rose-700", border: "border-rose-300", hex: "#f43f5e" },
+  { bg: "bg-teal-700", light: "bg-teal-100", text: "text-teal-800", border: "border-teal-300", hex: "#0f766e" },
+  { bg: "bg-indigo-500", light: "bg-indigo-100", text: "text-indigo-700", border: "border-indigo-300", hex: "#6366f1" },
+  { bg: "bg-lime-500", light: "bg-lime-100", text: "text-lime-700", border: "border-lime-300", hex: "#84cc16" },
+  { bg: "bg-fuchsia-500", light: "bg-fuchsia-100", text: "text-fuchsia-700", border: "border-fuchsia-300", hex: "#d946ef" },
 ];
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -73,6 +74,357 @@ const HOLIDAY_SLOTS: SlotDef[] = [
   { start: "15:15", end: "16:45", label: "Afternoon Session B", icon: Sunset, color: "bg-orange-50" },
   { start: "18:00", end: "19:30", label: "Evening Session", icon: Moon, color: "bg-indigo-50" },
 ];
+
+// ─── Break / Timer Types ───────────────────────────────────────────────────────
+
+type SegmentKind = "study" | "break";
+
+interface Segment {
+  kind: SegmentKind;
+  durationSecs: number;
+  label: string;
+  breakActivity?: string;
+}
+
+interface ActiveSession {
+  subjectName: string;
+  slotLabel: string;
+  colorHex: string;
+  colorClass: (typeof SUBJECT_COLORS)[0];
+  segments: Segment[];
+  segIdx: number;
+  secsRemaining: number;
+  paused: boolean;
+  completed: boolean;
+  minimised: boolean;
+}
+
+// ─── Break schedule builder ────────────────────────────────────────────────────
+
+function buildSegments(totalMins: number): Segment[] {
+  if (totalMins <= 30) {
+    return [{ kind: "study", durationSecs: totalMins * 60, label: "Study" }];
+  }
+  if (totalMins <= 50) {
+    // One short break in the middle
+    const half = Math.floor(totalMins / 2);
+    return [
+      { kind: "study", durationSecs: half * 60, label: "Study Block 1" },
+      { kind: "break", durationSecs: 5 * 60, label: "5-min Break", breakActivity: "Rest your eyes & drink water 💧" },
+      { kind: "study", durationSecs: (totalMins - half) * 60, label: "Study Block 2" },
+    ];
+  }
+  if (totalMins <= 75) {
+    // Two 25-min study blocks with one 5-min break
+    const remaining = totalMins - 30;
+    return [
+      { kind: "study", durationSecs: 25 * 60, label: "Study Block 1" },
+      { kind: "break", durationSecs: 5 * 60, label: "5-min Break", breakActivity: "Stand up & walk around 🚶" },
+      { kind: "study", durationSecs: remaining * 60, label: "Study Block 2" },
+    ];
+  }
+  if (totalMins <= 90) {
+    // Two 25-min blocks + one 5-min break + final block
+    const lastBlock = totalMins - 60;
+    return [
+      { kind: "study", durationSecs: 25 * 60, label: "Study Block 1" },
+      { kind: "break", durationSecs: 5 * 60, label: "5-min Break", breakActivity: "Drink water & rest your eyes 💧" },
+      { kind: "study", durationSecs: 25 * 60, label: "Study Block 2" },
+      { kind: "break", durationSecs: 5 * 60, label: "5-min Break", breakActivity: "Stretch & move around 🧘" },
+      { kind: "study", durationSecs: lastBlock * 60, label: "Study Block 3" },
+    ];
+  }
+  // 90+ mins: three 25-min blocks with two 10-min breaks
+  const lastBlock = totalMins - 80;
+  return [
+    { kind: "study", durationSecs: 25 * 60, label: "Study Block 1" },
+    { kind: "break", durationSecs: 10 * 60, label: "10-min Break", breakActivity: "Walk outside & drink water 💧" },
+    { kind: "study", durationSecs: 25 * 60, label: "Study Block 2" },
+    { kind: "break", durationSecs: 10 * 60, label: "10-min Break", breakActivity: "Healthy snack & fresh air 🍎" },
+    { kind: "study", durationSecs: lastBlock * 60, label: "Study Block 3" },
+  ];
+}
+
+function totalSegmentSecs(segments: Segment[]) {
+  return segments.reduce((a, s) => a + s.durationSecs, 0);
+}
+
+function elapsedSecs(segments: Segment[], segIdx: number, secsRemaining: number) {
+  const completedSecs = segments.slice(0, segIdx).reduce((a, s) => a + s.durationSecs, 0);
+  return completedSecs + (segments[segIdx]?.durationSecs ?? 0) - secsRemaining;
+}
+
+function fmtMMSS(secs: number) {
+  const s = Math.max(0, secs);
+  const m = Math.floor(s / 60);
+  const ss = s % 60;
+  return `${m.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
+}
+
+// ─── Circular Progress Ring ────────────────────────────────────────────────────
+
+function CircularProgress({ progress, color, size = 160, strokeWidth = 10 }: {
+  progress: number; color: string; size?: number; strokeWidth?: number;
+}) {
+  const r = (size - strokeWidth) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - Math.max(0, Math.min(1, progress)));
+  return (
+    <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e2e8f0" strokeWidth={strokeWidth} />
+      <circle
+        cx={size / 2} cy={size / 2} r={r} fill="none"
+        stroke={color} strokeWidth={strokeWidth}
+        strokeDasharray={circ} strokeDashoffset={offset}
+        strokeLinecap="round"
+        style={{ transition: "stroke-dashoffset 0.9s linear" }}
+      />
+    </svg>
+  );
+}
+
+// ─── Break pill showing structure ─────────────────────────────────────────────
+
+function BreakStructurePill({ totalMins }: { totalMins: number }) {
+  const segs = buildSegments(totalMins);
+  const breakCount = segs.filter(s => s.kind === "break").length;
+  if (breakCount === 0) return null;
+  return (
+    <div className="flex items-center gap-0.5 flex-wrap mt-1.5">
+      {segs.map((seg, i) => (
+        <span
+          key={i}
+          className={`h-1.5 rounded-full ${seg.kind === "study" ? "bg-primary/40" : "bg-emerald-400"}`}
+          style={{ width: `${Math.round((seg.durationSecs / 60 / totalMins) * 48)}px`, minWidth: "4px" }}
+          title={`${seg.label} — ${Math.round(seg.durationSecs / 60)}m`}
+        />
+      ))}
+      <span className="text-[9px] text-slate-400 ml-1 font-medium">
+        {breakCount} break{breakCount !== 1 ? "s" : ""}
+      </span>
+    </div>
+  );
+}
+
+// ─── Session Timer Modal ───────────────────────────────────────────────────────
+
+function SessionTimerModal({
+  session,
+  onPause,
+  onResume,
+  onSkip,
+  onStop,
+  onMinimise,
+}: {
+  session: ActiveSession;
+  onPause: () => void;
+  onResume: () => void;
+  onSkip: () => void;
+  onStop: () => void;
+  onMinimise: () => void;
+}) {
+  const seg = session.segments[session.segIdx];
+  const isBreak = seg?.kind === "break";
+  const isCompleted = session.completed;
+
+  const totalSecs = totalSegmentSecs(session.segments);
+  const elapsed = elapsedSecs(session.segments, session.segIdx, session.secsRemaining);
+  const overallProgress = elapsed / totalSecs;
+
+  const segProgress = seg ? 1 - session.secsRemaining / seg.durationSecs : 1;
+  const ringColor = isCompleted ? "#16a34a" : isBreak ? "#10b981" : session.colorHex;
+  const ringText = isCompleted ? "Done!" : isBreak ? "Break" : "Study";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+    >
+      <motion.div
+        initial={{ scale: 0.92, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.92, opacity: 0, y: 20 }}
+        transition={{ type: "spring", damping: 22, stiffness: 280 }}
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+      >
+        {/* Header */}
+        <div
+          className="px-6 pt-6 pb-4 flex items-start justify-between"
+          style={{ background: isBreak || isCompleted ? "#f0fdf4" : `${session.colorHex}18` }}
+        >
+          <div>
+            <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${isBreak ? "text-emerald-600" : isCompleted ? "text-green-700" : session.colorClass.text}`}>
+              {isCompleted ? "Session Complete" : isBreak ? "☕ Break Time!" : "📚 Studying"}
+            </div>
+            <h3 className="font-bold text-slate-900 text-lg leading-tight">{session.subjectName}</h3>
+            <p className="text-xs text-slate-500 mt-0.5">{session.slotLabel}</p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button onClick={onMinimise} className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-colors" title="Minimise">
+              <Minimize2 className="w-4 h-4" />
+            </button>
+            <button onClick={onStop} className="p-2 rounded-xl text-slate-400 hover:bg-red-100 hover:text-red-500 transition-colors" title="End session">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="px-6 pb-6">
+          {/* Circular timer */}
+          <div className="flex flex-col items-center my-6 relative">
+            <CircularProgress progress={isCompleted ? 1 : segProgress} color={ringColor} size={180} strokeWidth={12} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+              {isCompleted ? (
+                <>
+                  <Check className="w-10 h-10 text-green-600" />
+                  <span className="text-sm font-bold text-green-700">All done!</span>
+                </>
+              ) : (
+                <>
+                  <span className={`text-4xl font-mono font-bold tabular-nums ${isBreak ? "text-emerald-600" : "text-slate-900"}`}>
+                    {fmtMMSS(session.secsRemaining)}
+                  </span>
+                  <span className={`text-xs font-bold uppercase tracking-wider ${isBreak ? "text-emerald-500" : session.colorClass.text}`}>
+                    {ringText}
+                  </span>
+                  {isBreak && seg?.breakActivity && (
+                    <motion.span
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-[11px] text-slate-500 text-center max-w-[120px] leading-tight mt-1"
+                    >
+                      {seg.breakActivity}
+                    </motion.span>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Current segment label */}
+          {!isCompleted && (
+            <div className={`text-center text-sm font-semibold mb-4 ${isBreak ? "text-emerald-700" : "text-slate-700"}`}>
+              {seg?.label}
+              {" · "}
+              <span className="font-normal text-slate-400 text-xs">
+                Block {session.segIdx + 1} of {session.segments.length}
+              </span>
+            </div>
+          )}
+
+          {/* Overall progress bar */}
+          <div className="mb-5">
+            <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+              <span>Overall progress</span>
+              <span>{Math.round(overallProgress * 100)}%</span>
+            </div>
+            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: isCompleted ? "#16a34a" : `linear-gradient(90deg, ${session.colorHex}, ${isBreak ? "#10b981" : session.colorHex}cc)` }}
+                animate={{ width: `${Math.round(overallProgress * 100)}%` }}
+                transition={{ duration: 0.8 }}
+              />
+            </div>
+          </div>
+
+          {/* Segment indicators */}
+          <div className="flex items-center gap-1.5 mb-6 flex-wrap">
+            {session.segments.map((s, i) => {
+              const isDone = i < session.segIdx;
+              const isCurrent = i === session.segIdx && !isCompleted;
+              return (
+                <div key={i} className="flex items-center gap-1">
+                  <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                    isDone ? "bg-slate-100 text-slate-400 line-through" :
+                    isCurrent ? (s.kind === "break" ? "bg-emerald-100 text-emerald-700 ring-2 ring-emerald-300" : "bg-primary/10 text-primary ring-2 ring-primary/30") :
+                    s.kind === "break" ? "bg-slate-50 text-slate-300 border border-slate-200" : "bg-slate-50 text-slate-300 border border-slate-200"
+                  }`}>
+                    {s.kind === "break" ? <Coffee className="w-2.5 h-2.5" /> : <BookOpen className="w-2.5 h-2.5" />}
+                    {Math.round(s.durationSecs / 60)}m
+                  </div>
+                  {i < session.segments.length - 1 && <div className="w-1.5 h-px bg-slate-200" />}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Controls */}
+          {isCompleted ? (
+            <button onClick={onStop}
+              className="w-full py-3 rounded-2xl font-bold text-white text-sm bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+              <Check className="w-4 h-4" /> Close — great work!
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              {session.paused ? (
+                <button onClick={onResume}
+                  className="flex-1 py-3 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                  style={{ background: `linear-gradient(135deg, ${session.colorHex}, ${session.colorHex}cc)` }}>
+                  <Play className="w-4 h-4 fill-current" /> Resume
+                </button>
+              ) : (
+                <button onClick={onPause}
+                  className="flex-1 py-3 rounded-2xl font-bold text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 flex items-center justify-center gap-2 transition-colors">
+                  <Pause className="w-4 h-4 fill-current" /> Pause
+                </button>
+              )}
+              <button onClick={onSkip}
+                className="px-4 py-3 rounded-2xl text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center gap-1.5 text-sm font-semibold"
+                title="Skip to next segment">
+                <SkipForward className="w-4 h-4" /> Skip
+              </button>
+              <button onClick={onStop}
+                className="px-4 py-3 rounded-2xl text-rose-500 bg-rose-50 hover:bg-rose-100 transition-colors"
+                title="End session">
+                <Square className="w-4 h-4 fill-current" />
+              </button>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ─── Minimised pill ────────────────────────────────────────────────────────────
+
+function MinimisedPill({ session, onExpand, onStop }: {
+  session: ActiveSession;
+  onExpand: () => void;
+  onStop: () => void;
+}) {
+  const seg = session.segments[session.segIdx];
+  const isBreak = seg?.kind === "break";
+  const isCompleted = session.completed;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 60 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 60 }}
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9998] flex items-center gap-3 bg-white rounded-2xl shadow-2xl border border-slate-200 px-4 py-2.5 cursor-pointer"
+      onClick={onExpand}
+    >
+      <div className={`w-2 h-2 rounded-full animate-pulse ${isCompleted ? "bg-green-500" : isBreak ? "bg-emerald-400" : "bg-primary"}`} />
+      <div className="text-sm">
+        <span className="font-bold text-slate-900">{session.subjectName}</span>
+        <span className="text-slate-400 mx-1.5">·</span>
+        <span className={`font-semibold ${isBreak ? "text-emerald-600" : "text-primary"}`}>
+          {isCompleted ? "Done!" : `${isBreak ? "☕ Break" : "📚 Study"} — ${fmtMMSS(session.secsRemaining)}`}
+        </span>
+      </div>
+      <button onClick={e => { e.stopPropagation(); onExpand(); }} className="p-1 rounded-lg text-slate-400 hover:text-slate-700">
+        <Maximize2 className="w-3.5 h-3.5" />
+      </button>
+      <button onClick={e => { e.stopPropagation(); onStop(); }} className="p-1 rounded-lg text-slate-400 hover:text-rose-500">
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </motion.div>
+  );
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -122,7 +474,6 @@ function getSlotsForDay(dayIndex: number, mode: ScheduleMode): SlotDef[] {
   return HOLIDAY_SLOTS;
 }
 
-/** Expand Combined Science into 3 sub-subjects if selected. */
 function buildEffectiveSubjects(selected: { id: number; name: string; category: string; level: string }[]): EffectiveSubject[] {
   const result: EffectiveSubject[] = [];
   for (const s of selected) {
@@ -183,7 +534,6 @@ function calcSubjectMins(grid: TimetableCell[][], idx: number) {
 }
 
 function rnd(mins: number) { return Math.round(mins / 6) / 10; }
-
 function nanoid6() { return Math.random().toString(36).slice(2, 8); }
 
 // ─── Save Modal ───────────────────────────────────────────────────────────────
@@ -212,11 +562,8 @@ function SaveModal({ onSave, onClose }: { onSave: (name: string) => void; onClos
           </div>
         </div>
         <input
-          autoFocus
-          type="text"
-          placeholder="e.g. Year 11 Term 2 Plan"
-          value={name}
-          onChange={e => setName(e.target.value)}
+          autoFocus type="text" placeholder="e.g. Year 11 Term 2 Plan"
+          value={name} onChange={e => setName(e.target.value)}
           onKeyDown={e => e.key === "Enter" && name.trim() && onSave(name.trim())}
           className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 mb-4"
         />
@@ -256,6 +603,72 @@ export default function Timetable() {
   const [showSaveLimitGate, setShowSaveLimitGate] = useState(false);
   const FREE_PLAN_LIMIT = 3;
 
+  // ─── Timer state ─────────────────────────────────────────────────────────────
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearTimer = useCallback(() => {
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+  }, []);
+
+  const advanceTimer = useCallback(() => {
+    setActiveSession(prev => {
+      if (!prev || prev.paused || prev.completed) return prev;
+      const newSecs = prev.secsRemaining - 1;
+      if (newSecs > 0) return { ...prev, secsRemaining: newSecs };
+      // Segment completed — move to next
+      const nextIdx = prev.segIdx + 1;
+      if (nextIdx >= prev.segments.length) {
+        // All done
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("Session complete!", { body: `${prev.subjectName} study session finished. 🎉`, icon: "/favicon.ico" });
+        }
+        return { ...prev, secsRemaining: 0, completed: true };
+      }
+      const nextSeg = prev.segments[nextIdx];
+      // Break alert notification
+      if (nextSeg.kind === "break" && "Notification" in window && Notification.permission === "granted") {
+        new Notification("Break time!", { body: nextSeg.breakActivity ?? "Time for a short break 🧘", icon: "/favicon.ico" });
+      }
+      if (nextSeg.kind === "study" && "Notification" in window && Notification.permission === "granted") {
+        new Notification("Back to study!", { body: `${nextSeg.label} — let's go! 📚`, icon: "/favicon.ico" });
+      }
+      return { ...prev, segIdx: nextIdx, secsRemaining: nextSeg.durationSecs };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (activeSession && !activeSession.paused && !activeSession.completed) {
+      clearTimer();
+      intervalRef.current = setInterval(advanceTimer, 1000);
+    } else {
+      clearTimer();
+    }
+    return clearTimer;
+  }, [activeSession?.paused, activeSession?.completed, advanceTimer, clearTimer]);
+
+  const startSession = useCallback((cell: TimetableCell, colorClass: typeof SUBJECT_COLORS[0]) => {
+    clearTimer();
+    const totalMins = calcMins(cell.slot.start, cell.slot.end);
+    const segments = buildSegments(totalMins);
+    // Request notification permission
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+    setActiveSession({
+      subjectName: cell.label ?? "Study",
+      slotLabel: cell.slot.label,
+      colorHex: colorClass.hex,
+      colorClass,
+      segments,
+      segIdx: 0,
+      secsRemaining: segments[0].durationSecs,
+      paused: false,
+      completed: false,
+      minimised: false,
+    });
+  }, [clearTimer]);
+
   const filteredSubjects = allSubjects.filter(s => {
     const matchLevel = levelFilter === "All" || s.level === levelFilter || s.level === "Both";
     const matchSearch = s.name.toLowerCase().includes(search.toLowerCase());
@@ -264,7 +677,6 @@ export default function Timetable() {
 
   const selectedSubjects = allSubjects.filter(s => selectedIds.has(s.id));
   const effectiveSubjects = useMemo(() => buildEffectiveSubjects(selectedSubjects), [selectedSubjects]);
-
   const grid = useMemo(() => generateTimetable(effectiveSubjects, mode), [effectiveSubjects, mode]);
 
   const weeklyMins = calcWeeklyMins(grid);
@@ -286,11 +698,7 @@ export default function Timetable() {
 
   const handleSave = useCallback((name: string) => {
     const plan: SavedPlan = {
-      id: nanoid6(),
-      name,
-      subjectIds: [...selectedIds],
-      mode,
-      savedAt: new Date().toISOString(),
+      id: nanoid6(), name, subjectIds: [...selectedIds], mode, savedAt: new Date().toISOString(),
     };
     const updated = [plan, ...savedPlans];
     setSavedPlans(updated);
@@ -323,14 +731,40 @@ export default function Timetable() {
       {/* Saved banner toast */}
       <AnimatePresence>
         {savedBanner && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-[9998] flex items-center gap-2 px-5 py-3 bg-green-800 text-white text-sm font-semibold rounded-full shadow-xl"
-          >
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-[9998] flex items-center gap-2 px-5 py-3 bg-green-800 text-white text-sm font-semibold rounded-full shadow-xl">
             <Check className="w-4 h-4" /> "{savedBanner}" saved!
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Session Timer */}
+      <AnimatePresence>
+        {activeSession && !activeSession.minimised && (
+          <SessionTimerModal
+            session={activeSession}
+            onPause={() => setActiveSession(s => s ? { ...s, paused: true } : s)}
+            onResume={() => setActiveSession(s => s ? { ...s, paused: false } : s)}
+            onSkip={() => setActiveSession(s => {
+              if (!s) return s;
+              const nextIdx = s.segIdx + 1;
+              if (nextIdx >= s.segments.length) return { ...s, completed: true, secsRemaining: 0 };
+              return { ...s, segIdx: nextIdx, secsRemaining: s.segments[nextIdx].durationSecs, paused: false };
+            })}
+            onStop={() => { clearTimer(); setActiveSession(null); }}
+            onMinimise={() => setActiveSession(s => s ? { ...s, minimised: true } : s)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Minimised pill */}
+      <AnimatePresence>
+        {activeSession && activeSession.minimised && (
+          <MinimisedPill
+            session={activeSession}
+            onExpand={() => setActiveSession(s => s ? { ...s, minimised: false } : s)}
+            onStop={() => { clearTimer(); setActiveSession(null); }}
+          />
         )}
       </AnimatePresence>
 
@@ -342,42 +776,24 @@ export default function Timetable() {
       {/* PDF Premium Gate Modal */}
       <AnimatePresence>
         {showPdfGate && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
-            onClick={() => setShowPdfGate(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center"
-              onClick={e => e.stopPropagation()}
-            >
+            onClick={() => setShowPdfGate(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center" onClick={e => e.stopPropagation()}>
               <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Download className="w-7 h-7 text-amber-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-2">Export as PDF</h3>
-              <p className="text-sm text-slate-500 mb-6">
-                Save your study timetable as a printable PDF — available with Student Premium.
-              </p>
+              <p className="text-sm text-slate-500 mb-6">Save your study timetable as a printable PDF — available with Student Premium.</p>
               <Link href="/pricing">
-                <button
-                  onClick={() => setShowPdfGate(false)}
+                <button onClick={() => setShowPdfGate(false)}
                   className="w-full py-3 rounded-xl font-bold text-sm text-white mb-3 hover:opacity-90 transition-opacity"
-                  style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
-                >
+                  style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}>
                   Upgrade to Premium — £3.99/mo
                 </button>
               </Link>
-              <button
-                onClick={() => setShowPdfGate(false)}
-                className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                Maybe later
-              </button>
+              <button onClick={() => setShowPdfGate(false)} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Maybe later</button>
             </motion.div>
           </motion.div>
         )}
@@ -386,42 +802,24 @@ export default function Timetable() {
       {/* Save Limit Gate Modal */}
       <AnimatePresence>
         {showSaveLimitGate && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
-            onClick={() => setShowSaveLimitGate(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center"
-              onClick={e => e.stopPropagation()}
-            >
+            onClick={() => setShowSaveLimitGate(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center" onClick={e => e.stopPropagation()}>
               <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Save className="w-7 h-7 text-primary" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-2">Plan limit reached</h3>
-              <p className="text-sm text-slate-500 mb-6">
-                Free accounts can save up to {FREE_PLAN_LIMIT} study plans. Upgrade to Premium for unlimited saves.
-              </p>
+              <p className="text-sm text-slate-500 mb-6">Free accounts can save up to {FREE_PLAN_LIMIT} study plans. Upgrade to Premium for unlimited saves.</p>
               <Link href="/pricing">
-                <button
-                  onClick={() => setShowSaveLimitGate(false)}
+                <button onClick={() => setShowSaveLimitGate(false)}
                   className="w-full py-3 rounded-xl font-bold text-sm text-white mb-3 hover:opacity-90 transition-opacity"
-                  style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
-                >
+                  style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}>
                   Upgrade to Premium — £3.99/mo
                 </button>
               </Link>
-              <button
-                onClick={() => setShowSaveLimitGate(false)}
-                className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                Maybe later
-              </button>
+              <button onClick={() => setShowSaveLimitGate(false)} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Maybe later</button>
             </motion.div>
           </motion.div>
         )}
@@ -437,11 +835,10 @@ export default function Timetable() {
           </div>
           <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-3">Your Personal Study Timetable</h1>
           <p className="text-slate-300 text-lg max-w-xl mx-auto">
-            Select your subjects and we'll build a structured weekly study plan around school hours, weekends, and holidays.
+            Select your subjects, pick your schedule mode, and start timed sessions with automatic break alerts built in.
           </p>
 
           <div className="flex items-center justify-center gap-3 mt-8 flex-wrap">
-            {/* Step indicators */}
             <div className="flex items-center gap-2">
               {[
                 { n: 1, label: "Choose Subjects" },
@@ -463,14 +860,10 @@ export default function Timetable() {
               ))}
             </div>
 
-            {/* Saved Plans button */}
             {savedPlans.length > 0 && (
-              <button
-                onClick={() => setShowSavedPanel(v => !v)}
-                className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/20 transition-all"
-              >
-                <FolderOpen className="w-3.5 h-3.5" />
-                My Plans ({savedPlans.length})
+              <button onClick={() => setShowSavedPanel(v => !v)}
+                className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/20 transition-all">
+                <FolderOpen className="w-3.5 h-3.5" /> My Plans ({savedPlans.length})
               </button>
             )}
           </div>
@@ -480,12 +873,8 @@ export default function Timetable() {
       {/* Saved Plans Drawer */}
       <AnimatePresence>
         {showSavedPanel && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden bg-indigo-950 border-b border-white/10"
-          >
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden bg-indigo-950 border-b border-white/10">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-white font-bold text-sm flex items-center gap-2">
@@ -505,16 +894,12 @@ export default function Timetable() {
                       </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        onClick={() => handleLoadPlan(plan)}
-                        className="px-3 py-1.5 bg-primary hover:bg-primary/80 text-white text-xs font-semibold rounded-lg transition-colors"
-                      >
+                      <button onClick={() => handleLoadPlan(plan)}
+                        className="px-3 py-1.5 bg-primary hover:bg-primary/80 text-white text-xs font-semibold rounded-lg transition-colors">
                         Load
                       </button>
-                      <button
-                        onClick={() => handleDeletePlan(plan.id)}
-                        className="p-1.5 text-white/40 hover:text-rose-400 hover:bg-white/10 rounded-lg transition-colors"
-                      >
+                      <button onClick={() => handleDeletePlan(plan.id)}
+                        className="p-1.5 text-white/40 hover:text-rose-400 hover:bg-white/10 rounded-lg transition-colors">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -540,24 +925,18 @@ export default function Timetable() {
                 {selectedIds.size > 0 && (
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="text-sm text-slate-600 font-medium">{selectedIds.size} selected</span>
-                    <button
-                      onClick={() => setStep(2)}
+                    <button onClick={() => setStep(2)}
                       className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
-                      style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
-                    >
+                      style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}>
                       Continue <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* Combined Science callout */}
               {hasCombinedScience && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl mb-5 text-sm"
-                >
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl mb-5 text-sm">
                   <div className="flex gap-1 mt-0.5 shrink-0">
                     <Leaf className="w-4 h-4 text-green-700" />
                     <FlaskConical className="w-4 h-4 text-blue-500" />
@@ -569,7 +948,6 @@ export default function Timetable() {
                 </motion.div>
               )}
 
-              {/* Filters */}
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
                 <div className="relative flex-1 max-w-xs">
                   <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -586,7 +964,6 @@ export default function Timetable() {
                 </div>
               </div>
 
-              {/* Subject grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {filteredSubjects.map(subject => {
                   const isSelected = selectedIds.has(subject.id);
@@ -675,7 +1052,6 @@ export default function Timetable() {
                 </button>
               </div>
 
-              {/* Subject summary */}
               <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-8">
                 <h4 className="font-semibold text-slate-700 text-sm mb-3">
                   Subjects ({effectiveSubjects.length} sessions planned{hasCombinedScience ? " — Combined Science expanded" : ""})
@@ -716,17 +1092,14 @@ export default function Timetable() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <button
-                    onClick={handleSaveClick}
+                  <button onClick={handleSaveClick}
                     className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
-                    style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}
-                  >
+                    style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,40%) 100%)" }}>
                     <Save className="w-4 h-4" /> Save Plan
                   </button>
                   <button
                     onClick={() => premium ? window.print() : setShowPdfGate(true)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-colors ${premium ? "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100" : "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"}`}
-                  >
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-colors ${premium ? "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100" : "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"}`}>
                     <Download className="w-4 h-4" /> Export PDF {!premium && <span className="text-[10px] font-bold bg-amber-400 text-white px-1.5 py-0.5 rounded-full ml-1">PRO</span>}
                   </button>
                   {savedPlans.length > 0 && (
@@ -755,6 +1128,16 @@ export default function Timetable() {
                     <p className="text-xs text-slate-500 font-medium mt-0.5">{s.label}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* Break alert explainer */}
+              <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 mb-5 text-sm">
+                <Bell className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <div>
+                  <span className="font-semibold text-emerald-800">Break alerts are built in.</span>
+                  <span className="text-emerald-700"> Click <strong>▶ Start</strong> on any session card to launch a countdown timer with automatic break reminders at the right intervals.</span>
+                  <span className="text-emerald-600 text-xs block mt-0.5">The coloured dots on each card show the break structure — blue = study, green = break.</span>
+                </div>
               </div>
 
               {/* Legend */}
@@ -795,20 +1178,48 @@ export default function Timetable() {
                           if (!cell) return <div key={dayIdx} />;
                           const color = cell.subjectIndex !== null ? SUBJECT_COLORS[cell.subjectIndex % SUBJECT_COLORS.length] : null;
                           const SlotIcon = cell.slot.icon;
+                          const totalMins = calcMins(cell.slot.start, cell.slot.end);
+                          const isActive = activeSession &&
+                            activeSession.subjectName === cell.label &&
+                            activeSession.slotLabel === cell.slot.label;
+
                           return (
                             <motion.div key={dayIdx}
                               initial={{ opacity: 0, scale: 0.95 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: (dayIdx + slotIdx * 7) * 0.015 }}
-                              className={`rounded-xl p-3 border ${color ? `${color.light} ${color.border} border` : `${cell.slot.color} border-transparent`}`}>
-                              <div className="flex items-center gap-1 mb-1.5">
-                                <SlotIcon className={`w-3 h-3 ${color ? color.text : "text-slate-400"} shrink-0`} />
-                                <span className="text-[10px] text-slate-400 font-medium truncate">{formatTime(cell.slot.start)}–{formatTime(cell.slot.end)}</span>
+                              className={`rounded-xl border group relative ${color ? `${color.light} ${color.border} border` : `${cell.slot.color} border-transparent`} ${isActive ? "ring-2 ring-primary/40" : ""}`}>
+                              <div className="p-3">
+                                <div className="flex items-center gap-1 mb-1.5">
+                                  <SlotIcon className={`w-3 h-3 ${color ? color.text : "text-slate-400"} shrink-0`} />
+                                  <span className="text-[10px] text-slate-400 font-medium truncate">{formatTime(cell.slot.start)}–{formatTime(cell.slot.end)}</span>
+                                </div>
+                                {color && cell.label
+                                  ? <p className={`text-xs font-bold leading-tight ${color.text}`}>{cell.label}</p>
+                                  : <p className="text-xs text-slate-400 italic">Free</p>}
+                                <p className="text-[10px] text-slate-400 mt-0.5">{formatDuration(totalMins)}</p>
+
+                                {/* Break structure dots */}
+                                {color && <BreakStructurePill totalMins={totalMins} />}
                               </div>
-                              {color && cell.label
-                                ? <p className={`text-xs font-bold leading-tight ${color.text}`}>{cell.label}</p>
-                                : <p className="text-xs text-slate-400 italic">Free</p>}
-                              <p className="text-[10px] text-slate-400 mt-1">{formatDuration(calcMins(cell.slot.start, cell.slot.end))}</p>
+
+                              {/* Start Session button — appears on hover */}
+                              {color && cell.label && (
+                                <motion.button
+                                  onClick={() => startSession(cell, color)}
+                                  className={`w-full flex items-center justify-center gap-1 py-1.5 rounded-b-xl text-[10px] font-bold transition-all ${
+                                    isActive
+                                      ? "bg-primary/20 text-primary"
+                                      : "bg-black/5 text-slate-500 hover:bg-primary hover:text-white opacity-0 group-hover:opacity-100"
+                                  }`}
+                                >
+                                  {isActive ? (
+                                    <><Timer className="w-2.5 h-2.5" /> Running</>
+                                  ) : (
+                                    <><Play className="w-2.5 h-2.5 fill-current" /> Start</>
+                                  )}
+                                </motion.button>
+                              )}
                             </motion.div>
                           );
                         })}
@@ -826,7 +1237,7 @@ export default function Timetable() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[
                     { icon: "🧠", tip: "Use active recall — close your notes and write down everything you remember after each session." },
-                    { icon: "⏱️", tip: "Stick to the Pomodoro technique: 25 mins focused study, 5 mins break — it preserves concentration." },
+                    { icon: "⏱️", tip: "The timer uses Pomodoro-style breaks built into each session — follow them for peak focus." },
                     { icon: "📝", tip: "Summarise each session in 3 bullet points in a revision notebook before you finish." },
                     { icon: "🔄", tip: "Revisit the previous session's topic at the start of each new one — spaced repetition boosts retention." },
                     { icon: "📅", tip: "Mark exam dates on a calendar and work backwards to prioritise subjects with closer deadlines." },
