@@ -171,7 +171,7 @@ function NationPickerHero({ onPick }: { onPick: (n: Nation) => void }) {
                 </div>
                 <div>
                   <p className="text-white font-bold text-xl leading-tight">{n.label}</p>
-                  <p className="text-slate-400 text-xs mt-2 leading-snug">{n.qualifications}</p>
+                  <p className="text-slate-300 text-xs mt-2 leading-snug">{n.qualifications}</p>
                 </div>
                 <div className="flex items-center gap-1 text-primary text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   Select <ArrowRight className="w-3 h-3" />
@@ -262,19 +262,19 @@ export default function Home() {
                   className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-full border text-sm font-bold mb-8 hover:opacity-80 transition-opacity ${theme.pill}`}>
                   <FlagSvg nation={nation} className="w-8 h-5 rounded shadow-sm" />
                   {nationInfo.label}
-                  <span className="text-xs opacity-55 font-normal">· change</span>
+                  <span className="text-xs opacity-80 font-normal">· change</span>
                 </button>
 
                 <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.08] mb-5 tracking-tight">
                   {theme.headline}
                 </h1>
 
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-white/65 text-xs font-semibold mb-6 tracking-wide">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 border border-white/25 text-white text-xs font-semibold mb-6 tracking-wide">
                   <Star className="w-3 h-3" style={{ color: theme.accentHex }} />
                   {theme.quals}
                 </div>
 
-                <p className="text-lg text-slate-300 leading-relaxed mb-10 max-w-xl">
+                <p className="text-lg text-slate-100 leading-relaxed mb-10 max-w-xl">
                   {theme.subheadline}
                 </p>
 
@@ -295,8 +295,8 @@ export default function Home() {
                 {/* Stats row */}
                 <div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-3">
                   {STATS.map(s => (
-                    <span key={s.label} className="flex items-center gap-1.5 text-sm text-slate-400 font-medium">
-                      <s.icon className="w-4 h-4 text-slate-500" />
+                    <span key={s.label} className="flex items-center gap-1.5 text-sm text-slate-200 font-medium">
+                      <s.icon className="w-4 h-4 text-slate-300" />
                       <strong className="text-white font-bold">{s.value}</strong>
                       <span>{s.label}</span>
                     </span>
@@ -331,7 +331,7 @@ export default function Home() {
                       <FlagSvg nation={nation} className="w-full h-full" />
                     </div>
                     {/* Flag label */}
-                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1.5 rounded-full bg-black/60 backdrop-blur border border-white/15 text-white/80 text-xs font-semibold">
+                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1.5 rounded-full bg-black/60 backdrop-blur border border-white/25 text-white text-xs font-semibold">
                       {nationInfo.label}
                     </div>
                   </div>
@@ -344,11 +344,11 @@ export default function Home() {
                       { label: "Subjects", value: "80+", icon: BookOpen },
                       { label: "Study routes", value: "6+", icon: Map },
                     ].map(card => (
-                      <div key={card.label} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 backdrop-blur-sm">
-                        <card.icon className="w-4 h-4 text-slate-400 shrink-0" />
+                      <div key={card.label} className="flex items-center gap-3 bg-white/8 border border-white/15 rounded-2xl px-4 py-3 backdrop-blur-sm">
+                        <card.icon className="w-4 h-4 text-slate-200 shrink-0" />
                         <div>
                           <p className="text-white font-bold text-sm leading-none">{card.value}</p>
-                          <p className="text-slate-500 text-xs mt-0.5">{card.label}</p>
+                          <p className="text-slate-300 text-xs mt-0.5">{card.label}</p>
                         </div>
                       </div>
                     ))}
@@ -459,7 +459,7 @@ export default function Home() {
               <div className="w-36 h-24 rounded-xl overflow-hidden shadow-2xl border-2 border-white/25">
                 <FlagSvg nation={nation} className="w-full h-full" />
               </div>
-              <p className="text-white/40 text-sm font-medium">{nationInfo.label} Edition</p>
+              <p className="text-white/75 text-sm font-medium">{nationInfo.label} Edition</p>
             </div>
           </div>
         </div>
