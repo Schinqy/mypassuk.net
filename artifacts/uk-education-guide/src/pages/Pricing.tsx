@@ -1,6 +1,7 @@
 import { Link } from "wouter";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, X, Sparkles, Building2, GraduationCap, Zap, Mail, Star, Loader2 } from "lucide-react";
+import { Check, X, Sparkles, Building2, GraduationCap, Zap, Mail, Star, Loader2, Gift, CheckCircle } from "lucide-react";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 
 const MONTHLY_PRICE_ID = "price_1TFhHuADJ1aNg2Ze5IaF8u5g";
@@ -40,6 +41,112 @@ const INSTITUTION_FEATURES = [
   "Dedicated account manager",
   "Cancel anytime",
 ];
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function PromoRedeemBox() {
+  const [code, setCode] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const alreadyUnlocked =
+    typeof window !== "undefined" &&
+    localStorage.getItem("uk-edguide-premium") === "true";
+
+  const handleRedeem = async () => {
+    if (!code.trim()) return;
+    setStatus("loading");
+    setMessage("");
+    try {
+      const res = await fetch(`${BASE}/api/promo/redeem`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        localStorage.setItem("uk-edguide-premium", "true");
+        setStatus("success");
+        setMessage(json.message || "Premium access unlocked!");
+      } else {
+        setStatus("error");
+        setMessage(json.error || "Something went wrong. Please try again.");
+      }
+    } catch {
+      setStatus("error");
+      setMessage("Network error. Please check your connection and try again.");
+    }
+  };
+
+  if (alreadyUnlocked && status !== "success") {
+    return (
+      <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl px-6 py-4 text-green-800 text-sm font-semibold">
+        <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+        Premium access is already active on this device.
+      </div>
+    );
+  }
+
+  if (status === "success") {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col sm:flex-row items-center gap-4 bg-green-50 border border-green-200 rounded-2xl px-6 py-5"
+      >
+        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
+          <CheckCircle className="w-6 h-6 text-green-600" />
+        </div>
+        <div>
+          <p className="font-bold text-green-900">You're now on Premium — for free!</p>
+          <p className="text-sm text-green-700 mt-0.5">{message}</p>
+        </div>
+        <Link href="/timetable" className="sm:ml-auto">
+          <button className="whitespace-nowrap px-5 py-2.5 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 transition-colors">
+            Start studying →
+          </button>
+        </Link>
+      </motion.div>
+    );
+  }
+
+  return (
+    <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
+          <Gift className="w-4.5 h-4.5 text-primary" />
+        </div>
+        <div>
+          <p className="font-bold text-slate-900 text-sm">Have a promo code?</p>
+          <p className="text-xs text-slate-500">Redeem it for free Premium access</p>
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={code}
+          onChange={e => { setCode(e.target.value.toUpperCase()); setStatus("idle"); setMessage(""); }}
+          onKeyDown={e => e.key === "Enter" && handleRedeem()}
+          placeholder="e.g. MYPASS-LAUNCH1"
+          maxLength={24}
+          className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-mono font-semibold tracking-wider uppercase bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 placeholder:font-normal placeholder:tracking-normal placeholder:normal-case"
+        />
+        <button
+          onClick={handleRedeem}
+          disabled={status === "loading" || !code.trim()}
+          className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+        >
+          {status === "loading" ? <Loader2 className="w-4 h-4 animate-spin" /> : "Redeem"}
+        </button>
+      </div>
+
+      {status === "error" && (
+        <p className="text-red-600 text-xs mt-2 font-medium">{message}</p>
+      )}
+    </div>
+  );
+}
 
 export default function Pricing() {
   const { loading, error, startCheckout } = useStripeCheckout();
@@ -152,6 +259,16 @@ export default function Pricing() {
             </ul>
           </motion.div>
         </div>
+
+        {/* Promo code redemption */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mb-8"
+        >
+          <PromoRedeemBox />
+        </motion.div>
 
         {/* Institution Plan */}
         <motion.div
