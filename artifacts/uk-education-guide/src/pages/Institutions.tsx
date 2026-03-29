@@ -5,6 +5,42 @@ import { Building2, Search, MapPin, Star, GraduationCap, Filter, Landmark, Users
 import { useGetInstitutions, GetInstitutionsType } from "@workspace/api-client-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useNation } from "@/contexts/NationContext";
+
+const NATION_REGION: Record<string, string> = {
+  scotland: "Scotland",
+  wales: "Wales",
+  "northern-ireland": "Northern Ireland",
+};
+
+const NATION_BANNERS: Record<string, {
+  color: string; textColor: string; titleColor: string; flag: string; title: string; text: string;
+}> = {
+  scotland: {
+    color: "bg-teal-50 border-teal-200",
+    textColor: "text-teal-800",
+    titleColor: "text-teal-900",
+    flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+    title: "Scottish Institutions — Free Tuition for Scottish Students",
+    text: "Scottish domiciled students studying at Scottish universities pay no tuition fees — administered through SAAS (Student Awards Agency Scotland). You still need to fund living costs, typically through a means-tested bursary. Many Scottish universities have lower entry requirements for Higher applicants compared to A-Level equivalents.",
+  },
+  wales: {
+    color: "bg-green-50 border-green-200",
+    textColor: "text-green-800",
+    titleColor: "text-green-900",
+    flag: "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+    title: "Welsh Students — Tuition Fee Support",
+    text: "Welsh students qualify for a Tuition Fee Loan (up to £9,535/year) and a means-tested Maintenance Loan/Grant from Student Finance Wales — regardless of where in the UK they study. Welsh universities charge up to £9,535/year. The Welsh Government also provides the Diamond Review bursary for lower-income students.",
+  },
+  "northern-ireland": {
+    color: "bg-blue-50 border-blue-200",
+    textColor: "text-blue-800",
+    titleColor: "text-blue-900",
+    flag: "🇬🇧",
+    title: "Northern Ireland — Reduced Tuition Fees",
+    text: "NI domiciled students studying at NI universities pay lower tuition fees (currently £4,760/year) through Student Finance NI. Studying in England, Scotland or Wales means paying the standard home rate. Many NI students also choose universities in the Republic of Ireland, where EU-rate fees may apply after Brexit adjustments.",
+  },
+};
 
 const TYPE_ICON = {
   University: Landmark,
@@ -28,14 +64,16 @@ const TYPE_ICON_BG = {
 };
 
 export default function Institutions() {
+  const { nation } = useNation();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<GetInstitutionsType | "All">("All");
   const [cityFilter, setCityFilter] = useState("All");
-  const [regionFilter, setRegionFilter] = useState("All");
+  const [regionFilter, setRegionFilter] = useState(() => nation ? (NATION_REGION[nation] ?? "All") : "All");
   const [russellGroupOnly, setRussellGroupOnly] = useState(false);
 
   const { data: institutions, isLoading } = useGetInstitutions();
   const base = import.meta.env.BASE_URL;
+  const nationBanner = nation ? NATION_BANNERS[nation] : null;
 
   const regions = ["All", ...Array.from(new Set(institutions?.map(i => i.region).filter(Boolean) || []))].sort((a, b) => a === "All" ? -1 : b === "All" ? 1 : a.localeCompare(b));
 
@@ -99,6 +137,17 @@ export default function Institutions() {
             </div>
           </div>
         </div>
+
+        {/* Nation funding banner */}
+        {nationBanner && (
+          <div className={`mb-6 flex items-start gap-4 px-5 py-4 rounded-2xl border ${nationBanner.color}`}>
+            <span className="text-2xl shrink-0 mt-0.5">{nationBanner.flag}</span>
+            <div>
+              <p className={`font-bold text-sm mb-1 ${nationBanner.titleColor}`}>{nationBanner.title}</p>
+              <p className={`text-sm leading-relaxed ${nationBanner.textColor}`}>{nationBanner.text}</p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Filters */}

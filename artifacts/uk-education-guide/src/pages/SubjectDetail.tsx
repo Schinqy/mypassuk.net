@@ -4,11 +4,61 @@ import { useGetSubjectById } from "@workspace/api-client-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ArrowLeft, BookOpen, CheckCircle, FileText, Globe, Lightbulb, PlayCircle } from "lucide-react";
 import { useAiStudy } from "@/contexts/AiStudyContext";
+import { useNation } from "@/contexts/NationContext";
+
+function getNationResources(nation: string | null, subjectName: string, level: string) {
+  if (nation === "wales") {
+    return [
+      {
+        name: `WJEC – ${subjectName} Past Papers & Spec`,
+        url: `https://www.wjec.co.uk/home/search/?q=${encodeURIComponent(subjectName)}`,
+        type: "Past Papers",
+        board: "WJEC",
+      },
+      {
+        name: `Eduqas – ${subjectName} Resources`,
+        url: `https://www.eduqas.co.uk/home/search/?q=${encodeURIComponent(subjectName)}`,
+        type: "Past Papers",
+        board: "Eduqas",
+      },
+      {
+        name: "WJEC Grade Boundaries & Mark Schemes",
+        url: "https://www.wjec.co.uk/home/student-area/grade-boundaries/",
+        type: "Website",
+        board: "WJEC",
+      },
+    ];
+  }
+  if (nation === "northern-ireland") {
+    return [
+      {
+        name: `CCEA – ${subjectName} Past Papers`,
+        url: `https://ccea.org.uk/learning-resources/download?q=${encodeURIComponent(subjectName)}`,
+        type: "Past Papers",
+        board: "CCEA",
+      },
+      {
+        name: "CCEA Subject Specifications",
+        url: `https://ccea.org.uk/qualifications/${level === "GCSE" || level === "Both" ? "gcse" : "gce"}`,
+        type: "Website",
+        board: "CCEA",
+      },
+      {
+        name: "CCEA Grade Boundaries",
+        url: "https://ccea.org.uk/regulation/grade-boundaries",
+        type: "Website",
+        board: "CCEA",
+      },
+    ];
+  }
+  return null;
+}
 
 export default function SubjectDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: subject, isLoading, error } = useGetSubjectById(Number(id));
   const { setSubjectContext } = useAiStudy();
+  const { nation } = useNation();
 
   useEffect(() => {
     if (subject) {
@@ -139,6 +189,56 @@ export default function SubjectDetail() {
               </div>
             </div>
           )}
+
+          {/* Nation-specific exam board resources */}
+          {(() => {
+            const nationResources = getNationResources(nation, subject.name, subject.level);
+            if (!nationResources) return null;
+            const isWales = nation === "wales";
+            const isNI = nation === "northern-ireland";
+            const boardLabel = isWales ? "WJEC / Eduqas" : "CCEA";
+            const boardColor = isWales ? "bg-green-50 border-green-200" : "bg-blue-50 border-blue-200";
+            const badgeColor = isWales ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800";
+            const headingColor = isWales ? "text-green-900" : "text-blue-900";
+            const flag = isWales ? "🏴󠁧󠁢󠁷󠁬󠁳󠁿" : "🇬🇧";
+            return (
+              <div className={`rounded-3xl p-8 border mt-4 ${boardColor}`}>
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-2xl">{flag}</span>
+                  <div>
+                    <h2 className={`text-xl font-bold ${headingColor}`}>{boardLabel} Resources</h2>
+                    <p className={`text-sm ${isWales ? "text-green-700" : "text-blue-700"}`}>
+                      {isWales
+                        ? "Your school likely uses WJEC or Eduqas — always check which specification you're studying before using resources."
+                        : "Your school likely uses CCEA — specifications may differ from AQA or Edexcel. Always verify before using resources."}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {nationResources.map((res, i) => (
+                    <a
+                      key={i}
+                      href={res.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-white hover:border-primary/30 hover:shadow-md transition-all group"
+                    >
+                      <div className="p-3 bg-slate-100 rounded-xl group-hover:scale-110 transition-transform">
+                        {getResourceIcon(res.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-slate-900 group-hover:text-primary transition-colors text-sm leading-tight">{res.name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${badgeColor}`}>{res.board}</span>
+                          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{res.type}</span>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
         </div>
       </div>

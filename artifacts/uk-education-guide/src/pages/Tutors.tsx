@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, BookOpen, ExternalLink, Star, ChevronDown, Users, GraduationCap, X, TrendingUp, Clock, PoundSterling } from "lucide-react";
 import { useGetSubjects } from "@workspace/api-client-react";
+import { useNation } from "@/contexts/NationContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,15 +17,29 @@ const UK_AREAS = [
   "Bradford", "Oxford", "Cambridge", "Brighton", "Reading",
   "Portsmouth", "Derby", "Wolverhampton", "Stoke-on-Trent", "Plymouth",
   "Exeter", "York", "Bath", "Norwich", "Ipswich",
+  // Scotland
+  "Aberdeen", "Dundee", "Inverness", "Stirling", "St Andrews", "Perth", "Paisley",
+  // Wales
+  "Swansea", "Newport", "Wrexham", "Bangor", "Aberystwyth",
+  // Northern Ireland
+  "Belfast", "Derry",
 ];
 
 // Price ranges by region (£/hr)
 const AREA_PRICE_BOOST: Record<string, number> = {
   London: 20, Oxford: 15, Cambridge: 15, Brighton: 10, Bristol: 5,
-  Edinburgh: 5, Cardiff: 0, Manchester: 0, Birmingham: 0,
+  Edinburgh: 5, "St Andrews": 10, Cardiff: 0, Manchester: 0, Birmingham: 0,
+  Aberdeen: 3, Dundee: 0, Glasgow: 3, Belfast: 0,
 };
 
-type Level = "GCSE" | "A-Level" | "Both";
+type Level = "GCSE" | "A-Level" | "National 5" | "Higher" | "Advanced Higher";
+
+const NATION_LEVELS: Record<string, Level[]> = {
+  england: ["GCSE", "A-Level"],
+  wales: ["GCSE", "A-Level"],
+  scotland: ["National 5", "Higher", "Advanced Higher"],
+  "northern-ireland": ["GCSE", "A-Level"],
+};
 
 interface Platform {
   name: string;
@@ -67,7 +82,11 @@ const PLATFORMS: Platform[] = [
     description: "Tutors recruited from Russell Group universities. Every session is online with a shared digital whiteboard.",
     pros: ["Russell Group tutors", "Free intro session", "Money-back guarantee"],
     buildUrl: (subject, _area, level) => {
-      const lvl = level === "Both" ? "GCSE" : level;
+      const lvlMap: Record<string, string> = {
+        "GCSE": "GCSE", "A-Level": "A-Level", "Both": "GCSE",
+        "National 5": "GCSE", "Higher": "A-Level", "Advanced Higher": "A-Level",
+      };
+      const lvl = lvlMap[level] ?? "GCSE";
       const subSlug = subject.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-]/g, "");
       return `https://www.mytutor.co.uk/tutors/${lvl}/${subSlug}/`;
     },
@@ -110,41 +129,59 @@ const PLATFORMS: Platform[] = [
 // Price guide by level and area
 function getPriceRange(level: Level, area: string): { low: number; high: number } {
   const boost = AREA_PRICE_BOOST[area] ?? 0;
-  if (level === "A-Level") return { low: 35 + boost, high: 70 + boost };
+  if (level === "A-Level" || level === "Higher") return { low: 35 + boost, high: 70 + boost };
+  if (level === "Advanced Higher") return { low: 40 + boost, high: 75 + boost };
   return { low: 25 + boost, high: 55 + boost };
 }
 
 // Most popular/searched subjects
-const POPULAR_SUBJECTS = [
+const POPULAR_SUBJECTS_DEFAULT = [
   "Mathematics", "English Literature", "Biology", "Chemistry", "Physics",
   "History", "Geography", "French", "Spanish", "Computer Science",
   "Further Mathematics", "Psychology", "Economics", "Business Studies",
+];
+
+const POPULAR_SUBJECTS_SCOTLAND = [
+  "Mathematics", "English", "Biology", "Chemistry", "Physics",
+  "History", "Geography", "Modern Studies", "Computing Science", "French",
+  "Psychology", "Business Management", "Economics",
 ];
 
 const LEVEL_BADGE: Record<string, string> = {
   GCSE: "bg-blue-100 text-blue-700",
   "A-Level": "bg-violet-100 text-violet-700",
   Both: "bg-emerald-100 text-emerald-700",
+  "National 5": "bg-teal-100 text-teal-700",
+  Higher: "bg-sky-100 text-sky-700",
+  "Advanced Higher": "bg-indigo-100 text-indigo-700",
+  "Welsh Bacc": "bg-green-100 text-green-700",
 };
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function Tutors() {
+  const { nation } = useNation();
   const { data: allSubjects = [] } = useGetSubjects();
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-  const [selectedArea, setSelectedArea] = useState("London");
-  const [selectedLevel, setSelectedLevel] = useState<Level>("GCSE");
+  const [selectedArea, setSelectedArea] = useState(() => nation === "scotland" ? "Edinburgh" : nation === "northern-ireland" ? "Belfast" : nation === "wales" ? "Cardiff" : "London");
+  const [selectedLevel, setSelectedLevel] = useState<Level>(() => nation === "scotland" ? "National 5" : "GCSE");
   const [subjectSearch, setSubjectSearch] = useState("");
   const [subjectOpen, setSubjectOpen] = useState(false);
   const [areaOpen, setAreaOpen] = useState(false);
   const [areaSearch, setAreaSearch] = useState("");
 
+  const levelOptions: Level[] = nation ? (NATION_LEVELS[nation] ?? ["GCSE", "A-Level"]) : ["GCSE", "A-Level"];
+  const popularNames = nation === "scotland" ? POPULAR_SUBJECTS_SCOTLAND : POPULAR_SUBJECTS_DEFAULT;
+
   const filteredSubjects = useMemo(() => {
     const s = subjectSearch.trim().toLowerCase();
-    return (allSubjects as Subject[]).filter(sub =>
-      !s || sub.name.toLowerCase().includes(s) || sub.category.toLowerCase().includes(s)
-    ).sort((a, b) => a.name.localeCompare(b.name));
-  }, [allSubjects, subjectSearch]);
+    const nationLevels = nation ? NATION_LEVELS[nation] : null;
+    return (allSubjects as Subject[]).filter(sub => {
+      const levelOk = !nationLevels || nationLevels.includes(sub.level as Level) || sub.level === "Both";
+      const searchOk = !s || sub.name.toLowerCase().includes(s) || sub.category.toLowerCase().includes(s);
+      return levelOk && searchOk;
+    }).sort((a, b) => a.name.localeCompare(b.name));
+  }, [allSubjects, subjectSearch, nation]);
 
   const filteredAreas = useMemo(() => {
     const s = areaSearch.trim().toLowerCase();
@@ -155,8 +192,8 @@ export default function Tutors() {
   const hasSelection = !!selectedSubject;
 
   const popularSubjectObjs = useMemo(() =>
-    POPULAR_SUBJECTS.map(name => (allSubjects as Subject[]).find(s => s.name === name)).filter(Boolean) as Subject[],
-    [allSubjects]
+    popularNames.map(name => (allSubjects as Subject[]).find(s => s.name === name)).filter(Boolean) as Subject[],
+    [allSubjects, popularNames]
   );
 
   return (
@@ -174,7 +211,13 @@ export default function Tutors() {
             Find Your Perfect Tutor
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl mx-auto mb-8">
-            Search across the UK's top tutor platforms in one place. Compare prices, read reviews and book directly — for every GCSE and A-Level subject.
+            {nation === "scotland"
+              ? "Search across the UK's top tutor platforms in one place — for National 5s, Highers, and Advanced Highers. Compare prices and book directly."
+              : nation === "wales"
+              ? "Search across the UK's top tutor platforms in one place — for GCSEs, A-Levels, and the Welsh Baccalaureate. Compare prices and book directly."
+              : nation === "northern-ireland"
+              ? "Search across the UK's top tutor platforms in one place — for GCSEs and A-Levels (CCEA, AQA & more). Compare prices and book directly."
+              : "Search across the UK's top tutor platforms in one place. Compare prices, read reviews and book directly — for every GCSE and A-Level subject."}
           </p>
 
           {/* Search bar */}
@@ -274,7 +317,7 @@ export default function Tutors() {
 
             {/* Level toggle */}
             <div className="flex rounded-xl overflow-hidden border border-slate-200 shrink-0">
-              {(["GCSE", "A-Level"] as Level[]).map(lvl => (
+              {levelOptions.map(lvl => (
                 <button key={lvl} type="button"
                   onClick={() => setSelectedLevel(lvl)}
                   className={`px-4 py-3 text-sm font-bold transition-colors ${selectedLevel === lvl ? "bg-primary text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100"}`}
@@ -317,8 +360,13 @@ export default function Tutors() {
                   type="button"
                   onClick={() => {
                     setSelectedSubject(s);
-                    if (s.level === "A-Level") setSelectedLevel("A-Level");
-                    else setSelectedLevel("GCSE");
+                    const lvlMap: Record<string, Level> = {
+                      "GCSE": "GCSE", "A-Level": "A-Level", "Both": "GCSE",
+                      "National 5": "National 5", "Higher": "Higher", "Advanced Higher": "Advanced Higher",
+                    };
+                    const mapped = lvlMap[s.level];
+                    if (mapped && levelOptions.includes(mapped)) setSelectedLevel(mapped);
+                    else setSelectedLevel(levelOptions[0]);
                   }}
                   className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-semibold text-slate-700 hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all"
                 >

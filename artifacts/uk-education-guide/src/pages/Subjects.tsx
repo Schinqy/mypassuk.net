@@ -14,18 +14,19 @@ const LEVEL_COLORS: Record<string, string> = {
   "Higher": "bg-blue-100 text-blue-700",
   "Advanced Higher": "bg-indigo-100 text-indigo-700",
   "Both": "bg-indigo-100 text-indigo-700",
+  "Welsh Bacc": "bg-green-100 text-green-700",
 };
 
 const NATION_FILTERS: Record<string, string[]> = {
   england: ["All", "GCSE", "A-Level"],
-  wales: ["All", "GCSE", "A-Level"],
+  wales: ["All", "GCSE", "A-Level", "Welsh Bacc"],
   scotland: ["All", "National 5", "Higher", "Advanced Higher"],
   "northern-ireland": ["All", "GCSE", "A-Level"],
 };
 
 const NATION_LEVEL_MATCH: Record<string, string[]> = {
   england: ["GCSE", "A-Level", "Both"],
-  wales: ["GCSE", "A-Level", "Both"],
+  wales: ["GCSE", "A-Level", "Both", "Welsh Bacc"],
   scotland: ["National 5", "Higher", "Advanced Higher"],
   "northern-ireland": ["GCSE", "A-Level", "Both"],
 };
