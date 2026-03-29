@@ -436,31 +436,34 @@ export default function Quiz() {
                   <h2 className="text-2xl font-bold mb-1">What interests you?</h2>
                   <p className="text-slate-500 text-sm mb-6">Select the areas you enjoy or want to work in. Choose as many as apply.</p>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
-                    {INTERESTS.map(interest => {
-                      const currentInterests = form.watch("interests") || [];
-                      const isSelected = currentInterests.includes(interest);
-                      return (
-                        <button
-                          key={interest}
-                          type="button"
-                          onClick={() => {
-                            if (isSelected) {
-                              form.setValue("interests", currentInterests.filter(i => i !== interest));
-                            } else {
-                              form.setValue("interests", [...currentInterests, interest]);
-                            }
-                          }}
-                          className={`p-4 text-sm font-semibold rounded-xl border text-left transition-all ${
-                            isSelected ? "bg-primary/10 border-primary text-primary" : "bg-white border-slate-200 text-slate-600 hover:border-primary/50"
-                          }`}
-                        >
-                          {isSelected && <Check className="w-3.5 h-3.5 mb-1 text-primary" />}
-                          {interest}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {(() => {
+                    const currentInterests = form.watch("interests") || [];
+                    return (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
+                        {INTERESTS.map(interest => {
+                          const isSelected = currentInterests.includes(interest);
+                          return (
+                            <button
+                              key={interest}
+                              type="button"
+                              onClick={() => {
+                                const next = isSelected
+                                  ? currentInterests.filter(i => i !== interest)
+                                  : [...currentInterests, interest];
+                                form.setValue("interests", next, { shouldDirty: true, shouldValidate: true });
+                              }}
+                              className={`p-4 text-sm font-semibold rounded-xl border text-left transition-all ${
+                                isSelected ? "bg-primary/10 border-primary text-primary" : "bg-white border-slate-200 text-slate-600 hover:border-primary/50"
+                              }`}
+                            >
+                              {isSelected && <Check className="w-3.5 h-3.5 mb-1 text-primary" />}
+                              {interest}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                   {form.formState.errors.interests && (
                     <p className="text-red-500 text-sm mb-4">{form.formState.errors.interests.message}</p>
                   )}

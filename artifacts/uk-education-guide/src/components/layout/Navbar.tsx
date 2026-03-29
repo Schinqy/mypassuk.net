@@ -90,9 +90,9 @@ export function Navbar() {
                     <span>{item.name}</span>
 
                     {"badge" in item && item.badge && (
-                      <span className="relative ml-0.5 px-1.5 py-0.5 text-white text-[10px] font-bold rounded-full leading-none bg-accent overflow-hidden">
-                        <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-50" />
-                        <span className="relative">{item.badge}</span>
+                      <span className="relative ml-0.5 inline-flex items-center">
+                        <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-60" />
+                        <span className="relative px-1.5 py-0.5 text-white text-[10px] font-bold rounded-full bg-accent leading-none">{item.badge}</span>
                       </span>
                     )}
 
