@@ -1210,7 +1210,7 @@ export default function Timetable() {
                                   className={`w-full flex items-center justify-center gap-1 py-1.5 rounded-b-xl text-[10px] font-bold transition-all ${
                                     isActive
                                       ? "bg-primary/20 text-primary"
-                                      : "bg-black/5 text-slate-500 hover:bg-primary hover:text-white opacity-0 group-hover:opacity-100"
+                                      : "bg-black/5 text-slate-500 hover:bg-primary hover:text-white opacity-100 md:opacity-0 md:group-hover:opacity-100"
                                   }`}
                                 >
                                   {isActive ? (
