@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, ChevronRight, CalendarDays, Sparkles, Users, CalendarCheck, UserCircle2 } from "lucide-react";
+import { Map, BookOpen, Briefcase, Building2, Menu, X, Newspaper, CalendarDays, Sparkles, Users, UserCircle2 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
@@ -21,7 +21,6 @@ export function Navbar() {
     { name: "Routes", href: "/routes", icon: Map },
     { name: "Study Plan", href: "/timetable", icon: CalendarDays, badge: "New" },
     { name: "Find Tutors", href: "/tutors", icon: Users },
-    { name: "Open Days", href: "/open-days", icon: CalendarCheck },
     { name: "About UK Education", href: "/editorial", icon: Newspaper },
   ];
 
@@ -173,22 +172,9 @@ export function Navbar() {
                     : "text-amber-600 hover:text-amber-700"
                 }`}
               >
-                {/* Border via box-shadow + pseudo inner bg */}
                 <span className="absolute inset-0 rounded-lg border border-amber-300/70 group-hover/pricing:border-amber-400 bg-gradient-to-br from-amber-50/80 to-orange-50/60 transition-all duration-200" />
                 <Sparkles className="relative w-3.5 h-3.5" />
                 <span className="relative">Pricing</span>
-              </Link>
-
-              {/* CTA — crimson-to-navy gradient with shimmer */}
-              <Link
-                href="/quiz"
-                className="group relative inline-flex items-center gap-1.5 px-5 py-2 rounded-xl font-bold text-sm text-white overflow-hidden shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-                style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,22%) 50%, hsl(354,72%,36%) 100%)" }}
-              >
-                {/* Shimmer sweep */}
-                <span className="absolute inset-0 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-500 ease-in-out bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[-20deg]" />
-                <span className="relative">Get Recommendations</span>
-                <ChevronRight className="relative w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </Link>
             </div>
 
@@ -268,15 +254,6 @@ export function Navbar() {
                     <UserCircle2 className="w-4 h-4" /> Sign in
                   </button>
                 )}
-                <Link
-                  href="/quiz"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm text-white shadow-md shadow-primary/20"
-                  style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(354,72%,36%) 100%)" }}
-                >
-                  Get Recommendations
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
               </div>
             </nav>
           </motion.div>
