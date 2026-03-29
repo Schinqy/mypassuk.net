@@ -8,6 +8,7 @@ import quizRouter from "./quiz";
 import openaiRouter from "./openai";
 import stripeRouter from "./stripe";
 import promoRouter from "./promo";
+import newsRouter from "./news";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(quizRouter);
 router.use(openaiRouter);
 router.use(stripeRouter);
 router.use(promoRouter);
+router.use(newsRouter);
 
 export default router;
