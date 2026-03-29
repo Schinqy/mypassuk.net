@@ -80,7 +80,7 @@ export default function TermsOfService() {
 
             <Section id="agreement" title="1. Agreement to Terms">
               <p>
-                These Terms of Service ("Terms") constitute a legally binding agreement between you ("user", "you") and the operator of MyPassUK ("<strong>[Your Full Legal Name / Company Name]</strong>", "we", "us", "our") regarding your use of the MyPassUK website and services (collectively, the "Service").
+                These Terms of Service ("Terms") constitute a legally binding agreement between you ("user", "you") and the operator of MyPassUK ("<strong>Munyaradzi Nyamasoka / Simunye Art Limited</strong>", "we", "us", "our") regarding your use of the MyPassUK website and services (collectively, the "Service").
               </p>
               <p>
                 By accessing or using MyPassUK — including browsing content, creating an account, or purchasing a Premium subscription — you agree to these Terms and our{" "}
@@ -285,8 +285,8 @@ export default function TermsOfService() {
               <p>For any questions about these Terms, please contact:</p>
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
                 <p className="font-bold text-slate-900 mb-1">MyPassUK</p>
-                <p><strong>Operator:</strong> [Your Full Legal Name / Company Name]</p>
-                <p><strong>Registered address:</strong> [Your registered address, UK]</p>
+                <p><strong>Operator:</strong> Munyaradzi Nyamasoka / Simunye Art Limited</p>
+                <p><strong>Registered address:</strong> 85 Great Portland Street, First Floor, London, W1W 7LT</p>
                 <p className="mt-2">
                   <strong>Email:</strong>{" "}
                   <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline inline-flex items-center gap-1">
@@ -294,9 +294,6 @@ export default function TermsOfService() {
                   </a>
                 </p>
               </div>
-              <p className="text-xs text-slate-500 bg-amber-50 border border-amber-200 rounded-xl p-3">
-                <strong>Note to operator:</strong> Before publishing, replace all bracketed placeholders (company name, registered address, ICO registration number) with your actual details. Consider having a solicitor review these Terms for your specific situation.
-              </p>
             </Section>
 
           </article>

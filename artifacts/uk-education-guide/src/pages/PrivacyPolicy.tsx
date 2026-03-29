@@ -78,17 +78,17 @@ export default function PrivacyPolicy() {
 
             <Section id="who-we-are" title="1. Who We Are">
               <p>
-                MyPassUK is an online education guidance platform operated by <strong>[Your Full Legal Name / Company Name]</strong> ("<strong>we</strong>", "<strong>us</strong>", or "<strong>our</strong>"). For the purposes of UK GDPR, we are the data controller of your personal data.
+                MyPassUK is an online education guidance platform operated by <strong>Munyaradzi Nyamasoka / Simunye Art Limited</strong> ("<strong>we</strong>", "<strong>us</strong>", or "<strong>our</strong>"). For the purposes of UK GDPR, we are the data controller of your personal data.
               </p>
               <p>
-                <strong>Registered address:</strong> [Your registered address, UK]<br />
+                <strong>Registered address:</strong> 85 Great Portland Street, First Floor, London, W1W 7LT<br />
                 <strong>Contact email:</strong>{" "}
                 <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline inline-flex items-center gap-1">
                   {CONTACT_EMAIL} <Mail className="w-3 h-3" />
                 </a>
               </p>
-              <p className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-800 text-xs">
-                <strong>ICO Registration:</strong> We are registered with the Information Commissioner's Office (ICO) as required under UK data protection law. Our ICO registration number is: <strong>[ICO Registration Number]</strong>.
+              <p className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-700 text-xs">
+                <strong>ICO Registration:</strong> We are registered with the Information Commissioner's Office (ICO) as required under UK data protection law. Our ICO registration number is: <strong>00012054819</strong>.
               </p>
             </Section>
 
