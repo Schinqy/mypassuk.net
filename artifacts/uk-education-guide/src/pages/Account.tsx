@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNation, NATIONS } from "@/contexts/NationContext";
 import { FlagSvg } from "@/components/FlagSvg";
 import {
   User, Mail, Crown, CalendarDays, CreditCard, LogOut,
   Globe, Settings, ShieldCheck, Trash2, ChevronRight, Loader2,
   BadgeCheck, Sparkles, BookOpen, Bookmark, Terminal, Users, BarChart3,
-  Eye, EyeOff, Gift, MessageSquare, Lock
+  Gift, MessageSquare,
 } from "lucide-react";
 import { useSavedSubjects } from "@/hooks/useSavedSubjects";
 
-const ADMIN_LS = "mypassuk-admin-secret";
+const ADMIN_EMAIL = "munyaradzi.nyamasoka@gmail.com";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 interface AccountData {
@@ -38,141 +38,81 @@ interface AdminStats {
   promoCodes: { total: number; used: number; available: number };
 }
 
-function AdminWidget() {
-  const [secret, setSecret] = useState<string | null>(() => {
-    try { return localStorage.getItem(ADMIN_LS); } catch { return null; }
-  });
-  const [input, setInput] = useState("");
-  const [showPw, setShowPw] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+function AdminWidget({ userEmail }: { userEmail?: string | null }) {
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!secret) return;
-    fetch(`${BASE}/api/admin/stats`, { headers: { "x-admin-secret": secret } })
+    if (userEmail !== ADMIN_EMAIL) return;
+    setLoading(true);
+    fetch(`${BASE}/api/admin/stats`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d) { setStats(d); setOpen(true); }
-        else { localStorage.removeItem(ADMIN_LS); setSecret(null); }
-      })
-      .catch(() => {});
-  }, [secret]);
+      .then(d => { if (d) setStats(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [userEmail]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true); setError("");
-    const res = await fetch(`${BASE}/api/admin/stats`, { headers: { "x-admin-secret": input } });
-    if (res.ok) {
-      localStorage.setItem(ADMIN_LS, input);
-      setSecret(input);
-      const d = await res.json();
-      setStats(d);
-      setOpen(true);
-    } else {
-      setError("Incorrect admin password.");
-    }
-    setLoading(false);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem(ADMIN_LS);
-    setSecret(null); setStats(null); setOpen(false); setInput("");
-  };
-
-  if (!secret || !stats) {
-    return (
-      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <button
-          onClick={() => setOpen(o => !o)}
-          className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors"
-        >
-          <span className="flex items-center gap-2 text-sm font-semibold text-slate-500">
-            <Lock className="w-4 h-4" /> Administration
-          </span>
-          <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-90" : ""}`} />
-        </button>
-        {open && (
-          <div className="px-6 pb-5">
-            <p className="text-xs text-slate-500 mb-3">Enter your admin password to access platform controls.</p>
-            <form onSubmit={handleLogin} className="flex gap-2">
-              <div className="relative flex-1">
-                <input
-                  type={showPw ? "text" : "password"}
-                  value={input}
-                  onChange={e => { setInput(e.target.value); setError(""); }}
-                  placeholder="Admin password"
-                  className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 pr-9"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(s => !s)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
-              </div>
-              <button
-                type="submit"
-                disabled={loading || !input}
-                className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign in"}
-              </button>
-            </form>
-            {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
-          </div>
-        )}
-      </section>
-    );
-  }
+  if (userEmail !== ADMIN_EMAIL) return null;
 
   return (
     <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors"
+      >
         <span className="flex items-center gap-2 text-sm font-bold text-slate-800">
           <Terminal className="w-4 h-4 text-primary" /> Administration
         </span>
-        <button onClick={handleLogout} className="text-xs text-slate-400 hover:text-red-500 transition-colors">Sign out of admin</button>
-      </div>
-      <div className="px-6 py-4">
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-slate-50 rounded-xl p-3">
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
-              <Users className="w-3.5 h-3.5" /> Users
+        <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-90" : ""}`} />
+      </button>
+
+      {open && (
+        <div className="px-6 pb-5">
+          {loading || !stats ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
             </div>
-            <p className="text-2xl font-bold text-slate-800">{stats.users.total}</p>
-            <p className="text-xs text-slate-500">{stats.users.premium} premium</p>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-3">
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
-              <Gift className="w-3.5 h-3.5" /> Promo Codes
-            </div>
-            <p className="text-2xl font-bold text-slate-800">{stats.promoCodes.available}</p>
-            <p className="text-xs text-slate-500">{stats.promoCodes.used}/{stats.promoCodes.total} used</p>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-3">
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
-              <MessageSquare className="w-3.5 h-3.5" /> AI Chats
-            </div>
-            <p className="text-2xl font-bold text-slate-800">{stats.activity.aiConversations}</p>
-            <p className="text-xs text-slate-500">total conversations</p>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-3">
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
-              <Bookmark className="w-3.5 h-3.5" /> Saved Subjects
-            </div>
-            <p className="text-2xl font-bold text-slate-800">{stats.activity.savedSubjects}</p>
-            <p className="text-xs text-slate-500">across all users</p>
-          </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+                    <Users className="w-3.5 h-3.5" /> Users
+                  </div>
+                  <p className="text-2xl font-bold text-slate-800">{stats.users.total}</p>
+                  <p className="text-xs text-slate-500">{stats.users.premium} premium</p>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+                    <Gift className="w-3.5 h-3.5" /> Promo Codes
+                  </div>
+                  <p className="text-2xl font-bold text-slate-800">{stats.promoCodes.available}</p>
+                  <p className="text-xs text-slate-500">{stats.promoCodes.used}/{stats.promoCodes.total} used</p>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+                    <MessageSquare className="w-3.5 h-3.5" /> AI Chats
+                  </div>
+                  <p className="text-2xl font-bold text-slate-800">{stats.activity.aiConversations}</p>
+                  <p className="text-xs text-slate-500">total conversations</p>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+                    <Bookmark className="w-3.5 h-3.5" /> Saved Subjects
+                  </div>
+                  <p className="text-2xl font-bold text-slate-800">{stats.activity.savedSubjects}</p>
+                  <p className="text-xs text-slate-500">across all users</p>
+                </div>
+              </div>
+              <Link href="/admin">
+                <button className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                  <BarChart3 className="w-4 h-4" /> Open Full Admin Dashboard
+                </button>
+              </Link>
+            </>
+          )}
         </div>
-        <Link href="/admin">
-          <button className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
-            <BarChart3 className="w-4 h-4" /> Open Full Admin Dashboard
-          </button>
-        </Link>
-      </div>
+      )}
     </section>
   );
 }
@@ -180,7 +120,7 @@ function AdminWidget() {
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric", month: "long", year: "numeric"
+    day: "numeric", month: "long", year: "numeric",
   });
 }
 
@@ -223,7 +163,7 @@ export default function Account() {
 
   const openBillingPortal = async () => {
     setPortalLoading(true);
-    const userId = user?.id ?? localStorage.getItem("uk-edguide-user-id") ?? "";
+    const userId = user?.id ?? "";
     try {
       const res = await fetch("/api/stripe/portal", {
         method: "POST",
@@ -251,7 +191,6 @@ export default function Account() {
     window.location.reload();
   };
 
-  // Not logged in
   if (!isLoading && !isAuthenticated) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 text-center">
@@ -268,14 +207,13 @@ export default function Account() {
           style={{ background: "linear-gradient(135deg, hsl(224,76%,28%) 0%, hsl(224,76%,22%) 50%, hsl(354,72%,36%) 100%)" }}
         >
           <ShieldCheck className="w-5 h-5" />
-          Sign in with Replit
+          Sign In / Create Account
         </button>
-        <p className="mt-4 text-xs text-slate-400">Safe, secure sign-in. No password needed.</p>
+        <p className="mt-4 text-xs text-slate-400">Safe and secure. No Replit account needed.</p>
       </div>
     );
   }
 
-  // Loading
   if (isLoading || accountLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -290,7 +228,6 @@ export default function Account() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      {/* Page header */}
       <div className="flex items-center gap-3 mb-8">
         <Settings className="w-6 h-6 text-primary" />
         <h1 className="text-2xl font-display font-bold text-slate-900">Account Settings</h1>
@@ -500,7 +437,7 @@ export default function Account() {
             <p className="text-sm text-slate-500 mt-0.5">You'll be signed out of your account on this device.</p>
           </div>
           <button
-            onClick={logout}
+            onClick={() => logout()}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
           >
             <LogOut className="w-4 h-4" />
@@ -509,8 +446,8 @@ export default function Account() {
         </div>
       </section>
 
-      {/* Admin */}
-      <AdminWidget />
+      {/* Admin — only visible to admin email */}
+      <AdminWidget userEmail={user?.email} />
     </div>
   );
 }

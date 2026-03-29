@@ -7,13 +7,13 @@ const router = Router();
 
 // ─── Admin middleware ────────────────────────────────────────────────────────
 
+const ADMIN_EMAIL = "munyaradzi.nyamasoka@gmail.com";
+
 function requireAdmin(req: any, res: any, next: any) {
-  const secret = process.env.ADMIN_SECRET || "mypassuk-admin-2026";
-  const provided = req.headers["x-admin-secret"] as string | undefined;
-  if (!provided || provided !== secret) {
-    return res.status(401).json({ error: "Unauthorised." });
+  if (req.user?.email === ADMIN_EMAIL) {
+    return next();
   }
-  next();
+  return res.status(401).json({ error: "Unauthorised." });
 }
 
 // ─── Admin: platform stats ───────────────────────────────────────────────────

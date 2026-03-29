@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "wouter";
 import {
   ShieldCheck, LogOut, RefreshCw, Plus, Trash2, RotateCcw,
   CheckCircle, XCircle, Clock, Gift, Copy, Check,
   Users, BarChart3, BookOpen, Briefcase, Building2, Crown, User2,
-  MessageSquare, Bookmark,
+  MessageSquare, Bookmark, Loader2,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const LS_KEY = "mypassuk-admin-secret";
+const ADMIN_EMAIL = "munyaradzi.nyamasoka@gmail.com";
 
 interface PromoCode {
   code: string;
@@ -31,81 +33,9 @@ function fmt(iso: string | null) {
   });
 }
 
-// ─── Login screen ─────────────────────────────────────────────────────────────
+// ─── Code row ─────────────────────────────────────────────────────────────────
 
-function LoginScreen({ onLogin }: { onLogin: (secret: string) => void }) {
-  const [secret, setSecret] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`${BASE}/api/admin/promo-codes`, {
-        headers: { "x-admin-secret": secret },
-      });
-      if (res.ok) {
-        localStorage.setItem(LS_KEY, secret);
-        onLogin(secret);
-      } else {
-        setError("Incorrect admin password. Try again.");
-      }
-    } catch {
-      setError("Network error. Is the server running?");
-    }
-    setLoading(false);
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
-      >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/20 border border-primary/30 rounded-2xl mb-4">
-            <ShieldCheck className="w-7 h-7 text-primary" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">MyPassUK Admin</h1>
-          <p className="text-slate-400 text-sm mt-1">Enter your admin password to continue</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="password"
-            value={secret}
-            onChange={e => { setSecret(e.target.value); setError(""); }}
-            placeholder="Admin password"
-            autoFocus
-            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-          />
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading || !secret}
-            className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
-            {loading ? "Checking…" : "Sign In"}
-          </button>
-        </form>
-      </motion.div>
-    </div>
-  );
-}
-
-// ─── Code row ────────────────────────────────────────────────────────────────
-
-function CodeRow({
-  code, secret, onRefresh,
-}: {
-  code: PromoCode;
-  secret: string;
-  onRefresh: () => void;
-}) {
+function CodeRow({ code, onRefresh }: { code: PromoCode; onRefresh: () => void }) {
   const [copied, setCopied] = useState(false);
   const [confirming, setConfirming] = useState<"reset" | "delete" | null>(null);
   const [busy, setBusy] = useState(false);
@@ -120,7 +50,7 @@ function CodeRow({
     setBusy(true);
     await fetch(`${BASE}/api/admin/promo-codes/${code.code}/reset`, {
       method: "PATCH",
-      headers: { "x-admin-secret": secret },
+      credentials: "include",
     });
     setBusy(false);
     setConfirming(null);
@@ -131,7 +61,7 @@ function CodeRow({
     setBusy(true);
     await fetch(`${BASE}/api/admin/promo-codes/${code.code}`, {
       method: "DELETE",
-      headers: { "x-admin-secret": secret },
+      credentials: "include",
     });
     setBusy(false);
     setConfirming(null);
@@ -140,20 +70,15 @@ function CodeRow({
 
   return (
     <tr className="border-b border-slate-800 hover:bg-slate-800/40 transition-colors group">
-      {/* Code + copy */}
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="font-mono font-semibold text-sm text-white">{code.code}</span>
-          <button
-            onClick={copy}
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-slate-300"
-          >
+          <button onClick={copy} className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-slate-300">
             {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
         </div>
       </td>
 
-      {/* Status */}
       <td className="px-4 py-3">
         {code.isUsed ? (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-500/15 text-red-400 text-xs font-bold rounded-full border border-red-500/20">
@@ -166,7 +91,6 @@ function CodeRow({
         )}
       </td>
 
-      {/* Used at */}
       <td className="px-4 py-3 text-slate-400 text-sm">
         <span className="flex items-center gap-1.5">
           {code.isUsed && <Clock className="w-3.5 h-3.5 shrink-0" />}
@@ -174,10 +98,8 @@ function CodeRow({
         </span>
       </td>
 
-      {/* Created at */}
       <td className="px-4 py-3 text-slate-500 text-sm">{fmt(code.createdAt)}</td>
 
-      {/* Actions */}
       <td className="px-4 py-3">
         <div className="flex items-center gap-1.5">
           {confirming === "reset" ? (
@@ -197,19 +119,13 @@ function CodeRow({
           ) : (
             <>
               {code.isUsed && (
-                <button
-                  onClick={() => setConfirming("reset")}
-                  title="Mark as available again"
-                  className="p-1.5 text-slate-500 hover:text-amber-400 hover:bg-amber-400/10 rounded-lg transition-colors"
-                >
+                <button onClick={() => setConfirming("reset")} title="Mark as available again"
+                  className="p-1.5 text-slate-500 hover:text-amber-400 hover:bg-amber-400/10 rounded-lg transition-colors">
                   <RotateCcw className="w-3.5 h-3.5" />
                 </button>
               )}
-              <button
-                onClick={() => setConfirming("delete")}
-                title="Delete code"
-                className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
-              >
+              <button onClick={() => setConfirming("delete")} title="Delete code"
+                className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </>
@@ -222,13 +138,7 @@ function CodeRow({
 
 // ─── Add codes modal ──────────────────────────────────────────────────────────
 
-function AddCodesModal({
-  secret, onClose, onRefresh,
-}: {
-  secret: string;
-  onClose: () => void;
-  onRefresh: () => void;
-}) {
+function AddCodesModal({ onClose, onRefresh }: { onClose: () => void; onRefresh: () => void }) {
   const [raw, setRaw] = useState("");
   const [result, setResult] = useState<{ inserted: string[]; skipped: string[] } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -241,7 +151,8 @@ function AddCodesModal({
     setError("");
     const res = await fetch(`${BASE}/api/admin/promo-codes`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ codes }),
     });
     const json = await res.json();
@@ -252,30 +163,21 @@ function AddCodesModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center px-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl"
-      >
+      <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+        className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
         <h3 className="text-white font-bold text-lg mb-1">Add Promo Codes</h3>
         <p className="text-slate-400 text-sm mb-4">Enter one code per line, or separate with commas.</p>
 
         {!result ? (
           <>
-            <textarea
-              value={raw}
-              onChange={e => { setRaw(e.target.value); setError(""); }}
-              rows={6}
+            <textarea value={raw} onChange={e => { setRaw(e.target.value); setError(""); }} rows={6}
               placeholder={"MYPASS-SUMMER1\nMYPASS-SUMMER2\nMYPASS-SUMMER3"}
               className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white font-mono text-sm placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none mb-2"
             />
             {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
             <div className="flex gap-2">
-              <button
-                onClick={handleAdd}
-                disabled={loading}
-                className="flex-1 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
+              <button onClick={handleAdd} disabled={loading}
+                className="flex-1 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50">
                 {loading ? "Adding…" : "Add Codes"}
               </button>
               <button onClick={onClose} className="px-4 py-2.5 text-slate-400 hover:text-white rounded-xl border border-slate-700 text-sm transition-colors">
@@ -297,9 +199,7 @@ function AddCodesModal({
                 <p className="font-mono text-amber-300 text-xs">{result.skipped.join(", ")}</p>
               </div>
             )}
-            <button onClick={onClose} className="w-full py-2.5 bg-slate-700 text-white rounded-xl font-bold text-sm hover:bg-slate-600 transition-colors">
-              Done
-            </button>
+            <button onClick={onClose} className="w-full py-2.5 bg-slate-700 text-white rounded-xl font-bold text-sm hover:bg-slate-600 transition-colors">Done</button>
           </div>
         )}
       </motion.div>
@@ -307,7 +207,7 @@ function AddCodesModal({
   );
 }
 
-// ─── Users panel ──────────────────────────────────────────────────────────────
+// ─── Users panel ───────────────────────────────────────────────────────────────
 
 interface AdminUser {
   id: string;
@@ -319,16 +219,16 @@ interface AdminUser {
   updatedAt: string | null;
 }
 
-function UsersPanel({ secret }: { secret: string }) {
+function UsersPanel() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`${BASE}/api/admin/users`, { headers: { "x-admin-secret": secret } });
+    const res = await fetch(`${BASE}/api/admin/users`, { credentials: "include" });
     if (res.ok) { const d = await res.json(); setUsers(d.users); }
     setLoading(false);
-  }, [secret]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -398,16 +298,16 @@ interface PlatformStats {
   promoCodes: { total: number; used: number; available: number };
 }
 
-function StatsPanel({ secret }: { secret: string }) {
+function StatsPanel() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`${BASE}/api/admin/stats`, { headers: { "x-admin-secret": secret } });
+    const res = await fetch(`${BASE}/api/admin/stats`, { credentials: "include" });
     if (res.ok) setStats(await res.json());
     setLoading(false);
-  }, [secret]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -453,7 +353,7 @@ function StatsPanel({ secret }: { secret: string }) {
 
 type AdminTab = "promoCodes" | "users" | "stats";
 
-function Dashboard({ secret, onLogout }: { secret: string; onLogout: () => void }) {
+function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [codes, setCodes] = useState<PromoCode[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -464,9 +364,7 @@ function Dashboard({ secret, onLogout }: { secret: string; onLogout: () => void 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${BASE}/api/admin/promo-codes`, {
-        headers: { "x-admin-secret": secret },
-      });
+      const res = await fetch(`${BASE}/api/admin/promo-codes`, { credentials: "include" });
       if (res.ok) {
         const json = await res.json();
         setCodes(json.codes);
@@ -475,7 +373,7 @@ function Dashboard({ secret, onLogout }: { secret: string; onLogout: () => void 
     } finally {
       setLoading(false);
     }
-  }, [secret]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -493,7 +391,6 @@ function Dashboard({ secret, onLogout }: { secret: string; onLogout: () => void 
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* Top bar */}
       <div className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
@@ -504,42 +401,30 @@ function Dashboard({ secret, onLogout }: { secret: string; onLogout: () => void 
         <div className="flex items-center gap-2">
           {tab === "promoCodes" && (
             <>
-              <button
-                onClick={load}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg text-sm transition-colors"
-              >
+              <button onClick={load}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg text-sm transition-colors">
                 <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
               </button>
-              <button
-                onClick={() => setShowAdd(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
-              >
+              <button onClick={() => setShowAdd(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
                 <Plus className="w-3.5 h-3.5" /> Add Codes
               </button>
             </>
           )}
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg text-sm transition-colors"
-          >
+          <button onClick={onLogout}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg text-sm transition-colors">
             <LogOut className="w-3.5 h-3.5" /> Sign out
           </button>
         </div>
       </div>
 
-      {/* Tab bar */}
       <div className="bg-slate-900 border-b border-slate-800 px-6">
         <div className="flex gap-1 max-w-5xl mx-auto">
           {tabs.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
+            <button key={id} onClick={() => setTab(id)}
               className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
-                tab === id
-                  ? "border-primary text-white"
-                  : "border-transparent text-slate-500 hover:text-slate-300"
-              }`}
-            >
+                tab === id ? "border-primary text-white" : "border-transparent text-slate-500 hover:text-slate-300"
+              }`}>
               <Icon className="w-4 h-4" /> {label}
             </button>
           ))}
@@ -547,8 +432,6 @@ function Dashboard({ secret, onLogout }: { secret: string; onLogout: () => void 
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-
-        {/* Promo Codes tab */}
         {tab === "promoCodes" && (
           <>
             {stats && (
@@ -576,87 +459,97 @@ function Dashboard({ secret, onLogout }: { secret: string; onLogout: () => void 
                 ))}
               </div>
             )}
-            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-xl p-1 mb-4 w-fit">
-              {(["all", "available", "used"] as const).map(f => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-semibold capitalize transition-colors ${
-                    filter === f ? "bg-slate-700 text-white" : "text-slate-500 hover:text-slate-300"
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
+
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex gap-1">
+                {(["all", "available", "used"] as const).map(f => (
+                  <button key={f} onClick={() => setFilter(f)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      filter === f ? "bg-slate-700 text-white" : "text-slate-500 hover:text-slate-300"
+                    }`}>
+                    {f === "all" ? "All" : f === "available" ? "Available" : "Used"}
+                    <span className="ml-1.5 text-xs opacity-60">
+                      ({f === "all" ? codes.length : f === "available" ? codes.filter(c => !c.isUsed).length : codes.filter(c => c.isUsed).length})
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
+
             <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-800 bg-slate-800/50">
                     <th className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Code</th>
                     <th className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Redeemed at</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Used at</th>
                     <th className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Created</th>
                     <th className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <AnimatePresence mode="popLayout">
-                    {filtered.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="px-4 py-16 text-center text-slate-500">
-                          {loading ? "Loading…" : "No codes found"}
-                        </td>
-                      </tr>
-                    ) : (
-                      filtered.map(code => (
-                        <CodeRow key={code.code} code={code} secret={secret} onRefresh={load} />
-                      ))
-                    )}
-                  </AnimatePresence>
+                  {loading ? (
+                    <tr><td colSpan={5} className="px-4 py-16 text-center text-slate-500">Loading…</td></tr>
+                  ) : filtered.length === 0 ? (
+                    <tr><td colSpan={5} className="px-4 py-16 text-center text-slate-500">No codes found</td></tr>
+                  ) : filtered.map(c => (
+                    <CodeRow key={c.code} code={c} onRefresh={load} />
+                  ))}
                 </tbody>
               </table>
             </div>
           </>
         )}
 
-        {/* Users tab */}
-        {tab === "users" && <UsersPanel secret={secret} />}
-
-        {/* Stats tab */}
-        {tab === "stats" && <StatsPanel secret={secret} />}
-
-        <p className="text-slate-600 text-xs text-center mt-8">
-          MyPassUK Admin · Changes take effect immediately
-        </p>
+        {tab === "users" && <UsersPanel />}
+        {tab === "stats" && <StatsPanel />}
       </div>
 
       <AnimatePresence>
-        {showAdd && (
-          <AddCodesModal secret={secret} onClose={() => setShowAdd(false)} onRefresh={load} />
-        )}
+        {showAdd && <AddCodesModal onClose={() => setShowAdd(false)} onRefresh={load} />}
       </AnimatePresence>
     </div>
   );
 }
 
-// ─── Page root ────────────────────────────────────────────────────────────────
+// ─── Page entry point ─────────────────────────────────────────────────────────
 
 export default function AdminPage() {
-  const [secret, setSecret] = useState<string | null>(() => {
-    try { return localStorage.getItem(LS_KEY); } catch { return null; }
-  });
+  const { user, isLoading, logout } = useAuth();
+  const [, navigate] = useLocation();
 
-  const handleLogin = (s: string) => setSecret(s);
-
-  const handleLogout = () => {
-    localStorage.removeItem(LS_KEY);
-    setSecret(null);
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
   };
 
-  if (!secret) {
-    return <LoginScreen onLogin={handleLogin} />;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
   }
 
-  return <Dashboard secret={secret} onLogout={handleLogout} />;
+  if (!user || user.email !== ADMIN_EMAIL) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+          className="text-center max-w-sm">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/20 border border-red-500/30 rounded-2xl mb-4">
+            <ShieldCheck className="w-7 h-7 text-red-400" />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
+          <p className="text-slate-400 text-sm mb-6">
+            {user ? "Your account does not have admin access." : "Please sign in to your admin account."}
+          </p>
+          <a href="/" className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-semibold hover:bg-slate-700 transition-colors">
+            Return to MyPassUK
+          </a>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return <Dashboard onLogout={handleLogout} />;
 }

@@ -5,7 +5,7 @@ import {
   Lock, Zap, Paperclip, FileText, ImageIcon, FileX, CheckCircle2, AlertCircle,
 } from "lucide-react";
 import { Link } from "wouter";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Message {
   role: "user" | "assistant";

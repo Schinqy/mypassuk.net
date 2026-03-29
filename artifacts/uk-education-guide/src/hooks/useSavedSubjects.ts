@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface SavedSubject {
   id: number;

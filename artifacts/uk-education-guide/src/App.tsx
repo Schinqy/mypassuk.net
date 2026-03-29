@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/layout/Layout";
 import { AiStudyProvider, useAiStudy } from "@/contexts/AiStudyContext";
 import { NationProvider } from "@/contexts/NationContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { NationSelectorModal } from "@/components/NationSelectorModal";
 import AiStudyAssistant from "@/components/AiStudyAssistant";
 
@@ -94,12 +95,14 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <NationProvider>
-            <AiStudyProvider>
-              <AppContent />
-              <NationSelectorModal />
-            </AiStudyProvider>
-          </NationProvider>
+          <AuthProvider>
+            <NationProvider>
+              <AiStudyProvider>
+                <AppContent />
+                <NationSelectorModal />
+              </AiStudyProvider>
+            </NationProvider>
+          </AuthProvider>
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

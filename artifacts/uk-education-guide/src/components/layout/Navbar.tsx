@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RecruitmentAlerts } from "@/components/RecruitmentAlerts";
 import { useNation, NATIONS } from "@/contexts/NationContext";
 import { FlagSvg } from "@/components/FlagSvg";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Navbar() {
   const [location] = useLocation();
