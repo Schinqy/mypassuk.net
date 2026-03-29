@@ -12,6 +12,70 @@ import {
   CheckCircle2,
   ArrowRight,
 } from "lucide-react";
+import { useNation } from "@/contexts/NationContext";
+
+const NATION_PANELS: Record<string, {
+  flag: string;
+  title: string;
+  color: string;
+  borderColor: string;
+  textColor: string;
+  titleColor: string;
+  body: string;
+  facts: { label: string; value: string }[];
+}> = {
+  scotland: {
+    flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+    title: "You're viewing as: Scotland — Curriculum for Excellence",
+    color: "bg-teal-50",
+    borderColor: "border-teal-200",
+    textColor: "text-teal-700",
+    titleColor: "text-teal-900",
+    body: "Scotland's education system is governed by the Scottish Government and uses the Curriculum for Excellence (CfE) framework — separate from England's National Curriculum. Exams are set by the Scottish Qualifications Authority (SQA). The progression is: National 5 (age 15–16) → Higher (age 16–17) → Advanced Higher (age 17–18), leading to university (typically 4 years). Scottish universities charge no tuition fees for Scottish-domiciled students (SAAS).",
+    facts: [
+      { label: "Curriculum", value: "Curriculum for Excellence (CfE)" },
+      { label: "Exam Body", value: "Scottish Qualifications Authority (SQA)" },
+      { label: "Qualifications", value: "National 5 → Higher → Advanced Higher" },
+      { label: "University Length", value: "4 years (typically)" },
+      { label: "Tuition Fees", value: "Free for Scottish students (SAAS)" },
+      { label: "Inspectorate", value: "Education Scotland" },
+    ],
+  },
+  wales: {
+    flag: "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+    title: "You're viewing as: Wales — Curriculum for Wales",
+    color: "bg-green-50",
+    borderColor: "border-green-200",
+    textColor: "text-green-700",
+    titleColor: "text-green-900",
+    body: "Wales introduced a new Curriculum for Wales in 2022, replacing the previous National Curriculum. It is based on 6 Areas of Learning and Experience (AoLE) with a strong emphasis on four purposes of education. Qualifications are overseen by Qualifications Wales; WJEC/Eduqas is the main exam board. Students sit GCSEs and A-Levels, plus the Welsh Baccalaureate (Cymru Bacc). Welsh-medium education is available across the country.",
+    facts: [
+      { label: "Curriculum", value: "Curriculum for Wales (2022)" },
+      { label: "Exam Body", value: "Qualifications Wales / WJEC / Eduqas" },
+      { label: "Qualifications", value: "GCSE, A-Level, Welsh Baccalaureate" },
+      { label: "Tuition Fees", value: "Up to £9,535/yr (Student Finance Wales)" },
+      { label: "Inspectorate", value: "Estyn" },
+      { label: "Welsh Medium", value: "Welsh-medium schools available nationally" },
+    ],
+  },
+  "northern-ireland": {
+    flag: "🇬🇧",
+    title: "You're viewing as: Northern Ireland — Northern Ireland Curriculum",
+    color: "bg-blue-50",
+    borderColor: "border-blue-200",
+    textColor: "text-blue-700",
+    titleColor: "text-blue-900",
+    body: "Northern Ireland operates its own curriculum under the Council for the Curriculum, Examinations and Assessment (CCEA). The grammar school system remains active — children can sit the Transfer Test (GL/AQE) at age 10–11 to access selective grammar schools. GCSEs and A-Levels are mainly through CCEA (with some AQA/Edexcel). NI students at NI universities pay a reduced tuition fee of ~£4,760/year.",
+    facts: [
+      { label: "Curriculum", value: "Northern Ireland Curriculum (CCEA)" },
+      { label: "Exam Body", value: "CCEA (+ AQA, Edexcel for some subjects)" },
+      { label: "Qualifications", value: "GCSE, A-Level (CCEA)" },
+      { label: "Grammar Schools", value: "Selective via Transfer Test (GL / AQE)" },
+      { label: "Tuition Fees (NI Uni)", value: "~£4,760/year for NI students" },
+      { label: "Inspectorate", value: "Education and Training Inspectorate (ETI)" },
+    ],
+  },
+};
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -119,6 +183,9 @@ function SectionHeading({ icon, title, subtitle }: { icon: React.ReactNode; titl
 }
 
 export default function Editorial() {
+  const { nation, openSelector } = useNation();
+  const nationPanel = nation ? NATION_PANELS[nation] : null;
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Hero */}
@@ -137,15 +204,41 @@ export default function Editorial() {
           education systems. This guide walks you through every stage — who oversees it, how it is
           assessed, and what it means for your future.
         </p>
-        <div className="mt-8 p-4 rounded-xl border bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-700/30 flex gap-3">
-          <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-800 dark:text-amber-200">
-            <strong>Note on devolution:</strong> Education is a devolved matter in the UK. This guide
-            primarily covers the system in <strong>England</strong>. Scotland (Scottish Qualifications Authority),
-            Wales (Qualifications Wales / WJEC) and Northern Ireland (CCEA) each have their own frameworks
-            that differ in some important ways.
-          </p>
-        </div>
+
+        {/* Nation-specific system panel — replaces the generic devolution note */}
+        {nationPanel ? (
+          <div className={`mt-8 rounded-2xl border ${nationPanel.color} ${nationPanel.borderColor} p-5`}>
+            <div className="flex items-center gap-2.5 mb-3">
+              <span className="text-2xl">{nationPanel.flag}</span>
+              <p className={`font-bold text-sm ${nationPanel.titleColor}`}>{nationPanel.title}</p>
+            </div>
+            <p className={`text-sm leading-relaxed mb-4 ${nationPanel.textColor}`}>{nationPanel.body}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {nationPanel.facts.map(f => (
+                <div key={f.label} className="bg-white/60 rounded-xl p-3">
+                  <p className={`text-[10px] font-bold uppercase tracking-wide mb-0.5 ${nationPanel.textColor} opacity-70`}>{f.label}</p>
+                  <p className={`text-xs font-semibold ${nationPanel.titleColor}`}>{f.value}</p>
+                </div>
+              ))}
+            </div>
+            <p className={`text-xs mt-3 ${nationPanel.textColor} opacity-70`}>
+              The sections below cover the England system in detail.{" "}
+              <button onClick={openSelector} className="underline font-semibold hover:opacity-100">
+                Change nation
+              </button>
+            </p>
+          </div>
+        ) : (
+          <div className="mt-8 p-4 rounded-xl border bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-700/30 flex gap-3">
+            <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              <strong>Note on devolution:</strong> Education is a devolved matter in the UK. This guide
+              primarily covers the system in <strong>England</strong>. Scotland (SQA),
+              Wales (Qualifications Wales / WJEC) and Northern Ireland (CCEA) each have their own frameworks.{" "}
+              <button onClick={openSelector} className="underline font-semibold">Set your nation</button> for tailored content.
+            </p>
+          </div>
+        )}
       </motion.div>
 
       {/* ── THE NATIONAL CURRICULUM ───────────────────────────────────────── */}

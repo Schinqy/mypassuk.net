@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Building2, Search, MapPin, Star, GraduationCap, Filter, Landmark, Users, Briefcase, Zap, Mail } from "lucide-react";
@@ -70,6 +70,12 @@ export default function Institutions() {
   const [cityFilter, setCityFilter] = useState("All");
   const [regionFilter, setRegionFilter] = useState(() => nation ? (NATION_REGION[nation] ?? "All") : "All");
   const [russellGroupOnly, setRussellGroupOnly] = useState(false);
+
+  // Sync region filter whenever the user switches nation
+  useEffect(() => {
+    setRegionFilter(nation ? (NATION_REGION[nation] ?? "All") : "All");
+    setCityFilter("All");
+  }, [nation]);
 
   const { data: institutions, isLoading } = useGetInstitutions();
   const base = import.meta.env.BASE_URL;

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar, MapPin, Clock, ExternalLink, ChevronRight,
@@ -8,6 +8,14 @@ import {
 import { useGetInstitutions } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { useNation } from "@/contexts/NationContext";
+
+const NATION_REGION_MAP: Record<string, string> = {
+  scotland: "Scotland",
+  wales: "Wales",
+  england: "All Regions",
+  "northern-ireland": "All Regions",
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -66,12 +74,18 @@ interface EventEntry {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function OpenDays() {
+  const { nation } = useNation();
   const { data: institutions = [], isLoading } = useGetInstitutions({ limit: 400 });
 
   const [typeFilter, setTypeFilter] = useState("All");
-  const [regionFilter, setRegionFilter] = useState("All Regions");
+  const [regionFilter, setRegionFilter] = useState(() => nation ? (NATION_REGION_MAP[nation] ?? "All Regions") : "All Regions");
   const [search, setSearch] = useState("");
   const [showPast, setShowPast] = useState(false);
+
+  // Sync region filter whenever the user switches nation
+  useEffect(() => {
+    setRegionFilter(nation ? (NATION_REGION_MAP[nation] ?? "All Regions") : "All Regions");
+  }, [nation]);
 
   const today = new Date().toISOString().slice(0, 10);
 

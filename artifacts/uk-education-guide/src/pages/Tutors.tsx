@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, BookOpen, ExternalLink, Star, ChevronDown, Users, GraduationCap, X, TrendingUp, Clock, PoundSterling } from "lucide-react";
 import { useGetSubjects } from "@workspace/api-client-react";
@@ -172,6 +172,17 @@ export default function Tutors() {
 
   const levelOptions: Level[] = nation ? (NATION_LEVELS[nation] ?? ["GCSE", "A-Level"]) : ["GCSE", "A-Level"];
   const popularNames = nation === "scotland" ? POPULAR_SUBJECTS_SCOTLAND : POPULAR_SUBJECTS_DEFAULT;
+
+  // Sync defaults whenever the user switches nation
+  useEffect(() => {
+    setSelectedArea(
+      nation === "scotland" ? "Edinburgh" :
+      nation === "northern-ireland" ? "Belfast" :
+      nation === "wales" ? "Cardiff" : "London"
+    );
+    setSelectedLevel(nation === "scotland" ? "National 5" : "GCSE");
+    setSelectedSubject(null);
+  }, [nation]);
 
   const filteredSubjects = useMemo(() => {
     const s = subjectSearch.trim().toLowerCase();
