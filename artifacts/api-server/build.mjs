@@ -30,6 +30,11 @@ async function buildAll() {
     external: [
       "*.node",
       "sharp",
+      "pdf-parse",
+      "pdfjs-dist",
+      "@napi-rs/canvas",
+      "multer",
+      "mammoth",
       "better-sqlite3",
       "sqlite3",
       "canvas",
