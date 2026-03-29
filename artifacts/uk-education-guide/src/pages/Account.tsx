@@ -6,9 +6,13 @@ import { FlagSvg } from "@/components/FlagSvg";
 import {
   User, Mail, Crown, CalendarDays, CreditCard, LogOut,
   Globe, Settings, ShieldCheck, Trash2, ChevronRight, Loader2,
-  BadgeCheck, Sparkles, BookOpen, Bookmark
+  BadgeCheck, Sparkles, BookOpen, Bookmark, Terminal, Users, BarChart3,
+  Eye, EyeOff, Gift, MessageSquare, Lock
 } from "lucide-react";
 import { useSavedSubjects } from "@/hooks/useSavedSubjects";
+
+const ADMIN_LS = "mypassuk-admin-secret";
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 interface AccountData {
   user: {
@@ -25,6 +29,152 @@ interface AccountData {
     currentPeriodEnd?: string | null;
     cancelAtPeriodEnd?: boolean;
   };
+}
+
+interface AdminStats {
+  users: { total: number; premium: number };
+  content: { subjects: number; careers: number; institutions: number };
+  activity: { aiConversations: number; savedSubjects: number };
+  promoCodes: { total: number; used: number; available: number };
+}
+
+function AdminWidget() {
+  const [secret, setSecret] = useState<string | null>(() => {
+    try { return localStorage.getItem(ADMIN_LS); } catch { return null; }
+  });
+  const [input, setInput] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!secret) return;
+    fetch(`${BASE}/api/admin/stats`, { headers: { "x-admin-secret": secret } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d) { setStats(d); setOpen(true); }
+        else { localStorage.removeItem(ADMIN_LS); setSecret(null); }
+      })
+      .catch(() => {});
+  }, [secret]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true); setError("");
+    const res = await fetch(`${BASE}/api/admin/stats`, { headers: { "x-admin-secret": input } });
+    if (res.ok) {
+      localStorage.setItem(ADMIN_LS, input);
+      setSecret(input);
+      const d = await res.json();
+      setStats(d);
+      setOpen(true);
+    } else {
+      setError("Incorrect admin password.");
+    }
+    setLoading(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(ADMIN_LS);
+    setSecret(null); setStats(null); setOpen(false); setInput("");
+  };
+
+  if (!secret || !stats) {
+    return (
+      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors"
+        >
+          <span className="flex items-center gap-2 text-sm font-semibold text-slate-500">
+            <Lock className="w-4 h-4" /> Administration
+          </span>
+          <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-90" : ""}`} />
+        </button>
+        {open && (
+          <div className="px-6 pb-5">
+            <p className="text-xs text-slate-500 mb-3">Enter your admin password to access platform controls.</p>
+            <form onSubmit={handleLogin} className="flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  type={showPw ? "text" : "password"}
+                  value={input}
+                  onChange={e => { setInput(e.target.value); setError(""); }}
+                  placeholder="Admin password"
+                  className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 pr-9"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(s => !s)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+              <button
+                type="submit"
+                disabled={loading || !input}
+                className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign in"}
+              </button>
+            </form>
+            {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
+          </div>
+        )}
+      </section>
+    );
+  }
+
+  return (
+    <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <span className="flex items-center gap-2 text-sm font-bold text-slate-800">
+          <Terminal className="w-4 h-4 text-primary" /> Administration
+        </span>
+        <button onClick={handleLogout} className="text-xs text-slate-400 hover:text-red-500 transition-colors">Sign out of admin</button>
+      </div>
+      <div className="px-6 py-4">
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-slate-50 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+              <Users className="w-3.5 h-3.5" /> Users
+            </div>
+            <p className="text-2xl font-bold text-slate-800">{stats.users.total}</p>
+            <p className="text-xs text-slate-500">{stats.users.premium} premium</p>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+              <Gift className="w-3.5 h-3.5" /> Promo Codes
+            </div>
+            <p className="text-2xl font-bold text-slate-800">{stats.promoCodes.available}</p>
+            <p className="text-xs text-slate-500">{stats.promoCodes.used}/{stats.promoCodes.total} used</p>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+              <MessageSquare className="w-3.5 h-3.5" /> AI Chats
+            </div>
+            <p className="text-2xl font-bold text-slate-800">{stats.activity.aiConversations}</p>
+            <p className="text-xs text-slate-500">total conversations</p>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+              <Bookmark className="w-3.5 h-3.5" /> Saved Subjects
+            </div>
+            <p className="text-2xl font-bold text-slate-800">{stats.activity.savedSubjects}</p>
+            <p className="text-xs text-slate-500">across all users</p>
+          </div>
+        </div>
+        <Link href="/admin">
+          <button className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+            <BarChart3 className="w-4 h-4" /> Open Full Admin Dashboard
+          </button>
+        </Link>
+      </div>
+    </section>
+  );
 }
 
 function formatDate(iso: string | null | undefined): string {
@@ -343,7 +493,7 @@ export default function Account() {
       </section>
 
       {/* Sign out */}
-      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-slate-800">Sign out</p>
@@ -358,6 +508,9 @@ export default function Account() {
           </button>
         </div>
       </section>
+
+      {/* Admin */}
+      <AdminWidget />
     </div>
   );
 }

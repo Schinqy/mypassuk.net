@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { promoCodesTable } from "@workspace/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { promoCodesTable, usersTable, subjectsTable, careersTable, institutionsTable, conversations, savedSubjectsTable } from "@workspace/db/schema";
+import { eq, sql, count } from "drizzle-orm";
 
 const router = Router();
 
@@ -15,6 +15,66 @@ function requireAdmin(req: any, res: any, next: any) {
   }
   next();
 }
+
+// ─── Admin: platform stats ───────────────────────────────────────────────────
+
+router.get("/admin/stats", requireAdmin, async (_req, res) => {
+  const [
+    [userRow],
+    [premiumRow],
+    [subjectRow],
+    [careerRow],
+    [instRow],
+    [convRow],
+    [savedRow],
+    codes,
+  ] = await Promise.all([
+    db.select({ n: count() }).from(usersTable),
+    db.select({ n: count() }).from(usersTable).where(eq(usersTable.subscriptionStatus, "active")),
+    db.select({ n: count() }).from(subjectsTable),
+    db.select({ n: count() }).from(careersTable),
+    db.select({ n: count() }).from(institutionsTable),
+    db.select({ n: count() }).from(conversations),
+    db.select({ n: count() }).from(savedSubjectsTable),
+    db.select().from(promoCodesTable),
+  ]);
+
+  const totalCodes = codes.length;
+  const usedCodes = codes.filter((c: any) => c.isUsed).length;
+
+  return res.json({
+    users: { total: Number(userRow.n), premium: Number(premiumRow.n) },
+    content: {
+      subjects: Number(subjectRow.n),
+      careers: Number(careerRow.n),
+      institutions: Number(instRow.n),
+    },
+    activity: {
+      aiConversations: Number(convRow.n),
+      savedSubjects: Number(savedRow.n),
+    },
+    promoCodes: { total: totalCodes, used: usedCodes, available: totalCodes - usedCodes },
+  });
+});
+
+// ─── Admin: list users ────────────────────────────────────────────────────────
+
+router.get("/admin/users", requireAdmin, async (_req, res) => {
+  const users = await db
+    .select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      lastName: usersTable.lastName,
+      email: usersTable.email,
+      subscriptionPlan: usersTable.subscriptionPlan,
+      subscriptionStatus: usersTable.subscriptionStatus,
+      updatedAt: usersTable.updatedAt,
+    })
+    .from(usersTable)
+    .orderBy(sql`${usersTable.updatedAt} DESC NULLS LAST`);
+
+  return res.json({ users });
+});
 
 // ─── Public: redeem a code ───────────────────────────────────────────────────
 
