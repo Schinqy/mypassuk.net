@@ -23,6 +23,7 @@ import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import CheckoutCancel from "@/pages/CheckoutCancel";
 import Tutors from "@/pages/Tutors";
 import OpenDays from "@/pages/OpenDays";
+import FlyerPage from "@/pages/Flyer";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -39,36 +40,46 @@ function AppContent() {
   const { subjectName, subjectLevel, subjectCategory, keyTopics } = useAiStudy();
 
   return (
-    <>
-      <Layout>
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/subjects" component={Subjects} />
-          <Route path="/subjects/:id" component={SubjectDetail} />
-          <Route path="/careers" component={Careers} />
-          <Route path="/careers/:id" component={CareerDetail} />
-          <Route path="/institutions" component={Institutions} />
-          <Route path="/institutions/:id" component={InstitutionDetail} />
-          <Route path="/routes" component={Routes} />
-          <Route path="/quiz" component={Quiz} />
-          <Route path="/editorial" component={Editorial} />
-          <Route path="/timetable" component={Timetable} />
-          <Route path="/tutors" component={Tutors} />
-          <Route path="/open-days" component={OpenDays} />
-          <Route path="/pricing" component={Pricing} />
-          <Route path="/checkout/success" component={CheckoutSuccess} />
-          <Route path="/checkout/cancel" component={CheckoutCancel} />
-          <Route component={NotFound} />
-        </Switch>
-      </Layout>
+    <Switch>
+      {/* Standalone pages — no navbar/footer */}
+      <Route path="/flyer" component={FlyerPage} />
 
-      <AiStudyAssistant
-        subjectName={subjectName}
-        subjectLevel={subjectLevel}
-        subjectCategory={subjectCategory}
-        keyTopics={keyTopics}
-      />
-    </>
+      {/* All other pages wrapped in the main Layout */}
+      <Route>
+        {() => (
+          <>
+            <Layout>
+              <Switch>
+                <Route path="/" component={Home} />
+                <Route path="/subjects" component={Subjects} />
+                <Route path="/subjects/:id" component={SubjectDetail} />
+                <Route path="/careers" component={Careers} />
+                <Route path="/careers/:id" component={CareerDetail} />
+                <Route path="/institutions" component={Institutions} />
+                <Route path="/institutions/:id" component={InstitutionDetail} />
+                <Route path="/routes" component={Routes} />
+                <Route path="/quiz" component={Quiz} />
+                <Route path="/editorial" component={Editorial} />
+                <Route path="/timetable" component={Timetable} />
+                <Route path="/tutors" component={Tutors} />
+                <Route path="/open-days" component={OpenDays} />
+                <Route path="/pricing" component={Pricing} />
+                <Route path="/checkout/success" component={CheckoutSuccess} />
+                <Route path="/checkout/cancel" component={CheckoutCancel} />
+                <Route component={NotFound} />
+              </Switch>
+            </Layout>
+
+            <AiStudyAssistant
+              subjectName={subjectName}
+              subjectLevel={subjectLevel}
+              subjectCategory={subjectCategory}
+              keyTopics={keyTopics}
+            />
+          </>
+        )}
+      </Route>
+    </Switch>
   );
 }
 
