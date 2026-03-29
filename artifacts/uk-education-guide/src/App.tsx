@@ -24,6 +24,7 @@ import CheckoutCancel from "@/pages/CheckoutCancel";
 import Tutors from "@/pages/Tutors";
 import OpenDays from "@/pages/OpenDays";
 import FlyerPage from "@/pages/Flyer";
+import AdminPage from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -43,6 +44,7 @@ function AppContent() {
     <Switch>
       {/* Standalone pages — no navbar/footer */}
       <Route path="/flyer" component={FlyerPage} />
+      <Route path="/admin" component={AdminPage} />
 
       {/* All other pages wrapped in the main Layout */}
       <Route>
