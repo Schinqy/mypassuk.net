@@ -29,6 +29,8 @@ import OpenDays from "@/pages/OpenDays";
 import FlyerPage from "@/pages/Flyer";
 import AdminPage from "@/pages/Admin";
 import AccountPage from "@/pages/Account";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -73,6 +75,8 @@ function AppContent() {
                 <Route path="/checkout/success" component={CheckoutSuccess} />
                 <Route path="/checkout/cancel" component={CheckoutCancel} />
                 <Route path="/account" component={AccountPage} />
+                <Route path="/privacy" component={PrivacyPolicy} />
+                <Route path="/terms" component={TermsOfService} />
                 <Route component={NotFound} />
               </Switch>
             </Layout>
