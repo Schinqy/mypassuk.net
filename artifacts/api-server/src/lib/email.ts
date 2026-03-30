@@ -1,22 +1,7 @@
 import nodemailer from "nodemailer";
 
-const SITE_URL = process.env.SITE_URL ?? "https://exam-navigator-MatthewNyamasok.replit.app";
-
-const GMAIL_USER = process.env.GMAIL_USER ?? "munyaradzi.nyamasoka@gmail.com";
-const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
-
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL ?? `MyPassUK <onboarding@resend.dev>`;
-
-function getGmailTransport() {
-  if (!GMAIL_APP_PASSWORD) return null;
-  return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
-  });
-}
+const SITE_URL = "https://exam-navigator-MatthewNyamasok.replit.app";
+const GMAIL_USER = "munyaradzi.nyamasoka@gmail.com";
 
 function buildHtml(resetUrl: string) {
   return `<!DOCTYPE html>
@@ -54,13 +39,23 @@ export async function sendPasswordResetEmail(
   toEmail: string,
   token: string,
 ): Promise<{ sent: boolean }> {
-  const resetUrl = `${SITE_URL}/reset-password?token=${token}`;
+  // Read env vars lazily (at call time, not module load time)
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const siteUrl = process.env.SITE_URL ?? SITE_URL;
 
-  // 1. Try Gmail SMTP first (most reliable for Gmail recipients)
-  const gmailTransport = getGmailTransport();
-  if (gmailTransport) {
+  const resetUrl = `${siteUrl}/reset-password?token=${token}`;
+
+  // 1. Try Gmail SMTP (most reliable for Gmail recipients)
+  if (gmailAppPassword) {
     try {
-      await gmailTransport.sendMail({
+      const transport = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: { user: GMAIL_USER, pass: gmailAppPassword },
+      });
+      await transport.sendMail({
         from: `"MyPassUK" <${GMAIL_USER}>`,
         to: toEmail,
         subject: "Reset your MyPassUK password",
@@ -69,36 +64,45 @@ export async function sendPasswordResetEmail(
       });
       console.log(`[Password Reset] Email sent via Gmail SMTP to ${toEmail}`);
       return { sent: true };
-    } catch (err) {
-      console.error(`[Password Reset] Gmail SMTP failed:`, err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[Password Reset] Gmail SMTP failed: ${msg}`);
+    }
+  } else {
+    console.warn("[Password Reset] GMAIL_APP_PASSWORD not set, skipping Gmail SMTP");
+  }
+
+  // 2. Fall back to Resend
+  if (resendApiKey) {
+    try {
+      const fromEmail = process.env.FROM_EMAIL ?? "MyPassUK <onboarding@resend.dev>";
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: fromEmail,
+          to: [toEmail],
+          subject: "Reset your MyPassUK password",
+          html: buildHtml(resetUrl),
+          text: buildText(resetUrl),
+        }),
+      });
+      const body = await res.json() as { id?: string; name?: string; message?: string };
+      if (res.ok && body.id) {
+        console.log(`[Password Reset] Email sent via Resend to ${toEmail} (id: ${body.id})`);
+        return { sent: true };
+      }
+      console.error(`[Password Reset] Resend error: ${JSON.stringify(body)}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[Password Reset] Resend failed: ${msg}`);
     }
   }
 
-  // 2. Fall back to Resend if configured
-  if (RESEND_API_KEY) {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [toEmail],
-        subject: "Reset your MyPassUK password",
-        html: buildHtml(resetUrl),
-        text: buildText(resetUrl),
-      }),
-    });
-    const body = await res.json() as { id?: string; name?: string; message?: string };
-    if (res.ok && body.id) {
-      console.log(`[Password Reset] Email sent via Resend to ${toEmail} (id: ${body.id})`);
-      return { sent: true };
-    }
-    console.error(`[Password Reset] Resend error:`, body);
-  }
-
-  // 3. No email service configured — log the link
-  console.warn(`[Password Reset] No email service configured. Reset link for ${toEmail}: ${resetUrl}`);
+  // 3. Nothing configured
+  console.warn(`[Password Reset] No email service succeeded. Reset link for ${toEmail}: ${resetUrl}`);
   return { sent: false };
 }
