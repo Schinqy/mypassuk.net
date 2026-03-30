@@ -27,6 +27,8 @@ export const institutionsTable = pgTable("institutions", {
   applicationsOpen: text("applications_open"),
   featured: boolean("featured").default(false),
   applyUrl: text("apply_url"),
+  contactEmail: text("contact_email"),
+  contactName: text("contact_name"),
 });
 
 export const insertInstitutionSchema = createInsertSchema(institutionsTable).omit({ id: true });
@@ -36,6 +38,17 @@ export const institutionAnalyticsTable = pgTable("institution_analytics", {
   institutionId: integer("institution_id").notNull().references(() => institutionsTable.id, { onDelete: "cascade" }),
   eventType: text("event_type").notNull(), // 'view' | 'apply_click'
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const institutionReportsTable = pgTable("institution_reports", {
+  id: serial("id").primaryKey(),
+  institutionId: integer("institution_id").notNull().references(() => institutionsTable.id, { onDelete: "cascade" }),
+  sentTo: text("sent_to").notNull(),
+  periodMonth: integer("period_month").notNull(),
+  periodYear: integer("period_year").notNull(),
+  views: integer("views").notNull().default(0),
+  applyClicks: integer("apply_clicks").notNull().default(0),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
 });
 
 export type InsertInstitution = z.infer<typeof insertInstitutionSchema>;

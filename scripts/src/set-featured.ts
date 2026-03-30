@@ -1,4 +1,4 @@
-import { db, sql, eq, institutionsTable, institutionAnalyticsTable } from "@workspace/db";
+import { db, sql, eq, institutionsTable, institutionAnalyticsTable, institutionReportsTable } from "@workspace/db";
 
 const FEATURED_NAMES = [
   "University of Edinburgh",

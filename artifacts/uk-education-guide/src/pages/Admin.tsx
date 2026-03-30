@@ -5,7 +5,7 @@ import {
   ShieldCheck, LogOut, RefreshCw, Plus, Trash2, RotateCcw,
   CheckCircle, XCircle, Clock, Gift, Copy, Check,
   Users, BarChart3, BookOpen, Briefcase, Building2, Crown, User2,
-  MessageSquare, Bookmark, Loader2,
+  MessageSquare, Bookmark, Loader2, Mail, AlertTriangle, Send, Pencil, X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -354,13 +354,84 @@ function StatsPanel() {
 interface InstitutionAnalytics {
   id: number;
   name: string;
+  city: string;
   views: number;
   applyClicks: number;
+  contactEmail: string | null;
+  contactName: string | null;
+  lastReport: { sentAt: string; periodMonth: number; periodYear: number } | null;
+  overdueReport: boolean;
+}
+
+const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function ContactEmailModal({
+  institution,
+  onClose,
+  onSaved,
+}: {
+  institution: InstitutionAnalytics;
+  onClose: () => void;
+  onSaved: (email: string, name: string) => void;
+}) {
+  const [email, setEmail] = useState(institution.contactEmail ?? "");
+  const [name, setName] = useState(institution.contactName ?? "");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const res = await fetch(`${BASE}/api/admin/institutions/${institution.id}/contact`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contactEmail: email.trim() || null, contactName: name.trim() || null }),
+    });
+    setSaving(false);
+    if (res.ok) { onSaved(email.trim(), name.trim()); onClose(); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-bold text-white text-lg">Contact Details</h3>
+          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+        </div>
+        <p className="text-slate-400 text-sm mb-5">{institution.name}</p>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1.5">Contact Name</label>
+            <input value={name} onChange={e => setName(e.target.value)}
+              placeholder="e.g. Dr Sarah Chen"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1.5">Contact Email <span className="text-red-400">*</span></label>
+            <input value={email} onChange={e => setEmail(e.target.value)} type="email"
+              placeholder="admissions@institution.ac.uk"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500" />
+          </div>
+        </div>
+        <div className="flex gap-3 mt-6">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white text-sm font-semibold transition-colors">Cancel</button>
+          <button onClick={save} disabled={saving || !email.trim()}
+            className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+            Save
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
 }
 
 function AnalyticsPanel() {
   const [rows, setRows] = useState<InstitutionAnalytics[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState<number | "all" | null>(null);
+  const [sendResult, setSendResult] = useState<{ id: number | "all"; ok: boolean; msg: string } | null>(null);
+  const [editContact, setEditContact] = useState<InstitutionAnalytics | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -371,19 +442,85 @@ function AnalyticsPanel() {
 
   useEffect(() => { load(); }, [load]);
 
+  const sendReport = async (id: number) => {
+    setSending(id);
+    setSendResult(null);
+    const res = await fetch(`${BASE}/api/admin/institutions/${id}/send-report`, {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    setSending(null);
+    if (res.ok) {
+      setSendResult({ id, ok: true, msg: `Sent to ${data.sentTo}` });
+      load();
+    } else {
+      setSendResult({ id, ok: false, msg: data.error ?? "Failed to send" });
+    }
+  };
+
+  const sendAll = async () => {
+    setSending("all");
+    setSendResult(null);
+    const res = await fetch(`${BASE}/api/admin/institutions/send-all-reports`, {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await res.json();
+    setSending(null);
+    if (res.ok) {
+      setSendResult({ id: "all", ok: true, msg: `Sent ${data.sent} report${data.sent !== 1 ? "s" : ""}, skipped ${data.skipped} (no email)` });
+      load();
+    } else {
+      setSendResult({ id: "all", ok: false, msg: data.error ?? "Failed to send all" });
+    }
+  };
+
   const totalViews = rows.reduce((s, r) => s + r.views, 0);
   const totalClicks = rows.reduce((s, r) => s + r.applyClicks, 0);
+  const overdueCount = rows.filter(r => r.overdueReport && r.contactEmail).length;
+  const now = new Date();
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-slate-400 text-sm">Views & apply-clicks for all featured institutions</p>
-        <button onClick={load} className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg text-sm transition-colors">
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
-        </button>
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-slate-400 text-sm">Views & apply-clicks for all featured institutions</p>
+          {overdueCount > 0 && (
+            <div className="flex items-center gap-1.5 mt-1">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-amber-400 text-xs font-semibold">{overdueCount} institution{overdueCount !== 1 ? "s" : ""} overdue for a report this month</span>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={load} className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg text-sm transition-colors">
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
+          </button>
+          <button onClick={sendAll} disabled={sending !== null}
+            className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg text-sm font-bold transition-colors">
+            {sending === "all" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+            Send All Reports
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      {/* Send result banner */}
+      <AnimatePresence>
+        {sendResult && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className={`mb-4 flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold ${sendResult.ok ? "bg-green-500/15 border border-green-500/30 text-green-400" : "bg-red-500/15 border border-red-500/30 text-red-400"}`}>
+            {sendResult.ok ? <CheckCircle className="w-4 h-4 shrink-0" /> : <XCircle className="w-4 h-4 shrink-0" />}
+            {sendResult.msg}
+            <button onClick={() => setSendResult(null)} className="ml-auto opacity-60 hover:opacity-100"><X className="w-4 h-4" /></button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
           <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Total Profile Views</p>
           <p className="text-3xl font-bold text-blue-400">{totalViews.toLocaleString()}</p>
@@ -392,43 +529,93 @@ function AnalyticsPanel() {
           <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Total Apply Clicks</p>
           <p className="text-3xl font-bold text-green-400">{totalClicks.toLocaleString()}</p>
         </div>
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Reports Due</p>
+          <p className="text-3xl font-bold text-amber-400">{overdueCount}</p>
+          <p className="text-slate-500 text-xs mt-1">{MONTH_NAMES[now.getMonth()]} {now.getFullYear()}</p>
+        </div>
       </div>
 
+      {/* Table */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="border-b border-slate-800 bg-slate-800/50">
               <th className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Institution</th>
-              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Profile Views</th>
-              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Apply Clicks</th>
-              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Click Rate</th>
+              <th className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Contact Email</th>
+              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Views</th>
+              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Clicks</th>
+              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">CTR</th>
+              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Last Report</th>
+              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={4} className="px-4 py-16 text-center text-slate-500">Loading…</td></tr>
+              <tr><td colSpan={7} className="px-4 py-16 text-center text-slate-500">Loading…</td></tr>
             ) : rows.length === 0 ? (
-              <tr><td colSpan={4} className="px-4 py-16 text-center text-slate-500">No featured institutions yet</td></tr>
+              <tr><td colSpan={7} className="px-4 py-16 text-center text-slate-500">No featured institutions yet</td></tr>
             ) : rows.map(r => {
               const ctr = r.views > 0 ? ((r.applyClicks / r.views) * 100).toFixed(1) : "0.0";
+              const isSending = sending === r.id;
+              const isOverdue = r.overdueReport && r.contactEmail;
               return (
-                <tr key={r.id} className="border-b border-slate-800 hover:bg-slate-800/40 transition-colors">
+                <tr key={r.id} className={`border-b border-slate-800 hover:bg-slate-800/40 transition-colors ${isOverdue ? "border-l-2 border-l-amber-500/60" : ""}`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 bg-amber-500/20 rounded-lg flex items-center justify-center shrink-0">
                         <Building2 className="w-3.5 h-3.5 text-amber-400" />
                       </div>
-                      <span className="font-semibold text-sm text-white">{r.name}</span>
+                      <div>
+                        <div className="font-semibold text-sm text-white leading-tight">{r.name}</div>
+                        <div className="text-xs text-slate-500">{r.city}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      {r.contactEmail ? (
+                        <span className="text-xs text-slate-300 font-mono truncate max-w-[160px]">{r.contactEmail}</span>
+                      ) : (
+                        <span className="text-xs text-slate-600 italic">not set</span>
+                      )}
+                      <button onClick={() => setEditContact(r)}
+                        className="text-slate-600 hover:text-blue-400 transition-colors shrink-0">
+                        <Pencil className="w-3 h-3" />
+                      </button>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className="text-blue-400 font-bold">{r.views.toLocaleString()}</span>
+                    <span className="text-blue-400 font-bold text-sm">{r.views.toLocaleString()}</span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className="text-green-400 font-bold">{r.applyClicks.toLocaleString()}</span>
+                    <span className="text-green-400 font-bold text-sm">{r.applyClicks.toLocaleString()}</span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-semibold ${Number(ctr) >= 5 ? "text-green-400" : Number(ctr) >= 2 ? "text-amber-400" : "text-slate-400"}`}>{ctr}%</span>
+                    <span className={`text-sm font-semibold ${Number(ctr) >= 8 ? "text-green-400" : Number(ctr) >= 4 ? "text-amber-400" : "text-slate-400"}`}>{ctr}%</span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {r.lastReport ? (
+                      <div className="text-right">
+                        <div className="text-xs text-slate-300">{MONTH_NAMES[r.lastReport.periodMonth - 1]} {r.lastReport.periodYear}</div>
+                        <div className="text-xs text-slate-600">{new Date(r.lastReport.sentAt).toLocaleDateString("en-GB", { day:"numeric", month:"short" })}</div>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-600 italic">Never sent</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {r.contactEmail ? (
+                      <button onClick={() => sendReport(r.id)} disabled={sending !== null}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors disabled:opacity-40 ${isOverdue ? "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30" : "bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700"}`}>
+                        {isSending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+                        {isSending ? "Sending…" : "Send Report"}
+                      </button>
+                    ) : (
+                      <button onClick={() => setEditContact(r)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-white border border-slate-800 hover:border-slate-600 transition-colors">
+                        <Pencil className="w-3 h-3" /> Add Email
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
@@ -436,6 +623,19 @@ function AnalyticsPanel() {
           </tbody>
         </table>
       </div>
+
+      {/* Contact email modal */}
+      <AnimatePresence>
+        {editContact && (
+          <ContactEmailModal
+            institution={editContact}
+            onClose={() => setEditContact(null)}
+            onSaved={(email, name) => {
+              setRows(prev => prev.map(r => r.id === editContact.id ? { ...r, contactEmail: email || null, contactName: name || null } : r));
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
