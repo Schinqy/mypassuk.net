@@ -32,6 +32,7 @@ import AccountPage from "@/pages/Account";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import ResetPassword from "@/pages/ResetPassword";
+import About from "@/pages/About";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -79,6 +80,7 @@ function AppContent() {
                 <Route path="/privacy" component={PrivacyPolicy} />
                 <Route path="/terms" component={TermsOfService} />
                 <Route path="/reset-password" component={ResetPassword} />
+                <Route path="/about" component={About} />
                 <Route component={NotFound} />
               </Switch>
             </Layout>

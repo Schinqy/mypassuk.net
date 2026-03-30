@@ -157,6 +157,7 @@ export function Footer() {
                 <li><Link href="/careers" className="hover:text-primary transition-colors">Career Explorer</Link></li>
                 <li><Link href="/institutions" className="hover:text-primary transition-colors">Find Universities</Link></li>
                 <li><Link href="/routes" className="hover:text-primary transition-colors">Study Routes</Link></li>
+                <li><Link href="/about" className="hover:text-primary transition-colors">About MyPassUK</Link></li>
               </ul>
             </div>
 
