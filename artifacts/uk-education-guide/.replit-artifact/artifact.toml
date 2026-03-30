@@ -17,6 +17,10 @@ localPort = 24474
 [services.development]
 run = "pnpm --filter @workspace/uk-education-guide run dev"
 
+[services.production]
+serve = "static"
+publicDir = "dist/public"
+
 [services.env]
 PORT = "24474"
 BASE_PATH = "/"
