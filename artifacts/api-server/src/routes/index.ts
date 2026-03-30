@@ -12,6 +12,7 @@ import newsRouter from "./news";
 import authRouter from "./auth";
 import accountRouter from "./account";
 import savedRouter from "./saved";
+import supportRouter from "./support";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(newsRouter);
 router.use(authRouter);
 router.use(accountRouter);
 router.use(savedRouter);
+router.use(supportRouter);
 
 export default router;

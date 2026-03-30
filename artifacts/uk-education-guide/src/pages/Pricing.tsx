@@ -309,7 +309,7 @@ export default function Pricing() {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <a
-              href="mailto:partnerships@ukedguide.co.uk"
+              href="mailto:munyaradzi.nyamasoka@gmail.com?subject=Institution%20Featured%20Listing%20Enquiry&body=Hi%2C%0A%0AI%27d%20like%20to%20enquire%20about%20a%20Featured%20Listing%20for%20my%20institution%20on%20MyPassUK.%0A%0AInstitution%20name%3A%20%0AContact%20name%3A%20%0AWebsite%3A%20%0A"
               className="flex-1 py-3 rounded-xl font-bold bg-amber-600 text-white hover:bg-amber-700 transition-colors text-center flex items-center justify-center gap-2"
             >
               <Mail className="w-4 h-4" /> Contact us to get listed

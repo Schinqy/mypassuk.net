@@ -178,6 +178,118 @@ function buildReportHtml(data: ReportData & { pdfFilename: string }): string {
 </html>`.trim();
 }
 
+// ── Support request email ──────────────────────────────────────────────────
+
+export interface SupportRequestData {
+  fromEmail: string;
+  fromName: string;
+  planLabel: string;
+  subject: string;
+  message: string;
+}
+
+function buildSupportAdminHtml(data: SupportRequestData): string {
+  return `<!DOCTYPE html>
+<html>
+<body style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b;background:#f8fafc;padding:24px;">
+  <div style="background:white;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
+    <div style="background:linear-gradient(135deg,hsl(224,76%,28%),hsl(354,72%,40%));height:5px;"></div>
+    <div style="background:hsl(224,76%,28%);padding:24px 32px 18px;">
+      <div style="font-size:20px;font-weight:800;color:white;">MyPassUK — Support Request</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px;">${new Date().toLocaleString("en-GB", { timeZone: "Europe/London" })}</div>
+    </div>
+    <div style="padding:28px 32px;">
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <tr><td style="padding:8px 0;font-size:13px;color:#64748b;width:110px;">From</td><td style="padding:8px 0;font-size:13px;font-weight:700;color:#0f172a;">${data.fromName} &lt;${data.fromEmail}&gt;</td></tr>
+        <tr><td style="padding:8px 0;font-size:13px;color:#64748b;">Plan</td><td style="padding:8px 0;font-size:13px;font-weight:700;color:hsl(224,76%,28%);">${data.planLabel}</td></tr>
+        <tr><td style="padding:8px 0;font-size:13px;color:#64748b;">Subject</td><td style="padding:8px 0;font-size:13px;font-weight:700;color:#0f172a;">${data.subject}</td></tr>
+      </table>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;">
+        <p style="margin:0;font-size:14px;color:#334155;line-height:1.8;white-space:pre-wrap;">${data.message}</p>
+      </div>
+      <p style="margin:20px 0 0;font-size:12px;color:#94a3b8;">Reply directly to this email to respond to ${data.fromName}.</p>
+    </div>
+  </div>
+</body>
+</html>`.trim();
+}
+
+function buildSupportConfirmHtml(data: SupportRequestData): string {
+  const name = data.fromName || "there";
+  return `<!DOCTYPE html>
+<html>
+<body style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#1e293b;background:#f8fafc;padding:24px;">
+  <div style="background:white;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
+    <div style="background:linear-gradient(135deg,hsl(224,76%,28%),hsl(354,72%,40%));height:5px;"></div>
+    <div style="padding:36px 32px;">
+      <div style="margin-bottom:20px;font-size:22px;font-weight:800;color:hsl(224,76%,28%);">MyPassUK</div>
+      <h1 style="font-size:20px;font-weight:700;margin:0 0 12px;color:#0f172a;">We've received your message</h1>
+      <p style="color:#64748b;margin:0 0 20px;line-height:1.7;">Hi ${name},<br/><br/>
+        Thanks for reaching out. We've received your support request and will get back to you as soon as possible — usually within <strong>one working day</strong>.
+      </p>
+      <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:16px;margin-bottom:24px;">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0369a1;">Your message:</p>
+        <p style="margin:0;font-size:13px;color:#334155;line-height:1.7;white-space:pre-wrap;">${data.message}</p>
+      </div>
+      <p style="color:#64748b;font-size:13px;line-height:1.7;margin:0;">
+        If your question is urgent, feel free to reply directly to this email.<br/><br/>
+        — The MyPassUK Team
+      </p>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:20px;">
+    Simunye Art Limited · 85 Great Portland Street, London W1W 7LT
+  </p>
+</body>
+</html>`.trim();
+}
+
+export async function sendSupportEmail(
+  data: SupportRequestData,
+): Promise<{ sent: boolean; error?: string }> {
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+  if (!gmailAppPassword) {
+    return { sent: false, error: "Email service not configured" };
+  }
+
+  try {
+    const transport = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: { user: GMAIL_USER, pass: gmailAppPassword },
+    });
+
+    // Send notification to admin
+    await transport.sendMail({
+      from: `"MyPassUK Support" <${GMAIL_USER}>`,
+      to: GMAIL_USER,
+      replyTo: data.fromEmail,
+      subject: `[Support] ${data.subject} — ${data.fromName} (${data.planLabel})`,
+      html: buildSupportAdminHtml(data),
+      text: `Support request from ${data.fromName} <${data.fromEmail}> (${data.planLabel})\n\nSubject: ${data.subject}\n\n${data.message}`,
+    });
+
+    // Send confirmation to user
+    await transport.sendMail({
+      from: `"MyPassUK" <${GMAIL_USER}>`,
+      to: data.fromEmail,
+      subject: "We've received your support request — MyPassUK",
+      html: buildSupportConfirmHtml(data),
+      text: `Hi ${data.fromName},\n\nWe've received your support request and will get back to you within one working day.\n\nYour message:\n${data.message}\n\n— The MyPassUK Team`,
+    });
+
+    console.log(`[Support] Request sent from ${data.fromEmail} — "${data.subject}"`);
+    return { sent: true };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[Support] Failed: ${msg}`);
+    return { sent: false, error: msg };
+  }
+}
+
+// ── Analytics report email ─────────────────────────────────────────────────
+
 export async function sendAnalyticsReportEmail(
   toEmail: string,
   data: ReportData,

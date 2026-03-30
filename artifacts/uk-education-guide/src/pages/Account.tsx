@@ -7,7 +7,7 @@ import {
   User, Mail, Crown, CalendarDays, CreditCard, LogOut,
   Globe, Settings, ShieldCheck, Trash2, ChevronRight, Loader2,
   BadgeCheck, Sparkles, BookOpen, Bookmark, Terminal, Users, BarChart3,
-  Gift, MessageSquare,
+  Gift, MessageSquare, HeadphonesIcon, Send, CheckCircle, XCircle, ChevronDown,
 } from "lucide-react";
 import { useSavedSubjects } from "@/hooks/useSavedSubjects";
 
@@ -110,6 +110,171 @@ function AdminWidget({ userEmail }: { userEmail?: string | null }) {
                 </button>
               </Link>
             </>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+const SUPPORT_SUBJECTS = [
+  "Billing & subscription",
+  "Account access",
+  "AI Study Assistant",
+  "Study plans & timetables",
+  "Institution listings",
+  "Technical issue",
+  "Feature request",
+  "Other",
+];
+
+function SupportSection({
+  userEmail,
+  displayName,
+  planLabel,
+  isPremium,
+}: {
+  userEmail?: string | null;
+  displayName: string;
+  planLabel: string;
+  isPremium: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const canSubmit = subject && message.trim().length >= 20 && status !== "sending";
+
+  const submit = async () => {
+    if (!canSubmit) return;
+    setStatus("sending");
+    setErrorMsg("");
+    try {
+      const res = await fetch(`${BASE}/api/support/contact`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, message: message.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus("success");
+        setSubject("");
+        setMessage("");
+      } else {
+        setStatus("error");
+        setErrorMsg(data.error ?? "Something went wrong. Please try again.");
+      }
+    } catch {
+      setStatus("error");
+      setErrorMsg("Network error. Please check your connection.");
+    }
+  };
+
+  if (!isPremium) {
+    return (
+      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-5">
+        <h3 className="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+          <HeadphonesIcon className="w-4 h-4 text-slate-400" /> Support
+        </h3>
+        <div className="flex items-start gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100">
+          <div className="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
+            <HeadphonesIcon className="w-4 h-4 text-slate-500" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-slate-700">Priority email support</p>
+            <p className="text-xs text-slate-500 mt-0.5">Available on Student Premium and Institution plans. Upgrade to get a response within one working day.</p>
+          </div>
+          <Link href="/pricing" className="shrink-0">
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white"
+              style={{ background: "linear-gradient(135deg, hsl(224,76%,28%), hsl(354,72%,40%))" }}>
+              <Sparkles className="w-3 h-3" /> Upgrade
+            </span>
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+      <button
+        onClick={() => { setOpen(o => !o); if (status === "success") setStatus("idle"); }}
+        className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors"
+      >
+        <span className="flex items-center gap-2 text-sm font-bold text-slate-800">
+          <HeadphonesIcon className="w-4 h-4 text-primary" /> Priority Support
+          <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/15">
+            {planLabel}
+          </span>
+        </span>
+        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open && (
+        <div className="px-6 pb-6 border-t border-slate-100 pt-4">
+          {status === "success" ? (
+            <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
+              <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-green-800 text-sm">Message sent successfully</p>
+                <p className="text-xs text-green-700 mt-0.5">We've also sent a confirmation to <strong>{userEmail}</strong>. We'll reply within one working day.</p>
+                <button onClick={() => setStatus("idle")} className="mt-3 text-xs font-semibold text-green-700 underline underline-offset-2">Send another message</button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-xs text-slate-500">As a {planLabel} subscriber, you have priority email support. We aim to respond within one working day.</p>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Subject</label>
+                <div className="relative">
+                  <select
+                    value={subject}
+                    onChange={e => setSubject(e.target.value)}
+                    className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
+                  >
+                    <option value="">Select a topic…</option>
+                    {SUPPORT_SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                  Message <span className="font-normal text-slate-400">({message.trim().length}/2000 chars, min 20)</span>
+                </label>
+                <textarea
+                  value={message}
+                  onChange={e => setMessage(e.target.value)}
+                  rows={5}
+                  maxLength={2000}
+                  placeholder="Describe your issue or question in as much detail as possible…"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 resize-none"
+                />
+              </div>
+
+              {status === "error" && (
+                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                  <XCircle className="w-4 h-4 shrink-0" /> {errorMsg}
+                </div>
+              )}
+
+              <button
+                onClick={submit}
+                disabled={!canSubmit}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 disabled:cursor-not-allowed"
+                style={{ background: "linear-gradient(135deg, hsl(224,76%,28%), hsl(354,72%,40%))" }}
+              >
+                {status === "sending"
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
+                  : <><Send className="w-4 h-4" /> Send message</>
+                }
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -321,6 +486,14 @@ export default function Account() {
           )}
         </div>
       </section>
+
+      {/* Support */}
+      <SupportSection
+        userEmail={profile?.email}
+        displayName={displayName}
+        planLabel={sub?.planLabel ?? "Free"}
+        isPremium={sub?.isPremium ?? false}
+      />
 
       {/* Nation preference */}
       <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-5">
