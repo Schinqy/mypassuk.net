@@ -8,3 +8,4 @@ export * from "./users";
 export * from "./promo-codes";
 export * from "./sessions";
 export * from "./saved-subjects";
+export * from "./password-reset-tokens";
