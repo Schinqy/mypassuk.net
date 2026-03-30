@@ -19,7 +19,7 @@ run = "pnpm --filter @workspace/uk-education-guide run dev"
 
 [services.production]
 serve = "static"
-publicDir = "dist/public"
+publicDir = "artifacts/uk-education-guide/dist/public"
 
 [services.env]
 PORT = "24474"
