@@ -13,6 +13,7 @@
     "add-he-fe": "tsx ./src/add-he-fe-institutions.ts",
     "add-industrial-placements": "tsx ./src/add-industrial-placements.ts",
     "deploy-seed": "tsx ./src/deploy-seed.ts",
+    "set-featured": "tsx ./src/set-featured.ts",
     "seed-products": "tsx ./src/seed-products.ts",
     "add-scottish-subjects": "tsx ./src/add-scottish-subjects.ts",
     "add-welsh-subjects": "tsx ./src/add-welsh-subjects.ts",
