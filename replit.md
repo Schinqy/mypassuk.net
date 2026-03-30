@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Live app:** [https://df549543-32b7-49b4-84a8-8cbe87d7eb40-00-2446pj0534t7w.janeway.replit.dev](https://df549543-32b7-49b4-84a8-8cbe87d7eb40-00-2446pj0534t7w.janeway.replit.dev)
+**Live app:** [https://exam-navigator-MatthewNyamasok.replit.app](https://exam-navigator-MatthewNyamasok.replit.app)
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
