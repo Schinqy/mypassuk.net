@@ -491,8 +491,8 @@ export default function Account() {
       <SupportSection
         userEmail={profile?.email}
         displayName={displayName}
-        planLabel={sub?.planLabel ?? "Free"}
-        isPremium={sub?.isPremium ?? false}
+        planLabel={sub?.isPremium ? (sub.planLabel ?? "Premium") : user?.email === ADMIN_EMAIL ? "Admin" : "Free"}
+        isPremium={(sub?.isPremium ?? false) || user?.email === ADMIN_EMAIL}
       />
 
       {/* Nation preference */}
