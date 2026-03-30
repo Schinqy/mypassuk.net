@@ -3,14 +3,29 @@ import { useGetInstitutionById, useGetCareers } from "@workspace/api-client-reac
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import {
   ArrowLeft, Building2, MapPin, GraduationCap, Star, Trophy,
-  Globe, Users, CheckCircle2, BookOpen, Landmark, ExternalLink
+  Globe, Users, CheckCircle2, BookOpen, Landmark, ExternalLink, Send
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function trackEvent(institutionId: number, eventType: "view" | "apply_click") {
+  fetch(`${BASE}/api/institutions/${institutionId}/track`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ eventType }),
+  }).catch(() => {});
+}
 
 export default function InstitutionDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: institution, isLoading, error } = useGetInstitutionById(Number(id));
   const { data: allCareers } = useGetCareers();
+
+  useEffect(() => {
+    if (institution?.id) trackEvent(institution.id, "view");
+  }, [institution?.id]);
 
   if (isLoading) return <LoadingSpinner className="mt-32" />;
   if (error || !institution) return (
@@ -233,6 +248,20 @@ export default function InstitutionDetail() {
                 </div>
               </div>
             </div>
+
+            {/* Apply CTA — only for featured institutions with applyUrl */}
+            {institution.featured && (institution as any).applyUrl && (
+              <a
+                href={(institution as any).applyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent(institution.id, "apply_click")}
+                className="flex items-center justify-center gap-3 w-full py-4 bg-accent text-white rounded-2xl font-bold hover:bg-accent/90 transition-colors shadow-lg shadow-accent/25"
+              >
+                <Send className="w-5 h-5" /> Apply Now
+                <ExternalLink className="w-4 h-4 opacity-70" />
+              </a>
+            )}
 
             {/* Official Website Link */}
             {institution.websiteUrl && (

@@ -349,9 +349,100 @@ function StatsPanel() {
   );
 }
 
+// ─── Institution Analytics panel ──────────────────────────────────────────────
+
+interface InstitutionAnalytics {
+  id: number;
+  name: string;
+  views: number;
+  applyClicks: number;
+}
+
+function AnalyticsPanel() {
+  const [rows, setRows] = useState<InstitutionAnalytics[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch(`${BASE}/api/admin/institution-analytics`, { credentials: "include" });
+    if (res.ok) { const d = await res.json(); setRows(d.institutions); }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const totalViews = rows.reduce((s, r) => s + r.views, 0);
+  const totalClicks = rows.reduce((s, r) => s + r.applyClicks, 0);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-slate-400 text-sm">Views & apply-clicks for all featured institutions</p>
+        <button onClick={load} className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg text-sm transition-colors">
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Total Profile Views</p>
+          <p className="text-3xl font-bold text-blue-400">{totalViews.toLocaleString()}</p>
+        </div>
+        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-5">
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Total Apply Clicks</p>
+          <p className="text-3xl font-bold text-green-400">{totalClicks.toLocaleString()}</p>
+        </div>
+      </div>
+
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-slate-800 bg-slate-800/50">
+              <th className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Institution</th>
+              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Profile Views</th>
+              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Apply Clicks</th>
+              <th className="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Click Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={4} className="px-4 py-16 text-center text-slate-500">Loading…</td></tr>
+            ) : rows.length === 0 ? (
+              <tr><td colSpan={4} className="px-4 py-16 text-center text-slate-500">No featured institutions yet</td></tr>
+            ) : rows.map(r => {
+              const ctr = r.views > 0 ? ((r.applyClicks / r.views) * 100).toFixed(1) : "0.0";
+              return (
+                <tr key={r.id} className="border-b border-slate-800 hover:bg-slate-800/40 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 bg-amber-500/20 rounded-lg flex items-center justify-center shrink-0">
+                        <Building2 className="w-3.5 h-3.5 text-amber-400" />
+                      </div>
+                      <span className="font-semibold text-sm text-white">{r.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className="text-blue-400 font-bold">{r.views.toLocaleString()}</span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className="text-green-400 font-bold">{r.applyClicks.toLocaleString()}</span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className={`text-sm font-semibold ${Number(ctr) >= 5 ? "text-green-400" : Number(ctr) >= 2 ? "text-amber-400" : "text-slate-400"}`}>{ctr}%</span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main dashboard ───────────────────────────────────────────────────────────
 
-type AdminTab = "promoCodes" | "users" | "stats";
+type AdminTab = "promoCodes" | "users" | "stats" | "analytics";
 
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [codes, setCodes] = useState<PromoCode[]>([]);
@@ -387,6 +478,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     { id: "promoCodes", label: "Promo Codes", icon: Gift },
     { id: "users", label: "Users", icon: Users },
     { id: "stats", label: "Platform Stats", icon: BarChart3 },
+    { id: "analytics", label: "Institution Analytics", icon: Building2 },
   ];
 
   return (
@@ -503,6 +595,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
         {tab === "users" && <UsersPanel />}
         {tab === "stats" && <StatsPanel />}
+        {tab === "analytics" && <AnalyticsPanel />}
       </div>
 
       <AnimatePresence>

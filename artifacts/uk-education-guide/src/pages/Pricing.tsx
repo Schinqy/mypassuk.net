@@ -34,10 +34,10 @@ const PREMIUM_FEATURES = [
 
 const INSTITUTION_FEATURES = [
   "Featured listing — appear at the top of all searches",
-  "Enhanced profile with photos & open day highlights",
+  "Enhanced profile with open day highlights",
   "Recruitment alert priority placement",
-  "Analytics dashboard — views & click-throughs",
-  "Direct application CTA button on your profile",
+  "Analytics dashboard — profile views & apply clicks",
+  "Direct 'Apply Now' button on your profile",
   "Dedicated account manager",
   "Cancel anytime",
 ];

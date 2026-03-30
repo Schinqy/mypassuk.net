@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { institutionsTable } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
+import { institutionsTable, institutionAnalyticsTable } from "@workspace/db/schema";
+import { eq, sql } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -70,6 +70,66 @@ router.get("/institutions/:id", async (req, res) => {
   } catch (err) {
     req.log.error({ err }, "Failed to fetch institution");
     res.status(500).json({ error: "Internal Server Error", message: "Failed to fetch institution" });
+  }
+});
+
+router.post("/institutions/:id/track", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+    const { eventType } = req.body as { eventType?: string };
+    if (eventType !== "view" && eventType !== "apply_click") {
+      res.status(400).json({ error: "eventType must be 'view' or 'apply_click'" });
+      return;
+    }
+    await db.insert(institutionAnalyticsTable).values({ institutionId: id, eventType });
+    res.json({ ok: true });
+  } catch (err) {
+    req.log.error({ err }, "Failed to track institution event");
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/admin/institution-analytics", async (req: any, res) => {
+  try {
+    if (!req.user || req.user.email !== "munyaradzi.nyamasoka@gmail.com") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    const rows = await db
+      .select({
+        institutionId: institutionAnalyticsTable.institutionId,
+        eventType: institutionAnalyticsTable.eventType,
+        count: sql<number>`cast(count(*) as int)`,
+      })
+      .from(institutionAnalyticsTable)
+      .groupBy(institutionAnalyticsTable.institutionId, institutionAnalyticsTable.eventType);
+
+    const featured = await db
+      .select({ id: institutionsTable.id, name: institutionsTable.name })
+      .from(institutionsTable)
+      .where(eq(institutionsTable.featured, true));
+
+    const analyticsMap: Record<number, { views: number; applyClicks: number }> = {};
+    for (const row of rows) {
+      if (!analyticsMap[row.institutionId]) {
+        analyticsMap[row.institutionId] = { views: 0, applyClicks: 0 };
+      }
+      if (row.eventType === "view") analyticsMap[row.institutionId].views = row.count;
+      if (row.eventType === "apply_click") analyticsMap[row.institutionId].applyClicks = row.count;
+    }
+
+    const result = featured.map(inst => ({
+      id: inst.id,
+      name: inst.name,
+      views: analyticsMap[inst.id]?.views ?? 0,
+      applyClicks: analyticsMap[inst.id]?.applyClicks ?? 0,
+    })).sort((a, b) => b.views - a.views);
+
+    res.json({ institutions: result });
+  } catch (err) {
+    req.log.error({ err }, "Failed to fetch institution analytics");
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

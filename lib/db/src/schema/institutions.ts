@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, boolean, real, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, boolean, real, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -26,8 +26,17 @@ export const institutionsTable = pgTable("institutions", {
   applicationDeadline: text("application_deadline"),
   applicationsOpen: text("applications_open"),
   featured: boolean("featured").default(false),
+  applyUrl: text("apply_url"),
 });
 
 export const insertInstitutionSchema = createInsertSchema(institutionsTable).omit({ id: true });
+
+export const institutionAnalyticsTable = pgTable("institution_analytics", {
+  id: serial("id").primaryKey(),
+  institutionId: integer("institution_id").notNull().references(() => institutionsTable.id, { onDelete: "cascade" }),
+  eventType: text("event_type").notNull(), // 'view' | 'apply_click'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type InsertInstitution = z.infer<typeof insertInstitutionSchema>;
 export type Institution = typeof institutionsTable.$inferSelect;
