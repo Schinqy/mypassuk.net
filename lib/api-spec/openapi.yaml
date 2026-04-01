@@ -47,7 +47,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [GCSE, A-Level, Both]
+            enum: [GCSE, A-Level, Both, "National 5", Higher, "Advanced Higher", "Welsh Bacc"]
         - name: category
           in: query
           schema:
@@ -412,7 +412,7 @@ components:
           type: string
         level:
           type: string
-          enum: [GCSE, A-Level, Both]
+          enum: [GCSE, A-Level, Both, "National 5", Higher, "Advanced Higher", "Welsh Bacc"]
         category:
           type: string
         description:

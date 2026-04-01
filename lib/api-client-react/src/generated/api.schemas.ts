@@ -20,6 +20,10 @@ export const SubjectLevel = {
   GCSE: "GCSE",
   "A-Level": "A-Level",
   Both: "Both",
+  National_5: "National 5",
+  Higher: "Higher",
+  Advanced_Higher: "Advanced Higher",
+  Welsh_Bacc: "Welsh Bacc",
 } as const;
 
 export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType];
@@ -238,6 +242,10 @@ export const GetSubjectsLevel = {
   GCSE: "GCSE",
   "A-Level": "A-Level",
   Both: "Both",
+  National_5: "National 5",
+  Higher: "Higher",
+  Advanced_Higher: "Advanced Higher",
+  Welsh_Bacc: "Welsh Bacc",
 } as const;
 
 export type GetCareersParams = {

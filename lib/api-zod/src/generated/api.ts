@@ -20,14 +20,32 @@ export const HealthCheckResponse = zod.object({
  * @summary Get all subjects
  */
 export const GetSubjectsQueryParams = zod.object({
-  level: zod.enum(["GCSE", "A-Level", "Both"]).optional(),
+  level: zod
+    .enum([
+      "GCSE",
+      "A-Level",
+      "Both",
+      "National 5",
+      "Higher",
+      "Advanced Higher",
+      "Welsh Bacc",
+    ])
+    .optional(),
   category: zod.coerce.string().optional(),
 });
 
 export const GetSubjectsResponseItem = zod.object({
   id: zod.number(),
   name: zod.string(),
-  level: zod.enum(["GCSE", "A-Level", "Both"]),
+  level: zod.enum([
+    "GCSE",
+    "A-Level",
+    "Both",
+    "National 5",
+    "Higher",
+    "Advanced Higher",
+    "Welsh Bacc",
+  ]),
   category: zod.string(),
   description: zod.string(),
   examBoards: zod.array(zod.string()).optional(),
@@ -63,7 +81,15 @@ export const GetSubjectByIdParams = zod.object({
 export const GetSubjectByIdResponse = zod.object({
   id: zod.number(),
   name: zod.string(),
-  level: zod.enum(["GCSE", "A-Level", "Both"]),
+  level: zod.enum([
+    "GCSE",
+    "A-Level",
+    "Both",
+    "National 5",
+    "Higher",
+    "Advanced Higher",
+    "Welsh Bacc",
+  ]),
   category: zod.string(),
   description: zod.string(),
   examBoards: zod.array(zod.string()).optional(),
