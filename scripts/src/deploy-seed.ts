@@ -44,7 +44,29 @@ async function deploySeed() {
 
     console.log("\nAll seed scripts completed successfully!");
   } else {
-    console.log(`Database already has ${count} subjects. Skipping seed.`);
+    console.log(`Database already has ${count} subjects. Skipping full seed.`);
+  }
+
+  // Always ensure Scotland-specific subjects exist (idempotent — uses onConflictDoNothing)
+  console.log("\nEnsuring Scottish subjects are present...");
+  const scotResult = await db.execute(sql`SELECT COUNT(*)::int AS count FROM subjects WHERE level IN ('National 5', 'Higher', 'Advanced Higher')`);
+  const scotCount = (scotResult.rows[0] as { count: number }).count;
+  if (scotCount === 0) {
+    console.log("No Scottish subjects found. Adding them...");
+    run("add-scottish-subjects");
+  } else {
+    console.log(`Found ${scotCount} Scottish subjects. ✓`);
+  }
+
+  // Always ensure Welsh-specific subjects exist (idempotent — uses onConflictDoNothing)
+  console.log("\nEnsuring Welsh subjects are present...");
+  const welshResult = await db.execute(sql`SELECT COUNT(*)::int AS count FROM subjects WHERE level = 'Welsh Bacc'`);
+  const welshCount = (welshResult.rows[0] as { count: number }).count;
+  if (welshCount === 0) {
+    console.log("No Welsh Bacc subjects found. Adding them...");
+    run("add-welsh-subjects");
+  } else {
+    console.log(`Found ${welshCount} Welsh Bacc subjects. ✓`);
   }
 
   process.exit(0);

@@ -50,18 +50,29 @@ export default function Subjects() {
   const isScotland = nation === "scotland";
 
   const filteredSubjects = useMemo(() => {
-    return subjects?.filter((s) => {
-      // For Scotland: only show Scottish-level subjects (not "Both" which = GCSE+A-Level)
-      const nationMatch = !nation
-        ? true
-        : isScotland
-          ? NATION_LEVEL_MATCH[nation].includes(s.level)
-          : NATION_LEVEL_MATCH[nation].includes(s.level) || s.level === "Both";
-      // levelMatch: for Scotland, "Both" filter button doesn't exist so just match exact level
-      const levelMatch = levelFilter === "All" || s.level === levelFilter ||
-        (!isScotland && levelFilter !== "All" && s.level === "Both" && (levelFilter === "GCSE" || levelFilter === "A-Level"));
-      const searchMatch = s.name.toLowerCase().includes(search.toLowerCase()) || s.category.toLowerCase().includes(search.toLowerCase());
-      return nationMatch && levelMatch && searchMatch;
+    if (!subjects) return [];
+
+    const allowedLevels: string[] | null = nation ? NATION_LEVEL_MATCH[nation] ?? null : null;
+    const q = search.toLowerCase();
+
+    return subjects.filter((s) => {
+      // 1. Nation gate
+      if (allowedLevels && !allowedLevels.includes(s.level)) return false;
+
+      // 2. Level filter tab
+      if (levelFilter !== "All") {
+        const directMatch = s.level === levelFilter;
+        // For non-Scotland, a "Both" subject counts as GCSE and A-Level
+        const bothMatch = !isScotland && s.level === "Both" && (levelFilter === "GCSE" || levelFilter === "A-Level");
+        if (!directMatch && !bothMatch) return false;
+      }
+
+      // 3. Search
+      if (q) {
+        return s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q);
+      }
+
+      return true;
     });
   }, [subjects, nation, isScotland, levelFilter, search]);
 
