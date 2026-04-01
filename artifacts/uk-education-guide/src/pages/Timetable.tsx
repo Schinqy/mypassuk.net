@@ -9,6 +9,7 @@ import {
 import { useGetSubjects } from "@workspace/api-client-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { Link } from "wouter";
+import { useNation } from "@/contexts/NationContext";
 
 function isPremiumUser(): boolean {
   return localStorage.getItem("uk-edguide-premium") === "true";
@@ -585,12 +586,27 @@ function SaveModal({ onSave, onClose }: { onSave: (name: string) => void; onClos
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
+const NATION_LEVEL_FILTERS: Record<string, string[]> = {
+  england: ["All", "GCSE", "A-Level"],
+  wales: ["All", "GCSE", "A-Level"],
+  "northern-ireland": ["All", "GCSE", "A-Level"],
+  scotland: ["All", "National 5", "Higher", "Advanced Higher"],
+};
+
+const NATION_LEVEL_MATCH: Record<string, string[]> = {
+  england: ["GCSE", "A-Level", "Both"],
+  wales: ["GCSE", "A-Level", "Welsh Bacc", "Both"],
+  "northern-ireland": ["GCSE", "A-Level", "Both"],
+  scotland: ["National 5", "Higher", "Advanced Higher"],
+};
+
 export default function Timetable() {
+  const { nation } = useNation();
   const { data: allSubjects = [], isLoading } = useGetSubjects();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [levelFilter, setLevelFilter] = useState<"All" | "GCSE" | "A-Level">("All");
+  const [levelFilter, setLevelFilter] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [mode, setMode] = useState<ScheduleMode>("term");
 
@@ -669,10 +685,27 @@ export default function Timetable() {
     });
   }, [clearTimer]);
 
+  // Reset filter to "All" when nation changes
+  useEffect(() => {
+    setLevelFilter("All");
+    setSelectedIds(new Set());
+  }, [nation]);
+
+  const isScotland = nation === "scotland";
+  const levelFilterOptions = nation ? NATION_LEVEL_FILTERS[nation] : ["All", "GCSE", "A-Level"];
+
   const filteredSubjects = allSubjects.filter(s => {
-    const matchLevel = levelFilter === "All" || s.level === levelFilter || s.level === "Both";
+    // Nation filter: show only subjects appropriate for the selected nation
+    const nationMatch = !nation
+      ? true
+      : isScotland
+        ? NATION_LEVEL_MATCH[nation].includes(s.level)
+        : NATION_LEVEL_MATCH[nation].includes(s.level);
+    // Level filter: for Scotland use exact match; for others "Both" counts as GCSE+A-Level
+    const matchLevel = levelFilter === "All" || s.level === levelFilter ||
+      (!isScotland && s.level === "Both" && (levelFilter === "GCSE" || levelFilter === "A-Level"));
     const matchSearch = s.name.toLowerCase().includes(search.toLowerCase());
-    return matchLevel && matchSearch;
+    return nationMatch && matchLevel && matchSearch;
   });
 
   const selectedSubjects = allSubjects.filter(s => selectedIds.has(s.id));
@@ -919,8 +952,14 @@ export default function Timetable() {
             <motion.div key="step1" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
               <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">Which subjects are you sitting?</h2>
-                  <p className="text-slate-500 text-sm mt-1">Select all subjects you want included. Combined Science automatically splits into Biology, Chemistry and Physics.</p>
+                  <h2 className="text-2xl font-bold text-slate-900">
+                    {isScotland ? "Which SQA subjects are you sitting?" : "Which subjects are you sitting?"}
+                  </h2>
+                  <p className="text-slate-500 text-sm mt-1">
+                    {isScotland
+                      ? "Select your National 5, Higher and Advanced Higher subjects. Your timetable will reflect SQA study periods."
+                      : "Select all subjects you want included. Combined Science automatically splits into Biology, Chemistry and Physics."}
+                  </p>
                 </div>
                 {selectedIds.size > 0 && (
                   <div className="flex items-center gap-3 shrink-0">
@@ -954,8 +993,8 @@ export default function Timetable() {
                   <input type="text" placeholder="Search subjects..." value={search} onChange={e => setSearch(e.target.value)}
                     className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40" />
                 </div>
-                <div className="flex gap-2">
-                  {(["All", "GCSE", "A-Level"] as const).map(lvl => (
+                <div className="flex gap-2 flex-wrap">
+                  {levelFilterOptions.map(lvl => (
                     <button key={lvl} onClick={() => setLevelFilter(lvl)}
                       className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${levelFilter === lvl ? "bg-primary text-white shadow-md" : "bg-white text-slate-600 border border-slate-200 hover:border-primary/30"}`}>
                       {lvl}

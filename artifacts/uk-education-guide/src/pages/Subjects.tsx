@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { BookOpen, Filter, Search, GraduationCap, MapPin, Bookmark } from "lucide-react";
@@ -40,16 +40,30 @@ export default function Subjects() {
   const filterOptions = nation ? NATION_FILTERS[nation] : ["All", "GCSE", "A-Level", "National 5", "Higher", "Advanced Higher"];
   const [levelFilter, setLevelFilter] = useState<string>("All");
 
+  // Reset filter to "All" whenever the nation changes so Scotland subjects are always visible
+  useEffect(() => {
+    setLevelFilter("All");
+  }, [nation]);
+
   const { data: subjects, isLoading, error } = useGetSubjects();
+
+  const isScotland = nation === "scotland";
 
   const filteredSubjects = useMemo(() => {
     return subjects?.filter((s) => {
-      const nationMatch = !nation || NATION_LEVEL_MATCH[nation].includes(s.level) || s.level === "Both";
-      const levelMatch = levelFilter === "All" || s.level === levelFilter || (levelFilter !== "All" && s.level === "Both" && (levelFilter === "GCSE" || levelFilter === "A-Level"));
+      // For Scotland: only show Scottish-level subjects (not "Both" which = GCSE+A-Level)
+      const nationMatch = !nation
+        ? true
+        : isScotland
+          ? NATION_LEVEL_MATCH[nation].includes(s.level)
+          : NATION_LEVEL_MATCH[nation].includes(s.level) || s.level === "Both";
+      // levelMatch: for Scotland, "Both" filter button doesn't exist so just match exact level
+      const levelMatch = levelFilter === "All" || s.level === levelFilter ||
+        (!isScotland && levelFilter !== "All" && s.level === "Both" && (levelFilter === "GCSE" || levelFilter === "A-Level"));
       const searchMatch = s.name.toLowerCase().includes(search.toLowerCase()) || s.category.toLowerCase().includes(search.toLowerCase());
       return nationMatch && levelMatch && searchMatch;
     });
-  }, [subjects, nation, levelFilter, search]);
+  }, [subjects, nation, isScotland, levelFilter, search]);
 
   const nationInfo = nation ? NATIONS.find(n => n.id === nation) : null;
   const base = import.meta.env.BASE_URL;
