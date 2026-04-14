@@ -16,7 +16,8 @@ const SUPPORTED_TEXT_TYPES = ["text/plain", "text/markdown", "text/csv", "applic
 
 async function extractText(buffer: Buffer, mimetype: string, originalname: string): Promise<{ text: string; fileType: string }> {
   if (mimetype === "application/pdf") {
-    const pdfParse = (await import("pdf-parse")).default;
+    const pdf = await import("pdf-parse");
+    const pdfParse = (pdf as any).default || pdf;
     const data = await pdfParse(buffer);
     return { text: data.text.trim(), fileType: "PDF" };
   }
@@ -50,7 +51,7 @@ router.get("/openai/conversations/:id", async (req, res) => {
   const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
   if (!conv) return res.status(404).json({ error: "Not found" });
   const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(messages.createdAt);
-  res.json({ ...conv, messages: msgs });
+  return res.json({ ...conv, messages: msgs });
 });
 
 router.delete("/openai/conversations/:id", async (req, res) => {
@@ -59,7 +60,7 @@ router.delete("/openai/conversations/:id", async (req, res) => {
   if (!conv) return res.status(404).json({ error: "Not found" });
   await db.delete(messages).where(eq(messages.conversationId, id));
   await db.delete(conversations).where(eq(conversations.id, id));
-  res.status(204).end();
+  return res.status(204).end();
 });
 
 router.get("/openai/conversations/:id/messages", async (req, res) => {
@@ -134,6 +135,7 @@ router.post("/openai/conversations/:id/upload", upload.single("file"), async (re
     charCount: extractedText.length,
     preview: extractedText.slice(0, 250) + (extractedText.length > 250 ? "…" : ""),
   });
+  return;
 });
 
 router.post("/openai/conversations/:id/messages", async (req, res) => {
@@ -177,6 +179,7 @@ router.post("/openai/conversations/:id/messages", async (req, res) => {
 
   res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
   res.end();
+  return;
 });
 
 export default router;

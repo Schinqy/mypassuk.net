@@ -19,7 +19,7 @@ async function fetchCredentialsForEnv(
         'X-Replit-Token': xReplitToken,
       },
     });
-    const data = await response.json();
+    const data = (await response.json()) as any;
     const settings = data.items?.[0];
     if (settings?.settings?.publishable && settings?.settings?.secret) {
       connectionSettings = settings;

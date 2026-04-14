@@ -57,7 +57,7 @@ router.delete("/saved/subjects/:subjectId", async (req: Request, res: Response) 
     return;
   }
 
-  const subjectId = parseInt(req.params.subjectId, 10);
+  const subjectId = parseInt(req.params.subjectId as string, 10);
   await db
     .delete(savedSubjectsTable)
     .where(
