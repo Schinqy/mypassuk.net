@@ -32,7 +32,7 @@ const AREA_PRICE_BOOST: Record<string, number> = {
   Aberdeen: 3, Dundee: 0, Glasgow: 3, Belfast: 0,
 };
 
-type Level = "GCSE" | "A-Level" | "National 5" | "Higher" | "Advanced Higher";
+type Level = "GCSE" | "A-Level" | "National 5" | "Higher" | "Advanced Higher" | "Both";
 
 const NATION_LEVELS: Record<string, Level[]> = {
   england: ["GCSE", "A-Level"],

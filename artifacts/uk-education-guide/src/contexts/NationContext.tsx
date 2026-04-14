@@ -39,6 +39,7 @@ export function NationProvider({ children }: { children: ReactNode }) {
       const timer = setTimeout(() => setShowSelector(true), 800);
       return () => clearTimeout(timer);
     }
+    return;
   }, [nation]);
 
   const setNation = (n: Nation) => {

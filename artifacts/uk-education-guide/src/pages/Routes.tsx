@@ -451,7 +451,7 @@ export default function Routes() {
             <AnimatePresence mode="popLayout">
               {routes?.map((route, idx) => {
                 const badge = getNationBadge(route.name, nation);
-                const isUnavailable = badge && (nation === "scotland" || nation === "northern-ireland") && ENGLAND_ONLY_ROUTES.some(r => route.name.includes(r));
+                const isUnavailable = badge && (nation === "northern-ireland") && ENGLAND_ONLY_ROUTES.some(r => route.name.includes(r));
                 return (
                   <motion.div
                     layout

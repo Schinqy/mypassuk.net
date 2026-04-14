@@ -45,7 +45,8 @@ export default function InstitutionDetail() {
     Conservatoire: "bg-purple-50 text-purple-700 border-purple-200",
     College: "bg-rose-50 text-rose-700 border-rose-200",
     "Apprenticeship Provider": "bg-amber-50 text-amber-800 border-amber-200",
-  }[institution.type] ?? "bg-slate-100 text-slate-700 border-slate-200";
+    Specialist: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  }[institution.type as string] ?? "bg-slate-100 text-slate-700 border-slate-200";
 
   return (
     <div className="min-h-screen pb-24">

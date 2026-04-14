@@ -75,7 +75,7 @@ interface EventEntry {
 
 export default function OpenDays() {
   const { nation } = useNation();
-  const { data: institutions = [], isLoading } = useGetInstitutions({ limit: 400 });
+  const { data: institutions = [], isLoading } = useGetInstitutions({});
 
   const [typeFilter, setTypeFilter] = useState("All");
   const [regionFilter, setRegionFilter] = useState(() => nation ? (NATION_REGION_MAP[nation] ?? "All Regions") : "All Regions");
