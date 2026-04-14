@@ -33,7 +33,7 @@ function formatFee(fee: number | null | undefined, type: string): string {
 
 export function RecruitmentAlerts() {
   const [open, setOpen] = useState(false);
-  const { data: institutions = [], isLoading } = useGetInstitutions({ query: { enabled: open } as any });
+  const { data: institutions = [], isLoading } = useGetInstitutions({}, { query: { enabled: open } } as any);
 
   const today = new Date().toISOString().slice(0, 10);
   const hasUpcoming = institutions.some(i => (i.openDayDates as string[]).some(d => d >= today));
